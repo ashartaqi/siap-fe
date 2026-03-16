@@ -1,39 +1,176 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import Link from "next/link";
+import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
+import { Input } from "@/components/common/Input";
+import { Button } from "@/components/common/Button";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailErr, setEmailErr] = useState("");
+  const [pwErr, setPwErr] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    window.location.href = "/dashboard";
+    let valid = true;
+    setEmailErr("");
+    setPwErr("");
+
+    const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailReg.test(email.trim())) {
+      setEmailErr("Please enter a valid email address.");
+      valid = false;
+    }
+    if (password.trim().length < 1) {
+      setPwErr("Password is required.");
+      valid = false;
+    }
+
+    if (valid) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+        alert("✅ Sign in flow ready — connect to your backend!");
+      }, 1200);
+    }
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-bold">Login</h1>
-        <p className="text-sm text-gray-500">Enter your credentials</p>
+    <>
+      {/* LEFT PANEL */}
+      <AuthLeftPanel
+        label="Sports Intelligence Analytics Platform"
+        title={
+          <>
+            Know The
+            <br />
+            <span className="block text-[var(--auth-green)]">Game.</span>
+          </>
+        }
+      >
+        <p className="text-[15px] leading-[1.7] text-[var(--auth-muted)] max-w-[380px] mb-12">
+          Live scores, AI-powered predictions, fantasy teams, and deep analytics
+          — all in one place for the serious sports fan.
+        </p>
+        <div className="flex gap-10">
+          <div className="flex flex-col gap-1">
+            <span className="font-outfit font-extrabold text-[32px] text-[var(--auth-green)]">
+              500+
+            </span>
+            <span className="text-[11px] tracking-[2px] uppercase text-[var(--auth-muted)]">
+              Live Matches
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="font-outfit font-extrabold text-[32px] text-[var(--auth-green)]">
+              94%
+            </span>
+            <span className="text-[11px] tracking-[2px] uppercase text-[var(--auth-muted)]">
+              AI Accuracy
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="font-outfit font-extrabold text-[32px] text-[var(--auth-green)]">
+              10K+
+            </span>
+            <span className="text-[11px] tracking-[2px] uppercase text-[var(--auth-muted)]">
+              Users
+            </span>
+          </div>
+        </div>
+      </AuthLeftPanel>
+
+      {/* RIGHT PANEL - FORM */}
+      <div className="flex flex-col justify-center px-8 md:px-[70px] py-[60px] overflow-y-auto">
+        <div className="mb-10 animate-[fadeUp_0.6s_0.1s_ease_both]">
+          <h2 className="font-outfit font-extrabold text-[40px] tracking-[1px] uppercase mb-2">
+            Welcome Back
+          </h2>
+          <p className="text-[14px] text-[var(--auth-muted)]">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/signup"
+              className="text-[var(--auth-green)] font-medium transition-opacity hover:opacity-75"
+            >
+              Sign up free
+            </Link>
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <Input
+            label="Email Address"
+            type="email"
+            placeholder="you@example.com"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={emailErr}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="w-[16px] h-[16px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+            }
+          />
+          <Input
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={pwErr}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="w-[16px] h-[16px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            }
+          />
+
+          <div className="text-right mt-[-10px] mb-7 animate-[fadeUp_0.6s_0.28s_ease_both]">
+            <Link
+              href="#"
+              className="text-[12px] text-[var(--auth-muted)] no-underline transition-colors hover:text-[var(--auth-green)]"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign In"}
+          </Button>
+        </form>
+
+        <div className="flex items-center gap-[14px] my-6 animate-[fadeUp_0.6s_0.4s_ease_both]">
+          <div className="flex-1 h-[1px] bg-[var(--auth-border)]"></div>
+          <span className="text-[11px] text-[var(--auth-muted)] tracking-[1px]">
+            or
+          </span>
+          <div className="flex-1 h-[1px] bg-[var(--auth-border)]"></div>
+        </div>
+        <div className="text-center text-[14px] text-[var(--auth-muted)] animate-[fadeUp_0.6s_0.45s_ease_both]">
+          New to SIAP?{" "}
+          <Link
+            href="/signup"
+            className="text-[var(--auth-green)] font-semibold ml-1 transition-opacity hover:opacity-75"
+          >
+            Create an account
+          </Link>
+        </div>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border rounded px-3 py-2 text-sm"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border rounded px-3 py-2 text-sm"
-          required
-        />
-        <button
-          type="submit"
-          className="w-full bg-black text-white py-2 rounded text-sm font-medium"
-        >
-          Sign In
-        </button>
-      </form>
-    </div>
+    </>
   );
 }
