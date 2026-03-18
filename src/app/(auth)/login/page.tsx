@@ -2,22 +2,30 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
+import { useLogin } from "@/features/auth/hooks/useLogin";
+import { setToken } from "@/lib/auth/token";
+import { toast } from "sonner";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const login = useLogin();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailErr, setEmailErr] = useState("");
   const [pwErr, setPwErr] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [genericErr, setGenericErr] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     let valid = true;
     setEmailErr("");
     setPwErr("");
+    setGenericErr("");
 
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailReg.test(email.trim())) {
@@ -30,13 +38,27 @@ export default function LoginPage() {
     }
 
     if (valid) {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        alert("✅ Sign in flow ready — connect to your backend!");
-      }, 1200);
+      login.mutate(
+        { email, password },
+        {
+          onSuccess: (data) => {
+            setToken(data.token);
+            toast.success("Successfully signed in!");
+            router.push("/dashboard");
+          },
+          onError: (err) => {
+            console.error("Login failed:", err);
+            setGenericErr(
+              err.response?.data?.message ||
+                "Login failed. Please check your credentials.",
+            );
+          },
+        },
+      );
     }
   };
+
+  const isLoading = login.isPending;
 
   return (
     <>
@@ -72,14 +94,6 @@ export default function LoginPage() {
               AI Accuracy
             </span>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="font-outfit font-extrabold text-[32px] text-[var(--auth-green)]">
-              10K+
-            </span>
-            <span className="text-[11px] tracking-[2px] uppercase text-[var(--auth-muted)]">
-              Users
-            </span>
-          </div>
         </div>
       </AuthLeftPanel>
 
@@ -89,22 +103,13 @@ export default function LoginPage() {
           <h2 className="font-outfit font-extrabold text-[40px] tracking-[1px] uppercase mb-2">
             Welcome Back
           </h2>
-          <p className="text-[14px] text-[var(--auth-muted)]">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-[var(--auth-green)] font-medium transition-opacity hover:opacity-75"
-            >
-              Sign up free
-            </Link>
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <Input
             label="Email Address"
             type="email"
-            placeholder="you@example.com"
+            placeholder="Email Address"
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -149,6 +154,12 @@ export default function LoginPage() {
             </Link>
           </div>
 
+          {genericErr && (
+            <div className="mb-4 p-3 bg-red-50 text-red-500 border border-red-200 rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
+              {genericErr}
+            </div>
+          )}
+
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
@@ -164,7 +175,7 @@ export default function LoginPage() {
         <div className="text-center text-[14px] text-[var(--auth-muted)] animate-[fadeUp_0.6s_0.45s_ease_both]">
           New to SIAP?{" "}
           <Link
-            href="/signup"
+            href="/register"
             className="text-[var(--auth-green)] font-semibold ml-1 transition-opacity hover:opacity-75"
           >
             Create an account

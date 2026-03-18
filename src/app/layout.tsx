@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Next-gen Employee Management System (SIAP HR)",
 };
 
+import AppProviders from "@/components/providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,7 +19,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
