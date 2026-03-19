@@ -2,21 +2,32 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
+import { useRegister } from "@/features/auth/hooks/useRegister";
+import { setToken } from "@/lib/auth/token";
+import { toast } from "sonner";
 
-export default function SignupPage() {
+export default function RegisterPage() {
+  const router = useRouter();
+  const registerMutation = useRegister();
+
   const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
 
   const [usernameErr, setUsernameErr] = useState("");
+  const [firstNameErr, setFirstNameErr] = useState("");
+  const [lastNameErr, setLastNameErr] = useState("");
   const [emailErr, setEmailErr] = useState("");
   const [pwErr, setPwErr] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [genericErr, setGenericErr] = useState("");
 
   // Password strength logic
   const getPasswordStrength = (v: string) => {
@@ -45,12 +56,23 @@ export default function SignupPage() {
     let valid = true;
 
     setUsernameErr("");
+    setFirstNameErr("");
+    setLastNameErr("");
     setEmailErr("");
     setPwErr("");
     setConfirmErr("");
+    setGenericErr("");
 
     if (username.trim().length < 3) {
       setUsernameErr("Username must be at least 3 characters.");
+      valid = false;
+    }
+    if (firstName.trim().length < 1) {
+      setFirstNameErr("First name is required.");
+      valid = false;
+    }
+    if (lastName.trim().length < 1) {
+      setLastNameErr("Last name is required.");
       valid = false;
     }
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -68,18 +90,42 @@ export default function SignupPage() {
     }
 
     if (valid) {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        alert("✅ Account created — route to your logic here!");
-        // e.g., router.push("/login?flash=created")
-      }, 1200);
+      registerMutation.mutate(
+        {
+          username,
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          password,
+          confirm_password: confirmPw,
+        },
+        {
+          onSuccess: (data) => {
+            if (data.token) {
+              setToken(data.token);
+              toast.success("Account created and logged in!");
+              router.push("/dashboard");
+            } else {
+              toast.success("Account created");
+              router.push("/login");
+            }
+          },
+          onError: (err) => {
+            console.error("Registration failed:", err);
+            setGenericErr(
+              err.response?.data?.message ||
+                "Registration failed. Please try again.",
+            );
+          },
+        },
+      );
     }
   };
 
+  const isLoading = registerMutation.isPending;
+
   return (
     <>
-      {/* LEFT PANEL */}
       <AuthLeftPanel
         label="Join The Platform"
         title={
@@ -122,33 +168,22 @@ export default function SignupPage() {
         </div>
       </AuthLeftPanel>
 
-      {/* RIGHT PANEL - FORM */}
       <div className="flex flex-col justify-center px-8 md:px-[70px] py-[60px] overflow-y-auto">
         <div className="mb-8 animate-[fadeUp_0.6s_0.1s_ease_both]">
           <h2 className="font-outfit font-extrabold text-[38px] tracking-[1px] uppercase mb-2">
             Create Account
           </h2>
-          <p className="text-[14px] text-[var(--auth-muted)]">
-            Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-[var(--auth-green)] font-medium transition-opacity hover:opacity-75"
-            >
-              Sign in
-            </Link>
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-4.5">
             <Input
-              label="Username"
+              label="First Name"
               type="text"
-              placeholder="cooluser99"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={usernameErr}
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              error={firstNameErr}
               icon={
                 <svg
                   viewBox="0 0 24 24"
@@ -161,9 +196,49 @@ export default function SignupPage() {
               }
             />
             <Input
+              label="Last Name"
+              type="text"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              error={lastNameErr}
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              }
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-4.5">
+            <Input
+              label="Username"
+              type="text"
+              placeholder="Username"
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              error={usernameErr}
+              icon={
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
+                >
+                  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                  <path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                </svg>
+              }
+            />
+            <Input
               label="Email Address"
               type="email"
-              placeholder="you@example.com"
+              placeholder="Email Address"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -184,7 +259,7 @@ export default function SignupPage() {
           <Input
             label="Password"
             type="password"
-            placeholder="Min. 8 characters"
+            placeholder="Password"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -201,7 +276,6 @@ export default function SignupPage() {
             }
           />
 
-          {/* Internal Password Strength indicator */}
           {strength && (
             <div className="mb-5 -mt-3 animate-[fadeUp_0.3s_ease]">
               <div className="h-[3px] bg-[var(--auth-border)] rounded-[2px] overflow-hidden mb-1">
@@ -239,6 +313,12 @@ export default function SignupPage() {
             }
           />
 
+          {genericErr && (
+            <div className="mb-4 p-3 bg-red-50 text-red-500 border border-red-200 rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
+              {genericErr}
+            </div>
+          )}
+
           <Button type="submit" className="mt-2" disabled={isLoading}>
             {isLoading ? "Creating account..." : "Create Account"}
           </Button>
@@ -250,7 +330,7 @@ export default function SignupPage() {
             href="/login"
             className="text-[var(--auth-green)] font-semibold ml-1 transition-opacity hover:opacity-75"
           >
-            Sign in
+            Login
           </Link>
         </div>
       </div>
