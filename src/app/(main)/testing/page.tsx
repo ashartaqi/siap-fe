@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { DreamTeam } from "@/features/auth/apis/DreamTeam";
-import { IPlayersPayload, IPlayersResponse } from "@/features/auth/types";
+import {
+  useGetPlayers,
+  IPlayersPayload,
+  IPlayersResponse,
+} from "@/features/main/dashboard";
 
 export default function TestPlayersPage() {
-  const [players, setPlayers] = useState<IPlayersResponse[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   // FILTER STATES
   const [name, setName] = useState("");
   const [teamId, setTeamId] = useState<number | undefined>();
@@ -20,41 +19,29 @@ export default function TestPlayersPage() {
   const [maxAge, setMaxAge] = useState<number | undefined>();
   const [preferredFoot, setPreferredFoot] = useState("");
 
-  const fetchPlayers = async () => {
-    const payload: IPlayersPayload = {
-      limit: 10,
-      name: name || undefined,
-      teamId,
-      minOverall,
-      maxOverall,
-      position: position || undefined,
-      nationalityName: nationalityName || undefined,
-      minAge,
-      maxAge,
-      preferredFoot: preferredFoot || undefined,
-    };
-
-    setLoading(true);
-    setError("");
-    try {
-      const data = await DreamTeam(payload);
-      setPlayers(data);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err);
-        setError(err.message);
-      } else {
-        console.error("Unknown error", err);
-        setError("Failed to fetch players");
-      }
-    } finally {
-      setLoading(false);
-    }
+  const payload: IPlayersPayload = {
+    limit: 10,
+    name: name || undefined,
+    teamId,
+    minOverall,
+    maxOverall,
+    position: position || undefined,
+    nationalityName: nationalityName || undefined,
+    minAge,
+    maxAge,
+    preferredFoot: preferredFoot || undefined,
   };
+
+  const {
+    data: players = [],
+    isLoading,
+    isError,
+    error,
+  } = useGetPlayers(payload);
 
   return (
     <div className="p-6">
-      <h2>Test Players API</h2>
+      <h2>Test Players API (Auto-fetch with useQuery)</h2>
 
       {/* FILTER INPUTS */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -119,21 +106,26 @@ export default function TestPlayersPage() {
         />
       </div>
 
-      <button onClick={fetchPlayers} disabled={loading}>
-        {loading ? "Fetching..." : "Fetch Players"}
-      </button>
-
-      {error && <div className="text-red-500 mt-2">{error}</div>}
+      {isLoading && <div>Loading players...</div>}
+      {isError && (
+        <div className="text-red-500 mt-2">
+          {error instanceof Error ? error.message : "Failed to fetch players"}
+        </div>
+      )}
 
       {/* PLAYER RESULTS */}
-      {players.length > 0 && (
+      {!isLoading && players.length > 0 && (
         <div className="mt-4 space-y-2">
           {players.map((p, idx) => (
             <div key={idx} className="border p-2 rounded">
-              {p.name} — {p.position} — Overall: {p.overall} — Club: {p.club}
+              {p.short_name} — {p.player_positions} — Overall: {p.overall} —
+              Club: {p.club_name}
             </div>
           ))}
         </div>
+      )}
+      {!isLoading && players.length === 0 && !isError && (
+        <div>No players found.</div>
       )}
     </div>
   );

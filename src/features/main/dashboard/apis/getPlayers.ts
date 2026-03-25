@@ -1,8 +1,7 @@
-// src/features/auth/apis/register.ts
 import axiosClient from "@/lib/axiosClient";
 import { IPlayersPayload, IPlayersResponse } from "../types";
 
-export const DreamTeam = async (
+export const getPlayers = async (
   payload: IPlayersPayload,
 ): Promise<IPlayersResponse[]> => {
   const params = {
@@ -18,10 +17,6 @@ export const DreamTeam = async (
     preferred_foot: payload.preferredFoot,
   };
 
-  const res = await axiosClient.post<IPlayersResponse[]>(
-    "/players/getPlayers",
-    null,
-    { params },
-  );
+  const res = await axiosClient.get<IPlayersResponse[]>("/players", { params });
   return res.data;
 };

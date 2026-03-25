@@ -24,32 +24,3 @@ export interface ILoginResponse {
   token: string;
   token_type: string;
 }
-
-export interface IPlayersPayload {
-  limit?: number;
-  teamId?: number;
-  name?: string;
-  nationalityName?: string;
-  position?: string;
-  minOverall?: number;
-  maxOverall?: number;
-  minAge?: number;
-  maxAge?: number;
-  preferredFoot?: string;
-}
-
-export interface IPlayersResponse {
-  name: string;
-  position: string;
-  overall: number;
-  age: number;
-  club: string;
-  nation: string;
-  foot: string;
-  pace: number;
-  shooting: number;
-  passing: number;
-  dribbling: number;
-  defending: number;
-  physic: number;
-}
