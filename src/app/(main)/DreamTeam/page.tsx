@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { PlayerSlotButton } from "@/components/common/Button";
+import { useGetPlayers, IPlayersPayload } from "@/features/main/dashboard";
+import { useGetGoalkeepers } from "@/features/main/dashboard";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -82,35 +85,325 @@ const FORMATIONS: Formation[] = [
   },
 ];
 
-// ─── Pitch helpers ────────────────────────────────────────────────────────────
+// ─── Player Picker Modal ──────────────────────────────────────────────────────
 
-function PitchSlot({
-  position,
+function PlayerPickerModal({
+  onClose,
+  slotPosition,
   isGK = false,
 }: {
-  position: string;
+  onClose: () => void;
+  slotPosition: string;
   isGK?: boolean;
 }) {
+  const [name, setName] = useState("");
+  const [teamId, setTeamId] = useState<number | undefined>();
+  const [minOverall, setMinOverall] = useState<number | undefined>();
+  const [maxOverall, setMaxOverall] = useState<number | undefined>();
+  const [position, setPosition] = useState(slotPosition);
+  const [nationalityName, setNationalityName] = useState("");
+  const [minAge, setMinAge] = useState<number | undefined>();
+  const [maxAge, setMaxAge] = useState<number | undefined>();
+  const [preferredFoot, setPreferredFoot] = useState("");
+
+  const payload: IPlayersPayload = {
+    limit: 10,
+    name: name || undefined,
+    teamId,
+    minOverall,
+    maxOverall,
+    position: position || undefined,
+    nationalityName: nationalityName || undefined,
+    minAge,
+    maxAge,
+    preferredFoot: preferredFoot || undefined,
+  };
+
+  const playersQuery = useGetPlayers(payload);
+  const goalkeepersQuery = useGetGoalkeepers(payload);
+  const {
+    data: players = [],
+    isLoading,
+    isError,
+    error,
+  } = isGK ? goalkeepersQuery : playersQuery;
+
   return (
-    <div className={`kg-slot${isGK ? " kg-slot--gk" : ""}`}>
-      <span
-        className={`material-symbols-outlined kg-slot-icon${isGK ? " kg-slot-icon--gk" : ""}`}
-      >
-        add
-      </span>
-      <span className={`kg-slot-label${isGK ? " kg-slot-label--gk" : ""}`}>
-        {position}
-      </span>
-    </div>
+    <>
+      <style>{`
+        .kgm-overlay{
+          position:fixed;inset:0;background:rgba(0,0,0,0.7);
+          backdrop-filter:blur(6px);z-index:1000;
+          display:flex;align-items:center;justify-content:center;
+          animation:kgm-fade-in 0.2s ease;
+        }
+        @keyframes kgm-fade-in{from{opacity:0}to{opacity:1}}
+        .kgm-modal{
+          background:rgba(18,20,17,0.92);
+          border:1px solid rgba(0,255,102,0.15);
+          border-radius:16px;
+          width:min(680px,95vw);
+          max-height:85vh;
+          display:flex;flex-direction:column;
+          overflow:hidden;
+          box-shadow:0 32px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(0,255,102,0.05);
+          animation:kgm-slide-up 0.25s ease;
+        }
+        @keyframes kgm-slide-up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .kgm-header{
+          display:flex;align-items:center;justify-content:space-between;
+          padding:16px 20px;border-bottom:1px solid rgba(71,72,69,0.2);
+          flex-shrink:0;
+        }
+        .kgm-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fcfcf8;letter-spacing:.04em}
+        .kgm-slot-badge{
+          font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+          color:#00ff66;background:rgba(0,255,102,0.08);
+          border:1px solid rgba(0,255,102,0.2);
+          padding:4px 10px;border-radius:4px;
+        }
+        .kgm-close{
+          background:none;border:none;cursor:pointer;
+          color:rgba(255,255,255,0.4);font-size:20px;
+          transition:color .2s;padding:4px;line-height:1;
+        }
+        .kgm-close:hover{color:#fff}
+        .kgm-filters{
+          display:grid;grid-template-columns:1fr 1fr;gap:10px;
+          padding:16px 20px;border-bottom:1px solid rgba(71,72,69,0.2);
+          flex-shrink:0;
+        }
+        .kgm-filter-group{display:flex;flex-direction:column;gap:5px}
+        .kgm-filter-group--full{grid-column:1/-1}
+        .kgm-label{
+          font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+          color:rgba(255,255,255,0.35);
+        }
+        .kgm-input{
+          background:rgba(36,39,35,0.8);border:1px solid rgba(71,72,69,0.3);
+          border-radius:6px;padding:8px 10px;
+          font-family:'Oxanium',sans-serif;font-size:12px;color:#fcfcf8;
+          outline:none;transition:border-color .2s;width:100%;box-sizing:border-box;
+        }
+        .kgm-input:focus{border-color:rgba(0,255,102,0.4)}
+        .kgm-input::placeholder{color:rgba(255,255,255,0.2)}
+        .kgm-range-row{display:flex;gap:6px;align-items:center}
+        .kgm-range-sep{color:rgba(255,255,255,0.2);font-size:11px}
+        .kgm-select{
+          background:rgba(36,39,35,0.8);border:1px solid rgba(71,72,69,0.3);
+          border-radius:6px;padding:8px 10px;
+          font-family:'Oxanium',sans-serif;font-size:12px;color:#fcfcf8;
+          outline:none;transition:border-color .2s;width:100%;
+          appearance:none;cursor:pointer;
+        }
+        .kgm-select:focus{border-color:rgba(0,255,102,0.4)}
+        .kgm-results{overflow-y:auto;flex:1;padding:16px 20px 20px}
+        .kgm-results-label{
+          font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+          color:#00ff66;margin-bottom:10px;
+        }
+        .kgm-empty{
+          text-align:center;padding:40px 0;
+          font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:.1em;
+        }
+        .kgm-error{
+          text-align:center;padding:40px 0;
+          font-size:12px;color:rgba(255,80,80,0.7);letter-spacing:.1em;
+        }
+        .kgm-player-card{
+          display:flex;align-items:center;justify-content:space-between;
+          padding:10px 12px;border-radius:8px;
+          background:rgba(36,39,35,0.6);border:1px solid rgba(71,72,69,0.15);
+          margin-bottom:8px;cursor:pointer;
+          transition:border-color .2s,background .2s;
+        }
+        .kgm-player-card:hover{border-color:rgba(0,255,102,0.3);background:rgba(0,255,102,0.04)}
+        .kgm-player-name{font-size:13px;font-weight:600;color:#fcfcf8}
+        .kgm-player-meta{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;letter-spacing:.05em}
+        .kgm-player-overall{
+          font-family:'Bebas Neue',sans-serif;font-size:22px;color:#00ff66;line-height:1;
+        }
+      `}</style>
+
+      <div className="kgm-overlay" onClick={onClose}>
+        <div className="kgm-modal" onClick={(e) => e.stopPropagation()}>
+          {/* Header */}
+          <div className="kgm-header">
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span className="kgm-title">Select Player</span>
+              <span className="kgm-slot-badge">{slotPosition}</span>
+            </div>
+            <button className="kgm-close" onClick={onClose}>
+              ✕
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div className="kgm-filters">
+            <div className="kgm-filter-group kgm-filter-group--full">
+              <span className="kgm-label">Player Name</span>
+              <input
+                className="kgm-input"
+                placeholder="Search by name..."
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className="kgm-filter-group kgm-filter-group--full">
+              <span className="kgm-label">Team ID</span>
+              <input
+                className="kgm-input"
+                type="number"
+                placeholder="Enter team ID..."
+                value={teamId ?? ""}
+                onChange={(e) =>
+                  setTeamId(e.target.value ? +e.target.value : undefined)
+                }
+              />
+            </div>
+
+            <div className="kgm-filter-group">
+              <span className="kgm-label">Position</span>
+              <input
+                className="kgm-input"
+                placeholder="e.g. ST, CM, GK"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+              />
+            </div>
+
+            <div className="kgm-filter-group">
+              <span className="kgm-label">Nationality</span>
+              <input
+                className="kgm-input"
+                placeholder="e.g. Brazil"
+                value={nationalityName}
+                onChange={(e) => setNationalityName(e.target.value)}
+              />
+            </div>
+
+            <div className="kgm-filter-group">
+              <span className="kgm-label">Overall Rating</span>
+              <div className="kgm-range-row">
+                <input
+                  className="kgm-input"
+                  type="number"
+                  placeholder="Min"
+                  value={minOverall ?? ""}
+                  onChange={(e) =>
+                    setMinOverall(e.target.value ? +e.target.value : undefined)
+                  }
+                />
+                <span className="kgm-range-sep">–</span>
+                <input
+                  className="kgm-input"
+                  type="number"
+                  placeholder="Max"
+                  value={maxOverall ?? ""}
+                  onChange={(e) =>
+                    setMaxOverall(e.target.value ? +e.target.value : undefined)
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="kgm-filter-group">
+              <span className="kgm-label">Age</span>
+              <div className="kgm-range-row">
+                <input
+                  className="kgm-input"
+                  type="number"
+                  placeholder="Min"
+                  value={minAge ?? ""}
+                  onChange={(e) =>
+                    setMinAge(e.target.value ? +e.target.value : undefined)
+                  }
+                />
+                <span className="kgm-range-sep">–</span>
+                <input
+                  className="kgm-input"
+                  type="number"
+                  placeholder="Max"
+                  value={maxAge ?? ""}
+                  onChange={(e) =>
+                    setMaxAge(e.target.value ? +e.target.value : undefined)
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="kgm-filter-group">
+              <span className="kgm-label">Preferred Foot</span>
+              <select
+                className="kgm-select"
+                value={preferredFoot}
+                onChange={(e) => setPreferredFoot(e.target.value)}
+              >
+                <option value="">Any</option>
+                <option value="Left">Left</option>
+                <option value="Right">Right</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Results */}
+          <div className="kgm-results">
+            <div className="kgm-results-label">Results</div>
+
+            {isLoading && <div className="kgm-empty">Searching...</div>}
+
+            {isError && (
+              <div className="kgm-error">
+                {error instanceof Error
+                  ? error.message
+                  : "Failed to fetch players"}
+              </div>
+            )}
+
+            {!isLoading && !isError && players.length === 0 && (
+              <div className="kgm-empty">No players found — adjust filters</div>
+            )}
+
+            {!isLoading &&
+              !isError &&
+              players.map((p, idx) => (
+                <div key={idx} className="kgm-player-card">
+                  <div>
+                    <div className="kgm-player-name">{p.short_name}</div>
+                    <div className="kgm-player-meta">
+                      {p.player_positions} · {p.club_name} · Age {p.age} ·{" "}
+                      {p.preferred_foot} foot
+                    </div>
+                  </div>
+                  <div className="kgm-player-overall">{p.overall}</div>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
-function PitchRow({ positions }: { positions: string[] }) {
+// ─── Pitch helpers ────────────────────────────────────────────────────────────
+
+function PitchRow({
+  positions,
+  onSlotClick,
+}: {
+  positions: string[];
+  onSlotClick: (pos: string) => void;
+}) {
   if (positions.length <= 3) {
     return (
       <div className="kg-pitch-row kg-pitch-row--center">
         {positions.map((pos, i) => (
-          <PitchSlot key={i} position={pos} />
+          <PlayerSlotButton
+            key={i}
+            position={pos}
+            onClick={() => onSlotClick(pos)}
+          />
         ))}
       </div>
     );
@@ -120,38 +413,65 @@ function PitchRow({ positions }: { positions: string[] }) {
   const inner = rest.slice(0, -1);
   return (
     <div className="kg-pitch-row kg-pitch-row--spread">
-      <PitchSlot position={left} />
+      <PlayerSlotButton position={left} onClick={() => onSlotClick(left)} />
       <div className="kg-pitch-inner-row">
         {inner.map((pos, i) => (
-          <PitchSlot key={i} position={pos} />
+          <PlayerSlotButton
+            key={i}
+            position={pos}
+            onClick={() => onSlotClick(pos)}
+          />
         ))}
       </div>
-      <PitchSlot position={right} />
+      <PlayerSlotButton position={right} onClick={() => onSlotClick(right)} />
     </div>
   );
 }
 
-function Pitch({ formation }: { formation: Formation }) {
+function Pitch({
+  formation,
+  onSlotClick,
+}: {
+  formation: Formation;
+  onSlotClick: (pos: string) => void;
+}) {
   return (
     <section className="kg-pitch-wrap">
       <div className="kg-pitch">
-        <div className="kg-pitch-border" />
-        <div className="kg-pitch-penalty-top" />
-        <div className="kg-pitch-penalty-bottom" />
-        <div className="kg-pitch-box-top" />
-        <div className="kg-pitch-box-bottom" />
-        <div className="kg-pitch-halfway" />
-        <div className="kg-pitch-circle" />
+        <div className="kg-pitch-border" style={{ pointerEvents: "none" }} />
+        <div
+          className="kg-pitch-penalty-top"
+          style={{ pointerEvents: "none" }}
+        />
+        <div
+          className="kg-pitch-penalty-bottom"
+          style={{ pointerEvents: "none" }}
+        />
+        <div className="kg-pitch-box-top" style={{ pointerEvents: "none" }} />
+        <div
+          className="kg-pitch-box-bottom"
+          style={{ pointerEvents: "none" }}
+        />
+        <div className="kg-pitch-halfway" style={{ pointerEvents: "none" }} />
+        <div className="kg-pitch-circle" style={{ pointerEvents: "none" }} />
         <div
           className="kg-pitch-grid"
           style={{ gridTemplateRows: `repeat(${formation.rows.length}, 1fr)` }}
         >
           {formation.rows.map((row, i) => (
-            <PitchRow key={`${formation.id}-${i}`} positions={row} />
+            <PitchRow
+              key={`${formation.id}-${i}`}
+              positions={row}
+              onSlotClick={onSlotClick}
+            />
           ))}
         </div>
         <div className="kg-pitch-gk">
-          <PitchSlot position="GK" isGK />
+          <PlayerSlotButton
+            position="GK"
+            isGK
+            onClick={() => onSlotClick("GK")}
+          />
         </div>
         <div className="kg-pitch-hud">
           <div className="kg-hud-formation">{formation.label}</div>
@@ -166,6 +486,7 @@ function Pitch({ formation }: { formation: Formation }) {
 export default function DreamTeamPage() {
   const [activeId, setActiveId] = useState<string>("4-4-2");
   const active = FORMATIONS.find((f) => f.id === activeId)!;
+  const [pickerSlot, setPickerSlot] = useState<string | null>(null);
 
   const statBars = [
     { label: "Attack Rating", value: active.attackRating },
@@ -190,8 +511,6 @@ export default function DreamTeamPage() {
           font-family:'Material Symbols Outlined';
           font-style:normal;display:inline-block;line-height:1;white-space:nowrap;
         }
-
-        /* Scoped CSS variables on the wrapper so they don't bleed into MainLayout */
         .kg-wrap {
           --surface:#121411; --surface-hi:#1e201d; --surface-max:#242723;
           --green:#00ff66; --green-dim:rgba(0,255,102,0.08);
@@ -206,16 +525,12 @@ export default function DreamTeamPage() {
           height: 100%;
         }
         @media(min-width:1024px){ .kg-wrap { flex-direction: row; align-items: flex-start; } }
-
         .kg-page-title{font-family:var(--fd);font-size:42px;letter-spacing:-.01em;line-height:.92;color:var(--text);text-transform:uppercase}
         .kg-page-subtitle{font-size:12px;color:#aaaba7;line-height:1.4;margin-top:5px;max-width:280px}
-
         .kg-left{display:flex;flex-direction:column;gap:12px}
         @media(min-width:1024px){.kg-left{width:33.333%;flex-shrink:0}}
-
         .kg-panel{background:var(--surface);padding:14px;border-radius:12px;border:1px solid rgba(71,72,69,.12)}
         .kg-panel-title{font-family:var(--fb);font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
-
         .kg-formation-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
         .kg-formation-btn{
           display:flex;flex-direction:column;align-items:center;gap:3px;
@@ -229,7 +544,6 @@ export default function DreamTeamPage() {
         .kg-formation-label{font-family:var(--fd);font-size:19px;letter-spacing:.04em;color:rgba(255,255,255,.42);transition:color .2s}
         .kg-formation-btn--active .kg-formation-label{color:var(--green)}
         .kg-formation-desc{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.28)}
-
         .kg-stat-bars{display:flex;flex-direction:column;gap:8px}
         .kg-stat-bar-header{display:flex;justify-content:space-between;margin-bottom:4px;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
         .kg-stat-bar-label{color:rgba(255,255,255,.38)}
@@ -241,7 +555,6 @@ export default function DreamTeamPage() {
         .kg-grade{display:block;font-family:var(--fd);font-size:26px;color:var(--green);line-height:1}
         .kg-score-label{display:block;font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:3px}
         .kg-analysis-footer-right{text-align:right}
-
         .kg-pitch-wrap{flex:1;min-width:0}
         .kg-pitch{
           position:relative;width:100%;aspect-ratio:3/4;
@@ -264,7 +577,6 @@ export default function DreamTeamPage() {
         .kg-pitch-inner-row{display:flex;gap:24px}
         @media(min-width:768px){.kg-pitch-row--center{gap:56px}.kg-pitch-inner-row{gap:40px}}
         .kg-pitch-gk{position:absolute;bottom:12px;left:50%;transform:translateX(-50%)}
-
         .kg-slot{
           width:46px;height:58px;background:var(--surface-max);
           border:1px solid rgba(0,255,102,.2);
@@ -282,7 +594,6 @@ export default function DreamTeamPage() {
         .kg-slot:hover .kg-slot-icon,.kg-slot-icon--gk{color:var(--green)}
         .kg-slot-label{font-size:7px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)}
         .kg-slot-label--gk{color:var(--green)}
-
         .kg-pitch-hud{position:absolute;top:16px;right:16px;text-align:right}
         .kg-hud-formation{font-family:var(--fd);font-size:40px;color:rgba(0,255,102,.07);line-height:1}
         .kg-hud-label{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--green)}
@@ -349,9 +660,18 @@ export default function DreamTeamPage() {
           </div>
         </div>
 
-        {/* ── Pitch — sibling of .kg-left, takes flex:1 on desktop ── */}
-        <Pitch key={activeId} formation={active} />
+        {/* ── Pitch ── */}
+        <Pitch key={activeId} formation={active} onSlotClick={setPickerSlot} />
       </div>
+
+      {/* ── Player Picker Modal ── */}
+      {pickerSlot && (
+        <PlayerPickerModal
+          slotPosition={pickerSlot}
+          isGK={pickerSlot === "GK"}
+          onClose={() => setPickerSlot(null)}
+        />
+      )}
     </>
   );
 }

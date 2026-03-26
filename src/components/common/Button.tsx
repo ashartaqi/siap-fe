@@ -78,7 +78,10 @@ export function PlayerSlotButton({
 }: PlayerSlotButtonProps) {
   return (
     <button
-      onClick={onClick}
+      onClick={(e) => {
+        console.log("slot clicked: ", position);
+        onClick?.();
+      }}
       type="button"
       className={`kg-slot${isGK ? " kg-slot--gk" : ""}`}
       aria-label={`${isGK ? "Goalkeeper" : "Player"} slot: ${position}`}
@@ -98,11 +101,19 @@ export function PlayerSlotButton({
 // ── Pitch (internal) ──────────────────────────────────────────────────────────
 
 function PitchRow({ positions }: { positions: string[] }) {
+  const handleSlotClick = (pos: string) => {
+    console.log(`Clicked slot: ${pos}`); // replace with your logic
+  };
+
   if (positions.length <= 3) {
     return (
       <div className="kg-pitch-row kg-pitch-row--center">
         {positions.map((pos, i) => (
-          <PlayerSlotButton key={i} position={pos} />
+          <PlayerSlotButton
+            key={i}
+            position={pos}
+            onClick={() => handleSlotClick(pos)}
+          />
         ))}
       </div>
     );
@@ -114,13 +125,20 @@ function PitchRow({ positions }: { positions: string[] }) {
 
   return (
     <div className="kg-pitch-row kg-pitch-row--spread">
-      <PlayerSlotButton position={left} />
+      <PlayerSlotButton position={left} onClick={() => handleSlotClick(left)} />
       <div className="kg-pitch-inner-row">
         {inner.map((pos, i) => (
-          <PlayerSlotButton key={i} position={pos} />
+          <PlayerSlotButton
+            key={i}
+            position={pos}
+            onClick={() => handleSlotClick(pos)}
+          />
         ))}
       </div>
-      <PlayerSlotButton position={right} />
+      <PlayerSlotButton
+        position={right}
+        onClick={() => handleSlotClick(right)}
+      />
     </div>
   );
 }
