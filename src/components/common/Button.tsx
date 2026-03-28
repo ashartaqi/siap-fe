@@ -81,65 +81,80 @@ export function PlayerSlotButton({
   playerName,
 }: PlayerSlotButtonProps) {
   const [imgError, setImgError] = useState(false);
-  const showImage = !!playerFaceUrl && !imgError;
+  const hasImage = !!playerFaceUrl && !imgError;
 
   return (
     <button
       onClick={() => onClick?.()}
       type="button"
-      className={`kg-slot${isGK ? " kg-slot--gk" : ""}${showImage ? " kg-slot--filled" : ""}`}
-      aria-label={`${isGK ? "Goalkeeper" : "Player"} slot: ${position}`}
+      className={`
+        relative flex items-center justify-center
+        w-[64px] h-[64px] md:w-[72px] md:h-[72px]
+        rounded-xl overflow-hidden
+        border transition-all duration-200
+        ${
+          hasImage
+            ? "border-[rgba(0,255,102,0.35)] shadow-[0_0_14px_rgba(0,255,102,0.15)]"
+            : "border-[rgba(255,255,255,0.15)] hover:border-[rgba(0,255,102,0.4)]"
+        }
+        bg-[rgba(20,22,19,0.9)]
+        hover:scale-[1.05] active:scale-[0.97]
+      `}
     >
-      {showImage ? (
-        <>
-          <img
-            src={playerFaceUrl}
-            alt={playerName ?? position}
-            referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              objectPosition: "top center",
-              position: "absolute",
-              inset: 0,
-              borderRadius: "inherit",
-            }}
-          />
-          {/* Position badge */}
+      {/* ─── PLAYER IMAGE ─── */}
+      {hasImage && (
+        <img
+          src={playerFaceUrl}
+          alt={playerName ?? position}
+          referrerPolicy="no-referrer"
+          onError={() => setImgError(true)}
+          className="
+            absolute inset-0 w-full h-full
+            object-cover object-top
+          "
+        />
+      )}
+
+      {/* ─── OVERLAY GRADIENT (for readability) ─── */}
+      {hasImage && (
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      )}
+
+      {/* ─── EMPTY STATE ─── */}
+      {!hasImage && (
+        <div className="flex flex-col items-center justify-center gap-1 text-center">
           <span
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: "rgba(0,0,0,0.55)",
-              fontSize: "7px",
-              fontWeight: 700,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: isGK ? "#00ff66" : "rgba(255,255,255,0.85)",
-              textAlign: "center",
-              padding: "2px 0",
-              backdropFilter: "blur(2px)",
-            }}
-          >
-            {position}
-          </span>
-        </>
-      ) : (
-        <>
-          <span
-            className={`material-symbols-outlined kg-slot-icon${isGK ? " kg-slot-icon--gk" : ""}`}
+            className={`material-symbols-outlined text-[18px] ${
+              isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
+            }`}
           >
             add
           </span>
-          <span className={`kg-slot-label${isGK ? " kg-slot-label--gk" : ""}`}>
+          <span
+            className={`text-[8px] font-bold tracking-[0.15em] uppercase ${
+              isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
+            }`}
+          >
             {position}
           </span>
-        </>
+        </div>
       )}
+
+      {/* ─── POSITION BADGE ─── */}
+      <div
+        className={`
+          absolute bottom-0 left-0 right-0
+          text-[7px] font-bold tracking-[0.18em] uppercase text-center py-[2px]
+          backdrop-blur-[2px]
+          ${
+            isGK
+              ? "text-[#00ff66] bg-[rgba(0,255,102,0.15)]"
+              : "text-white bg-[rgba(0,0,0,0.55)]"
+          }
+        `}
+      >
+        {position}
+      </div>
     </button>
   );
 }
