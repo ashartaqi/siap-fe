@@ -77,24 +77,6 @@ export default function LoginPage() {
           Live scores, AI-powered predictions, fantasy teams, and deep analytics
           — all in one place for the serious sports fan.
         </p>
-        <div className="flex gap-10">
-          <div className="flex flex-col gap-1">
-            <span className="font-outfit font-extrabold text-[32px] text-[var(--auth-green)]">
-              500+
-            </span>
-            <span className="text-[11px] tracking-[2px] uppercase text-[var(--auth-muted)]">
-              Live Matches
-            </span>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="font-outfit font-extrabold text-[32px] text-[var(--auth-green)]">
-              94%
-            </span>
-            <span className="text-[11px] tracking-[2px] uppercase text-[var(--auth-muted)]">
-              AI Accuracy
-            </span>
-          </div>
-        </div>
       </AuthLeftPanel>
 
       {/* RIGHT PANEL - FORM */}

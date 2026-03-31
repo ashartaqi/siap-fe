@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { PlusIcon } from "lucide-react";
 
 export interface Formation {
   id: string;
@@ -128,15 +129,13 @@ export function PlayerSlotButton({
               isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
             }`}
           >
-            add
+            <PlusIcon></PlusIcon>
           </span>
           <span
             className={`text-[8px] font-bold tracking-[0.15em] uppercase ${
               isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
             }`}
-          >
-            {position}
-          </span>
+          ></span>
         </div>
       )}
 

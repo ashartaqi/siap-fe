@@ -117,7 +117,6 @@ const POSITIONS = [
   "LWB",
   "RWB",
   "SW",
-  "GK",
 ];
 
 // ─── Stat → backend field mapping ─────────────────────────────────────────────
@@ -130,6 +129,294 @@ const STAT_FIELD_MAP: Record<StatKey, keyof IPlayersResponse> = {
   defending: "defending",
   physic: "physic",
 };
+
+// ─── Countries ──────────────────
+const COUNTRIES = [
+  "Afghanistan",
+  "Albania",
+  "Algeria",
+  "Andorra",
+  "Angola",
+  "Antigua and Barbuda",
+  "Argentina",
+  "Armenia",
+  "Australia",
+  "Austria",
+  "Azerbaijan",
+  "Bahamas",
+  "Bahrain",
+  "Bangladesh",
+  "Barbados",
+  "Belarus",
+  "Belgium",
+  "Belize",
+  "Benin",
+  "Bhutan",
+  "Bolivia",
+  "Bosnia and Herzegovina",
+  "Botswana",
+  "Brazil",
+  "Brunei",
+  "Bulgaria",
+  "Burkina Faso",
+  "Burundi",
+  "Cabo Verde",
+  "Cambodia",
+  "Cameroon",
+  "Canada",
+  "Central African Republic",
+  "Chad",
+  "Chile",
+  "China",
+  "Colombia",
+  "Comoros",
+  "Congo",
+  "Costa Rica",
+  "Croatia",
+  "Cuba",
+  "Cyprus",
+  "Czech Republic",
+  "Denmark",
+  "Djibouti",
+  "Dominica",
+  "Dominican Republic",
+  "Ecuador",
+  "Egypt",
+  "El Salvador",
+  "Equatorial Guinea",
+  "Eritrea",
+  "Estonia",
+  "Eswatini",
+  "Ethiopia",
+  "Fiji",
+  "Finland",
+  "France",
+  "Gabon",
+  "Gambia",
+  "Georgia",
+  "Germany",
+  "Ghana",
+  "Greece",
+  "Grenada",
+  "Guatemala",
+  "Guinea",
+  "Guinea-Bissau",
+  "Guyana",
+  "Haiti",
+  "Honduras",
+  "Hungary",
+  "Iceland",
+  "India",
+  "Indonesia",
+  "Iran",
+  "Iraq",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Jamaica",
+  "Japan",
+  "Jordan",
+  "Kazakhstan",
+  "Kenya",
+  "Kiribati",
+  "Kuwait",
+  "Kyrgyzstan",
+  "Laos",
+  "Latvia",
+  "Lebanon",
+  "Lesotho",
+  "Liberia",
+  "Libya",
+  "Liechtenstein",
+  "Lithuania",
+  "Luxembourg",
+  "Madagascar",
+  "Malawi",
+  "Malaysia",
+  "Maldives",
+  "Mali",
+  "Malta",
+  "Marshall Islands",
+  "Mauritania",
+  "Mauritius",
+  "Mexico",
+  "Micronesia",
+  "Moldova",
+  "Monaco",
+  "Mongolia",
+  "Montenegro",
+  "Morocco",
+  "Mozambique",
+  "Myanmar",
+  "Namibia",
+  "Nauru",
+  "Nepal",
+  "Netherlands",
+  "New Zealand",
+  "Nicaragua",
+  "Niger",
+  "Nigeria",
+  "North Korea",
+  "North Macedonia",
+  "Norway",
+  "Oman",
+  "Pakistan",
+  "Palau",
+  "Palestine",
+  "Panama",
+  "Papua New Guinea",
+  "Paraguay",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Romania",
+  "Russia",
+  "Rwanda",
+  "Saint Kitts and Nevis",
+  "Saint Lucia",
+  "Saint Vincent and the Grenadines",
+  "Samoa",
+  "San Marino",
+  "Sao Tome and Principe",
+  "Saudi Arabia",
+  "Senegal",
+  "Serbia",
+  "Seychelles",
+  "Sierra Leone",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "Solomon Islands",
+  "Somalia",
+  "South Africa",
+  "South Korea",
+  "South Sudan",
+  "Spain",
+  "Sri Lanka",
+  "Sudan",
+  "Suriname",
+  "Sweden",
+  "Switzerland",
+  "Syria",
+  "Taiwan",
+  "Tajikistan",
+  "Tanzania",
+  "Thailand",
+  "Timor-Leste",
+  "Togo",
+  "Tonga",
+  "Trinidad and Tobago",
+  "Tunisia",
+  "Turkey",
+  "Turkmenistan",
+  "Tuvalu",
+  "Uganda",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Uzbekistan",
+  "Vanuatu",
+  "Vatican City",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Zambia",
+  "Zimbabwe",
+];
+
+// ─── Country picker function ────────────
+
+function CountryPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filtered = useMemo(
+    () =>
+      COUNTRIES.filter((c) =>
+        c.toLowerCase().includes(search.toLowerCase()),
+      ).slice(0, 30),
+    [search],
+  );
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    };
+    if (open) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 50);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        title="Click to select country"
+        className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] hover:text-[#00ff66] transition-colors duration-150 cursor-pointer truncate max-w-[72px] block text-center"
+      >
+        {value || "---"}
+      </button>
+
+      {open && (
+        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-50 bg-[rgba(18,20,17,0.97)] border border-[rgba(0,255,102,0.2)] rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] w-44">
+          <div className="p-2 border-b border-[rgba(71,72,69,0.3)]">
+            <input
+              ref={inputRef}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="w-full bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-[4px] px-2 py-1 font-[Oxanium,sans-serif] text-[11px] text-[#fcfcf8] outline-none placeholder:text-[rgba(255,255,255,0.2)] focus:border-[rgba(0,255,102,0.4)]"
+            />
+          </div>
+          <div className="overflow-y-auto max-h-40">
+            {filtered.length === 0 ? (
+              <div className="text-[10px] text-[rgba(255,255,255,0.3)] text-center py-3">
+                No match
+              </div>
+            ) : (
+              filtered.map((country) => (
+                <button
+                  key={country}
+                  onClick={() => {
+                    onChange(country);
+                    setOpen(false);
+                    setSearch("");
+                  }}
+                  className={[
+                    "w-full text-left px-3 py-[6px] text-[11px] font-[Oxanium,sans-serif] transition-colors duration-100 cursor-pointer block",
+                    value === country
+                      ? "bg-[rgba(0,255,102,0.12)] text-[#00ff66]"
+                      : "text-[rgba(255,255,255,0.6)] hover:text-[#fcfcf8] hover:bg-[rgba(255,255,255,0.05)]",
+                  ].join(" ")}
+                >
+                  {country}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function getStatValue(
   player: IPlayersResponse | IGoalKeeperResponse,
@@ -149,6 +436,8 @@ function EditableText({
   className,
   inputClassName,
   maxLength,
+  min,
+  max,
   type = "text",
 }: {
   value: string;
@@ -157,6 +446,8 @@ function EditableText({
   className?: string; // wrapper class
   inputClassName?: string; // extra classes on input
   maxLength?: number;
+  min?: number;
+  max?: number;
   type?: string;
 }) {
   const [editing, setEditing] = useState(false);
@@ -172,8 +463,12 @@ function EditableText({
 
   const commit = () => {
     setEditing(false);
-    const trimmed = draft.trim();
-    onChange(trimmed || value); // revert to original if empty
+    let trimmed = draft.trim();
+    if (type === "number" && min !== undefined && max !== undefined) {
+      const n = Number(trimmed);
+      if (!isNaN(n)) trimmed = String(Math.min(max, Math.max(min, n)));
+    }
+    onChange(trimmed || value);
   };
 
   if (editing) {
@@ -183,6 +478,8 @@ function EditableText({
         type={type}
         value={draft}
         maxLength={maxLength}
+        min={min}
+        max={max}
         className={[
           "bg-transparent border-b border-[rgba(0,255,102,0.5)] outline-none text-[#00ff66]",
           "transition-[border-color] duration-150",
@@ -933,13 +1230,9 @@ export default function DreamPlayerPage() {
                         Nat
                       </span>
                     </div>
-                    <EditableText
+                    <CountryPicker
                       value={identity.nationality}
                       onChange={(v) => patchIdentity("nationality", v)}
-                      placeholder="---"
-                      maxLength={20}
-                      className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] truncate max-w-[72px] text-center block"
-                      inputClassName="font-[Bebas_Neue,sans-serif] text-[14px] text-center w-[72px]"
                     />
                   </div>
 
@@ -960,6 +1253,8 @@ export default function DreamPlayerPage() {
                       }}
                       placeholder="7"
                       maxLength={2}
+                      min={1}
+                      max={99}
                       type="number"
                       className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] text-center block w-full"
                       inputClassName="font-[Bebas_Neue,sans-serif] text-[14px] text-center w-[40px]"
