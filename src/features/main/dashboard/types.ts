@@ -81,11 +81,10 @@ export interface IGoalKeeperResponse {
 }
 
 export interface IDreamPlayerPayload {
-  id: number;
-  player_name: string;
+  name: string;
   position: string;
   nationality: string;
-  shirt_No: number;
+  shirt_number: number;
   preferred_foot: string;
   pace: number;
   shooting: number;
@@ -96,11 +95,10 @@ export interface IDreamPlayerPayload {
 }
 
 export interface IDreamPlayerResponse {
-  id: number;
-  player_name: string;
+  name: string;
   position: string;
   nationality: string;
-  shirt_No: number;
+  shirt_number: number;
   preferred_foot: string;
   pace: number;
   shooting: number;

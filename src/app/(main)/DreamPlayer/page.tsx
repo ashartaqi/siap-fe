@@ -1,5 +1,12 @@
 "use client";
 
+import Image from "next/image";
+import { useCreateDreamPlayer } from "@/features/main/dashboard/hooks/useCreateDreamPlayer";
+import { useGetDreamPlayers } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
+import {
+  IDreamPlayerPayload,
+  IDreamPlayerResponse,
+} from "@/features/main/dashboard/types";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Share2,
@@ -12,9 +19,8 @@ import {
   Hash,
   Star,
   Plus,
-  User,
-  MapPin,
   ChevronDown,
+  RefreshCw,
 } from "lucide-react";
 import {
   useGetPlayers,
@@ -56,7 +62,17 @@ type SlotPlayers = Record<
   (IPlayersResponse | IGoalKeeperResponse) | undefined
 >;
 
-// ─── Shared primitives (mirrors DreamTeam exactly) ────────────────────────────
+// ─── Consolidated page state ──────────────────────────────────────────────────
+// Grouping identity + stats + mode into one object means the hydration useEffect
+// calls setState exactly once → no cascading renders warning.
+
+interface PageState {
+  identity: PlayerIdentity;
+  stats: PlayerStats;
+  mode: "view" | "edit";
+}
+
+// ─── Shared primitives ────────────────────────────────────────────────────────
 
 const INPUT =
   "w-full box-border bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-[6px] px-[10px] py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none transition-[border-color] duration-200 placeholder:text-[rgba(255,255,255,0.2)] focus:border-[rgba(0,255,102,0.4)]";
@@ -92,7 +108,12 @@ const DEFAULT_SLOT_PLAYERS: SlotPlayers = {
   physic: undefined,
 };
 
-// The center image is fixed — it never changes regardless of player selection
+const DEFAULT_PAGE_STATE: PageState = {
+  identity: DEFAULT_IDENTITY,
+  stats: DEFAULT_STATS,
+  mode: "edit",
+};
+
 const CENTER_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDNDEJWQe0nPD_yN1t2Hg1SBgMI-dAIRD8YTLy0R27wpcj-qDt6F9Jh5Rx-hsHGaUnBcXkDqIvu3mkWYPzEL_yaTkSTGZilhl7e3X3VO5c3ZB_KwDnNGYC4Cfvh8ZjEob0Q7iBpUhflT2BjJOzoCyJbIFh0nwwfLIS_GYsHlez0tj0ZUrp61mT4kX7fntmredK2TWLq8I8sOEMIm_xFoDPW9QJJca6OufWq1WbkMqm-TneaNm4aeCGydW9B8XHe-Fr2pk4H6jkbl4g";
 
@@ -119,8 +140,6 @@ const POSITIONS = [
   "SW",
 ];
 
-// ─── Stat → backend field mapping ─────────────────────────────────────────────
-
 const STAT_FIELD_MAP: Record<StatKey, keyof IPlayersResponse> = {
   pace: "pace",
   shooting: "shooting",
@@ -130,7 +149,8 @@ const STAT_FIELD_MAP: Record<StatKey, keyof IPlayersResponse> = {
   physic: "physic",
 };
 
-// ─── Countries ──────────────────
+// ─── Countries ────────────────────────────────────────────────────────────────
+
 const COUNTRIES = [
   "Afghanistan",
   "Albania",
@@ -328,7 +348,56 @@ const COUNTRIES = [
   "Zimbabwe",
 ];
 
-// ─── Country picker function ────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getStatValue(
+  player: IPlayersResponse | IGoalKeeperResponse,
+  stat: StatKey,
+): number {
+  const field = STAT_FIELD_MAP[stat];
+  const raw = (player as IPlayersResponse)[field];
+  return typeof raw === "number" ? raw : 0;
+}
+
+function extractErrorMessage(err: unknown): string {
+  if (!err || typeof err !== "object") return "Something went wrong.";
+  const axiosErr = err as {
+    response?: { data?: { message?: string; detail?: string; error?: string } };
+    message?: string;
+  };
+  const data = axiosErr.response?.data;
+  if (data?.message) return data.message;
+  if (data?.detail) return data.detail;
+  if (data?.error) return data.error;
+  if (axiosErr.message) return axiosErr.message;
+  return "Something went wrong.";
+}
+
+// Builds the full PageState from saved API response — called once, produces one object
+function buildPageStateFromSaved(saved: IDreamPlayerResponse): PageState {
+  return {
+    mode: "view",
+    identity: {
+      name: saved.name ?? DEFAULT_IDENTITY.name,
+      position: saved.position ?? DEFAULT_IDENTITY.position,
+      nationality: saved.nationality ?? DEFAULT_IDENTITY.nationality,
+      shirt_number: saved.shirt_number ?? DEFAULT_IDENTITY.shirt_number,
+      preferred_foot:
+        (saved.preferred_foot as "Left" | "Right") ??
+        DEFAULT_IDENTITY.preferred_foot,
+    },
+    stats: {
+      pace: saved.pace ?? 0,
+      shooting: saved.shooting ?? 0,
+      passing: saved.passing ?? 0,
+      dribbling: saved.dribbling ?? 0,
+      defending: saved.defending ?? 0,
+      physic: saved.physic ?? 0,
+    },
+  };
+}
+
+// ─── Country Picker ───────────────────────────────────────────────────────────
 
 function CountryPicker({
   value,
@@ -374,7 +443,6 @@ function CountryPicker({
       >
         {value || "---"}
       </button>
-
       {open && (
         <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-50 bg-[rgba(18,20,17,0.97)] border border-[rgba(0,255,102,0.2)] rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] w-44">
           <div className="p-2 border-b border-[rgba(71,72,69,0.3)]">
@@ -418,16 +486,7 @@ function CountryPicker({
   );
 }
 
-function getStatValue(
-  player: IPlayersResponse | IGoalKeeperResponse,
-  stat: StatKey,
-): number {
-  const field = STAT_FIELD_MAP[stat];
-  const raw = (player as IPlayersResponse)[field];
-  return typeof raw === "number" ? raw : 0;
-}
-
-// ─── Editable field — click to edit, blur/enter to confirm ───────────────────
+// ─── Editable field ───────────────────────────────────────────────────────────
 
 function EditableText({
   value,
@@ -439,16 +498,18 @@ function EditableText({
   min,
   max,
   type = "text",
+  readOnly = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
-  className?: string; // wrapper class
-  inputClassName?: string; // extra classes on input
+  className?: string;
+  inputClassName?: string;
   maxLength?: number;
   min?: number;
   max?: number;
   type?: string;
+  readOnly?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -471,7 +532,7 @@ function EditableText({
     onChange(trimmed || value);
   };
 
-  if (editing) {
+  if (editing && !readOnly) {
     return (
       <input
         ref={inputRef}
@@ -481,8 +542,7 @@ function EditableText({
         min={min}
         max={max}
         className={[
-          "bg-transparent border-b border-[rgba(0,255,102,0.5)] outline-none text-[#00ff66]",
-          "transition-[border-color] duration-150",
+          "bg-transparent border-b border-[rgba(0,255,102,0.5)] outline-none text-[#00ff66] transition-[border-color] duration-150",
           inputClassName ?? className ?? "",
         ].join(" ")}
         onChange={(e) => setDraft(e.target.value)}
@@ -500,53 +560,61 @@ function EditableText({
 
   return (
     <span
-      onClick={() => setEditing(true)}
-      title="Click to edit"
+      onClick={() => !readOnly && setEditing(true)}
+      title={readOnly ? undefined : "Click to edit"}
       className={[
-        "cursor-text hover:text-[#00ff66] transition-colors duration-150 group/edit relative",
+        "transition-colors duration-150 group/edit relative",
+        readOnly ? "" : "cursor-text hover:text-[#00ff66]",
         className ?? "",
       ].join(" ")}
     >
       {value || placeholder}
-      {/* tiny edit dot */}
-      <span className="absolute -top-0.5 -right-2 w-1 h-1 rounded-full bg-[rgba(0,255,102,0.5)] opacity-0 group-hover/edit:opacity-100 transition-opacity duration-150" />
+      {!readOnly && (
+        <span className="absolute -top-0.5 -right-2 w-1 h-1 rounded-full bg-[rgba(0,255,102,0.5)] opacity-0 group-hover/edit:opacity-100 transition-opacity duration-150" />
+      )}
     </span>
   );
 }
 
-// ─── Foot toggle ──────────────────────────────────────────────────────────────
+// ─── Foot Toggle ──────────────────────────────────────────────────────────────
 
 function FootToggle({
   value,
   onChange,
+  readOnly = false,
 }: {
   value: "Left" | "Right";
   onChange: (v: "Left" | "Right") => void;
+  readOnly?: boolean;
 }) {
   return (
     <button
-      onClick={() => onChange(value === "Left" ? "Right" : "Left")}
-      title="Click to toggle foot"
-      className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] hover:text-[#00ff66] transition-colors duration-150 cursor-pointer"
+      onClick={() => !readOnly && onChange(value === "Left" ? "Right" : "Left")}
+      title={readOnly ? undefined : "Click to toggle foot"}
+      className={[
+        "font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] transition-colors duration-150",
+        readOnly ? "cursor-default" : "cursor-pointer hover:text-[#00ff66]",
+      ].join(" ")}
     >
       {value.toUpperCase()}
     </button>
   );
 }
 
-// ─── Position picker (small inline dropdown) ──────────────────────────────────
+// ─── Position Picker ──────────────────────────────────────────────────────────
 
 function PositionPicker({
   value,
   onChange,
+  readOnly = false,
 }: {
   value: string;
   onChange: (v: string) => void;
+  readOnly?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node))
@@ -559,14 +627,16 @@ function PositionPicker({
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-0.5 font-[Oxanium,sans-serif] text-[10px] font-bold tracking-widest uppercase mt-0.5 text-[#00fe66] hover:text-white transition-colors duration-150 cursor-pointer"
+        onClick={() => !readOnly && setOpen((o) => !o)}
+        className={[
+          "flex items-center gap-0.5 font-[Oxanium,sans-serif] text-[10px] font-bold tracking-widest uppercase mt-0.5 text-[#00fe66] transition-colors duration-150",
+          readOnly ? "cursor-default" : "cursor-pointer hover:text-white",
+        ].join(" ")}
       >
         {value}
-        <ChevronDown className="w-2.5 h-2.5 opacity-60" />
+        {!readOnly && <ChevronDown className="w-2.5 h-2.5 opacity-60" />}
       </button>
-
-      {open && (
+      {open && !readOnly && (
         <div className="absolute bottom-full mb-1 left-0 z-50 bg-[rgba(18,20,17,0.97)] border border-[rgba(0,255,102,0.2)] rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] w-28">
           <div className="grid grid-cols-3 gap-px p-1 max-h-40 overflow-y-auto">
             {POSITIONS.map((pos) => (
@@ -593,19 +663,17 @@ function PositionPicker({
   );
 }
 
-// ─── Player Picker Modal (identical pattern to DreamTeam) ─────────────────────
+// ─── Player Picker Modal ──────────────────────────────────────────────────────
 
 function PlayerPickerModal({
   onClose,
   onSelect,
-  slotPosition,
   statLabel,
   isGK = false,
   usedPlayerIds,
 }: {
   onClose: () => void;
   onSelect: (player: IPlayersResponse | IGoalKeeperResponse) => void;
-  slotPosition: string;
   statLabel: string;
   isGK?: boolean;
   usedPlayerIds: Set<number>;
@@ -614,7 +682,7 @@ function PlayerPickerModal({
   const [teamId, setTeamId] = useState<number | undefined>();
   const [minOverall, setMinOverall] = useState<number | undefined>();
   const [maxOverall, setMaxOverall] = useState<number | undefined>();
-  const [position, setPosition] = useState(slotPosition);
+  const [position, setPosition] = useState("");
   const [nationalityName, setNationalityName] = useState("");
   const [minAge, setMinAge] = useState<number | undefined>();
   const [maxAge, setMaxAge] = useState<number | undefined>();
@@ -651,7 +719,6 @@ function PlayerPickerModal({
         className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(71,72,69,0.2)] shrink-0">
           <div className="flex items-center gap-[10px]">
             <span className="font-[Bebas_Neue,sans-serif] text-[22px] text-[#fcfcf8] tracking-[0.04em]">
@@ -669,7 +736,6 @@ function PlayerPickerModal({
           </button>
         </div>
 
-        {/* Filters */}
         <div className="grid grid-cols-2 gap-[10px] px-5 py-4 border-b border-[rgba(71,72,69,0.2)] shrink-0">
           <div className="col-span-2 flex flex-col gap-[5px]">
             <span className={LABEL}>Player Name</span>
@@ -680,7 +746,6 @@ function PlayerPickerModal({
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-
           <div className="col-span-2 flex flex-col gap-[5px]">
             <span className={LABEL}>Team ID</span>
             <input
@@ -693,7 +758,6 @@ function PlayerPickerModal({
               }
             />
           </div>
-
           <div className="flex flex-col gap-[5px]">
             <span className={LABEL}>Position</span>
             <input
@@ -703,7 +767,6 @@ function PlayerPickerModal({
               onChange={(e) => setPosition(e.target.value)}
             />
           </div>
-
           <div className="flex flex-col gap-[5px]">
             <span className={LABEL}>Nationality</span>
             <input
@@ -713,7 +776,6 @@ function PlayerPickerModal({
               onChange={(e) => setNationalityName(e.target.value)}
             />
           </div>
-
           <div className="flex flex-col gap-[5px]">
             <span className={LABEL}>Overall Rating</span>
             <div className="flex gap-[6px] items-center">
@@ -740,7 +802,6 @@ function PlayerPickerModal({
               />
             </div>
           </div>
-
           <div className="flex flex-col gap-[5px]">
             <span className={LABEL}>Age</span>
             <div className="flex gap-[6px] items-center">
@@ -767,7 +828,6 @@ function PlayerPickerModal({
               />
             </div>
           </div>
-
           <div className="flex flex-col gap-[5px]">
             <span className={LABEL}>Preferred Foot</span>
             <select
@@ -782,18 +842,15 @@ function PlayerPickerModal({
           </div>
         </div>
 
-        {/* Results */}
         <div className="overflow-y-auto flex-1 px-5 pt-4 pb-5">
           <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-[#00ff66] mb-[10px]">
             Results
           </div>
-
           {isLoading && (
             <div className="text-center py-10 text-[12px] text-[rgba(255,255,255,0.25)] tracking-[0.1em]">
               Searching...
             </div>
           )}
-
           {isError && (
             <div className="text-center py-10 text-[12px] text-[rgba(255,80,80,0.7)] tracking-[0.1em]">
               {error instanceof Error
@@ -801,13 +858,11 @@ function PlayerPickerModal({
                 : "Failed to fetch players"}
             </div>
           )}
-
           {!isLoading && !isError && players.length === 0 && (
             <div className="text-center py-10 text-[12px] text-[rgba(255,255,255,0.25)] tracking-[0.1em]">
               No players found — adjust filters
             </div>
           )}
-
           {!isLoading &&
             !isError &&
             players.map((p, idx) => {
@@ -820,9 +875,7 @@ function PlayerPickerModal({
                       onSelect(p as IPlayersResponse | IGoalKeeperResponse);
                   }}
                   className={[
-                    "flex items-center gap-3 px-3 py-[10px] rounded-lg mb-2",
-                    "bg-[rgba(36,39,35,0.6)] border border-[rgba(71,72,69,0.15)]",
-                    "transition-[border-color,background,opacity] duration-200",
+                    "flex items-center gap-3 px-3 py-[10px] rounded-lg mb-2 bg-[rgba(36,39,35,0.6)] border border-[rgba(71,72,69,0.15)] transition-[border-color,background,opacity] duration-200",
                     isUsed
                       ? "opacity-[0.35] cursor-not-allowed"
                       : "cursor-pointer hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.04)]",
@@ -830,15 +883,18 @@ function PlayerPickerModal({
                 >
                   <div className="w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center">
                     {p.player_face_url ? (
-                      <img
+                      <Image
                         src={p.player_face_url}
                         alt={p.short_name}
                         referrerPolicy="no-referrer"
+                        width={44}
+                        height={44}
                         className="w-full h-full object-cover object-top"
                         onError={(e) => {
                           (e.currentTarget as HTMLImageElement).style.display =
                             "none";
                         }}
+                        unoptimized
                       />
                     ) : (
                       <span className="material-symbols-outlined text-[18px] text-[rgba(0,255,102,0.3)]">
@@ -846,7 +902,6 @@ function PlayerPickerModal({
                       </span>
                     )}
                   </div>
-
                   <div className="flex-1 min-w-0">
                     <div className="text-[13px] font-semibold text-[#fcfcf8] whitespace-nowrap overflow-hidden text-ellipsis">
                       {p.short_name}
@@ -856,7 +911,6 @@ function PlayerPickerModal({
                       {p.preferred_foot} foot
                     </div>
                   </div>
-
                   {isUsed ? (
                     <span className="text-[8px] font-bold tracking-[0.15em] uppercase text-[rgba(255,100,100,0.7)] bg-[rgba(255,100,100,0.08)] border border-[rgba(255,100,100,0.2)] px-[6px] py-0.5 rounded-[3px] shrink-0">
                       In Squad
@@ -886,6 +940,7 @@ function StatCard({
   filled,
   active,
   onClick,
+  readOnly,
 }: {
   label: string;
   value: number;
@@ -895,11 +950,15 @@ function StatCard({
   filled: boolean;
   active: boolean;
   onClick: () => void;
+  readOnly: boolean;
 }) {
   return (
     <div
-      onClick={onClick}
-      className="group relative flex items-center gap-4 transition-transform duration-200 hover:scale-105 cursor-pointer"
+      onClick={readOnly ? undefined : onClick}
+      className={[
+        "group relative flex items-center gap-4 transition-transform duration-200",
+        readOnly ? "cursor-default" : "cursor-pointer hover:scale-105",
+      ].join(" ")}
     >
       {side === "right" && (
         <div
@@ -910,7 +969,6 @@ function StatCard({
           ].join(" ")}
         />
       )}
-
       <div
         className={[
           "p-4 rounded-xl w-48 flex flex-col gap-1 backdrop-blur-md border",
@@ -940,11 +998,12 @@ function StatCard({
             style={{ width: filled ? `${Math.min(value, 100)}%` : "0%" }}
           />
         </div>
-        <div className="text-[8px] font-bold tracking-[0.15em] uppercase mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[rgba(0,255,102,0.5)]">
-          {filled ? "Change player →" : "Assign player →"}
-        </div>
+        {!readOnly && (
+          <div className="text-[8px] font-bold tracking-[0.15em] uppercase mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[rgba(0,255,102,0.5)]">
+            {filled ? "Change player →" : "Assign player →"}
+          </div>
+        )}
       </div>
-
       {side === "left" && (
         <div
           className={[
@@ -961,13 +1020,32 @@ function StatCard({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DreamPlayerPage() {
-  const [identity, setIdentity] = useState<PlayerIdentity>(DEFAULT_IDENTITY);
-  const [stats, setStats] = useState<PlayerStats>(DEFAULT_STATS);
+  // ── ONE consolidated state object — hydration effect calls setState once ──
+  const [pageState, setPageState] = useState<PageState>(DEFAULT_PAGE_STATE);
   const [slotPlayers, setSlotPlayers] =
     useState<SlotPlayers>(DEFAULT_SLOT_PLAYERS);
   const [activeSlot, setActiveSlot] = useState<StatKey | null>(null);
-  const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Destructure for convenience in JSX
+  const { identity, stats, mode } = pageState;
+
+  // ── Fetch existing dream player ────────────────────────────────────────────
+  const { data: savedPlayer, isLoading: isFetching } = useGetDreamPlayers();
+
+  // ── Single-call hydration — eliminates the cascading setState warning ──────
+  const hasHydrated = useRef(false);
+
+  useEffect(() => {
+    if (savedPlayer && !hasHydrated.current) {
+      hasHydrated.current = true;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPageState(buildPageStateFromSaved(savedPlayer)); // ← one setState, one render
+    }
+  }, [savedPlayer]);
+
+  const { mutate: createDreamPlayer, isPending } = useCreateDreamPlayer();
 
   // ── Derived ────────────────────────────────────────────────────────────────
 
@@ -994,33 +1072,71 @@ export default function DreamPlayerPage() {
   const allSlotsFilled = (Object.keys(DEFAULT_SLOT_PLAYERS) as StatKey[]).every(
     (k) => slotPlayers[k],
   );
+  const isReadOnly = mode === "view";
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
-  const openModal = (stat: StatKey) => setActiveSlot(stat);
+  const openModal = (stat: StatKey) => {
+    if (!isReadOnly) setActiveSlot(stat);
+  };
   const closeModal = () => setActiveSlot(null);
 
   const patchIdentity = <K extends keyof PlayerIdentity>(
     key: K,
     value: PlayerIdentity[K],
-  ) => setIdentity((prev) => ({ ...prev, [key]: value }));
+  ) =>
+    setPageState((prev) => ({
+      ...prev,
+      identity: { ...prev.identity, [key]: value },
+    }));
 
   const handlePlayerSelect = (p: IPlayersResponse | IGoalKeeperResponse) => {
     if (!activeSlot) return;
     const statValue = getStatValue(p, activeSlot);
     setSlotPlayers((prev) => ({ ...prev, [activeSlot]: p }));
-    setStats((prev) => ({ ...prev, [activeSlot]: statValue }));
+    setPageState((prev) => ({
+      ...prev,
+      stats: { ...prev.stats, [activeSlot]: statValue },
+    }));
     setActiveSlot(null);
   };
 
+  const handleChangePlayer = () => {
+    hasHydrated.current = false;
+    setSlotPlayers(DEFAULT_SLOT_PLAYERS);
+    setPageState(DEFAULT_PAGE_STATE); // resets identity + stats + mode in one call
+  };
+
   const handleCreate = () => {
-    setCreating(true);
-    setTimeout(() => {
-      setCreating(false);
-      setCreated(true);
-      console.log("Dream Player:", { identity, stats, slotPlayers });
-      setTimeout(() => setCreated(false), 2500);
-    }, 1400);
+    setCreated(false);
+    setErrorMsg(null);
+
+    const payload: IDreamPlayerPayload = {
+      name: identity.name,
+      position: identity.position,
+      nationality: identity.nationality,
+      shirt_number: identity.shirt_number,
+      preferred_foot: identity.preferred_foot,
+      pace: stats.pace,
+      shooting: stats.shooting,
+      passing: stats.passing,
+      dribbling: stats.dribbling,
+      defending: stats.defending,
+      physic: stats.physic,
+    };
+
+    createDreamPlayer(payload, {
+      onSuccess: () => {
+        setCreated(true);
+        setPageState((prev) => ({ ...prev, mode: "view" }));
+        setTimeout(() => setCreated(false), 2500);
+      },
+      onError: (err) => {
+        const message = extractErrorMessage(err);
+        setErrorMsg(message);
+        setTimeout(() => setErrorMsg(null), 4000);
+      },
+    });
   };
 
   // ── Stat card definitions ──────────────────────────────────────────────────
@@ -1077,14 +1193,39 @@ export default function DreamPlayerPage() {
     },
   ];
 
+  // ── Loading state ──────────────────────────────────────────────────────────
+
+  if (isFetching) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#0d0f0c]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2">
+            {[0, 150, 300].map((delay) => (
+              <div
+                key={delay}
+                className="w-2 h-2 rounded-full bg-[#00fe66] animate-bounce"
+                style={{ animationDelay: `${delay}ms` }}
+              />
+            ))}
+          </div>
+          <p className="text-[10px] font-bold tracking-widest uppercase text-[rgba(255,255,255,0.3)] font-[Oxanium,sans-serif]">
+            Loading your dream player...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link
         href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oxanium:wght@300;400;600;700;800&display=swap"
         rel="stylesheet"
       />
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet"
@@ -1092,7 +1233,7 @@ export default function DreamPlayerPage() {
       <style>{`
         @keyframes spin-slow         { from { transform:rotate(0deg);   } to { transform:rotate(360deg);  } }
         @keyframes spin-slow-reverse { from { transform:rotate(360deg); } to { transform:rotate(0deg);    } }
-        @keyframes create-flash {
+        @keyframes toast-flash {
           0%   { opacity:0; transform:translateX(-50%) scale(0.95); }
           30%  { opacity:1; transform:translateX(-50%) scale(1.02); }
           70%  { opacity:1; transform:translateX(-50%) scale(1);    }
@@ -1102,28 +1243,30 @@ export default function DreamPlayerPage() {
         .animate-spin-slow-reverse { animation: spin-slow-reverse 30s linear infinite; }
         .animate-delay-700         { animation-delay:  700ms; }
         .animate-delay-1000        { animation-delay: 1000ms; }
-        .animate-create-flash      { animation: create-flash 2.5s ease forwards; }
+        .animate-toast-success     { animation: toast-flash 2.5s ease forwards; }
+        .animate-toast-error       { animation: toast-flash 4s   ease forwards; }
         .player-glow               { filter: drop-shadow(0 0 18px rgba(0,255,102,0.45)); }
       `}</style>
 
       <div
         className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#0d0f0c] text-[#fcfcf8] font-[Oxanium,sans-serif]"
         style={{
-          backgroundImage: `
-            linear-gradient(to right,  rgba(71,72,69,0.1) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(71,72,69,0.1) 1px, transparent 1px)
-          `,
+          backgroundImage: `linear-gradient(to right, rgba(71,72,69,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(71,72,69,0.1) 1px, transparent 1px)`,
           backgroundSize: "40px 40px",
         }}
       >
-        {/* Toast */}
         {created && (
-          <div className="animate-create-flash fixed top-8 left-1/2 z-50 px-7 py-3 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase text-[#00fe66] bg-[rgba(0,254,102,0.12)] border border-[rgba(0,254,102,0.4)] backdrop-blur-md font-[Oxanium,sans-serif]">
+          <div className="animate-toast-success fixed top-8 left-1/2 z-50 px-7 py-3 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase text-[#00fe66] bg-[rgba(0,254,102,0.12)] border border-[rgba(0,254,102,0.4)] backdrop-blur-md font-[Oxanium,sans-serif]">
             PLAYER CREATED SUCCESSFULLY
           </div>
         )}
 
-        {/* Watermark */}
+        {errorMsg && (
+          <div className="animate-toast-error fixed top-8 left-1/2 z-50 px-7 py-3 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase text-[rgba(255,90,90,0.95)] bg-[rgba(255,50,50,0.1)] border border-[rgba(255,60,60,0.4)] backdrop-blur-md font-[Oxanium,sans-serif] max-w-[80vw] text-center">
+            {errorMsg}
+          </div>
+        )}
+
         <div className="absolute top-8 left-8 pointer-events-none select-none z-0">
           <h1
             className="font-[Bebas_Neue,sans-serif] leading-[0.95] tracking-[-0.01em]"
@@ -1138,9 +1281,16 @@ export default function DreamPlayerPage() {
           </h1>
         </div>
 
-        {/* ── Main layout ─────────────────────────────────────────────────── */}
+        {isReadOnly && (
+          <div className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(0,254,102,0.08)] border border-[rgba(0,254,102,0.2)] backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-pulse" />
+            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-[#00fe66] font-[Oxanium,sans-serif]">
+              Your Dream Player
+            </span>
+          </div>
+        )}
+
         <main className="relative w-full max-w-7xl flex flex-col md:flex-row items-center justify-center gap-8 px-6 py-8 pt-16 z-10">
-          {/* LEFT STAT CARDS */}
           <div className="flex flex-col gap-6 z-20 w-full md:w-auto order-2 md:order-1">
             {LEFT_STATS.map(({ key, label, icon, connectorWidth }) => (
               <StatCard
@@ -1153,40 +1303,35 @@ export default function DreamPlayerPage() {
                 filled={stats[key] > 0}
                 active={activeSlot === key}
                 onClick={() => openModal(key)}
+                readOnly={isReadOnly}
               />
             ))}
           </div>
 
-          {/* ── CENTER PLAYER ───────────────────────────────────────────── */}
           <div
             className="relative flex-1 flex flex-col items-center justify-center order-1 md:order-2"
             style={{ height: "520px" }}
           >
-            {/* Orbital rings */}
             <div className="absolute w-[380px] h-[380px] rounded-full border border-[rgba(0,254,102,0.05)] animate-spin-slow" />
             <div className="absolute w-[480px] h-[480px] rounded-full border border-[rgba(0,254,102,0.08)] animate-spin-slow-reverse" />
-
-            {/* Player image — FIXED, never changes */}
             <div className="relative z-10 h-full flex items-end justify-center pb-24 pointer-events-none">
-              <img
+              <Image
                 src={CENTER_IMAGE}
                 alt="Player"
+                width={320}
+                height={320}
                 className="player-glow mix-blend-screen brightness-125 saturate-50 select-none"
                 style={{ height: 320, objectFit: "contain" }}
+                unoptimized
               />
             </div>
-
-            {/* Pulse dots */}
-            <div className="absolute top-1/4    left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse                    shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
-            <div className="absolute top-1/2    left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse animate-delay-700  shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
+            <div className="absolute top-1/4    left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
+            <div className="absolute top-1/2    left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse animate-delay-700 shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
             <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse animate-delay-1000 shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
 
-            {/* ── Player info card (all fields editable) ─────────────────── */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-[min(340px,90vw)]">
               <div className="rounded-2xl px-5 py-4 flex flex-col gap-3 bg-[rgba(18,20,17,0.85)] backdrop-blur-xl border border-[rgba(169,255,172,0.15)]">
-                {/* Row 1: overall + name + position */}
                 <div className="flex items-center gap-3">
-                  {/* Overall badge */}
                   <div className="px-3 py-1 rounded-2xl bg-gradient-to-br from-[rgba(0,254,102,0.18)] to-[rgba(0,254,102,0.04)] border border-[rgba(0,254,102,0.3)] shrink-0">
                     <span
                       className={[
@@ -1199,8 +1344,6 @@ export default function DreamPlayerPage() {
                       {overall > 0 ? overall : "–"}
                     </span>
                   </div>
-
-                  {/* Name (editable) + position picker */}
                   <div className="min-w-0 flex-1">
                     <EditableText
                       value={identity.name}
@@ -1209,20 +1352,19 @@ export default function DreamPlayerPage() {
                       maxLength={22}
                       className="text-[20px] leading-none uppercase tracking-wide text-[#fcfcf8] font-[Bebas_Neue,sans-serif] block w-full"
                       inputClassName="text-[20px] leading-none uppercase tracking-wide w-full font-[Bebas_Neue,sans-serif]"
+                      readOnly={isReadOnly}
                     />
                     <PositionPicker
                       value={identity.position}
                       onChange={(v) => patchIdentity("position", v)}
+                      readOnly={isReadOnly}
                     />
                   </div>
                 </div>
 
-                {/* Divider */}
                 <div className="w-full h-px bg-[rgba(0,254,102,0.1)]" />
 
-                {/* Row 2: nationality · shirt · foot — all editable */}
                 <div className="grid grid-cols-3 gap-x-3">
-                  {/* Nationality */}
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
                       <Flag className="w-3 h-3 text-[#00fe66] opacity-70" />
@@ -1230,13 +1372,18 @@ export default function DreamPlayerPage() {
                         Nat
                       </span>
                     </div>
-                    <CountryPicker
-                      value={identity.nationality}
-                      onChange={(v) => patchIdentity("nationality", v)}
-                    />
+                    {isReadOnly ? (
+                      <span className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] truncate max-w-[72px] block text-center">
+                        {identity.nationality}
+                      </span>
+                    ) : (
+                      <CountryPicker
+                        value={identity.nationality}
+                        onChange={(v) => patchIdentity("nationality", v)}
+                      />
+                    )}
                   </div>
 
-                  {/* Shirt number */}
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
                       <Hash className="w-3 h-3 text-[#00fe66] opacity-70" />
@@ -1258,10 +1405,10 @@ export default function DreamPlayerPage() {
                       type="number"
                       className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] text-center block w-full"
                       inputClassName="font-[Bebas_Neue,sans-serif] text-[14px] text-center w-[40px]"
+                      readOnly={isReadOnly}
                     />
                   </div>
 
-                  {/* Strong foot — toggle Left / Right on click */}
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
                       <Star className="w-3 h-3 text-[#00fe66] opacity-70" />
@@ -1272,19 +1419,20 @@ export default function DreamPlayerPage() {
                     <FootToggle
                       value={identity.preferred_foot}
                       onChange={(v) => patchIdentity("preferred_foot", v)}
+                      readOnly={isReadOnly}
                     />
                   </div>
                 </div>
 
-                {/* Edit hint */}
-                <p className="text-[8px] text-[rgba(255,255,255,0.2)] tracking-[0.12em] uppercase text-center -mb-1">
-                  Click any field to edit · Click foot to toggle
-                </p>
+                {!isReadOnly && (
+                  <p className="text-[8px] text-[rgba(255,255,255,0.2)] tracking-[0.12em] uppercase text-center -mb-1">
+                    Click any field to edit · Click foot to toggle
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
-          {/* RIGHT STAT CARDS */}
           <div className="flex flex-col gap-6 z-20 w-full md:w-auto order-3">
             {RIGHT_STATS.map(({ key, label, icon, connectorWidth }) => (
               <StatCard
@@ -1297,61 +1445,63 @@ export default function DreamPlayerPage() {
                 filled={stats[key] > 0}
                 active={activeSlot === key}
                 onClick={() => openModal(key)}
+                readOnly={isReadOnly}
               />
             ))}
           </div>
         </main>
 
-        {/* Create Player Button */}
         <div className="relative z-30 flex flex-col items-center gap-3 pb-10">
-          {creating && (
-            <div className="flex items-center gap-2 mb-1">
-              <div
-                className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-bounce"
-                style={{ animationDelay: "0ms" }}
-              />
-              <div
-                className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-bounce"
-                style={{ animationDelay: "150ms" }}
-              />
-              <div
-                className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-bounce"
-                style={{ animationDelay: "300ms" }}
-              />
-            </div>
+          {isReadOnly ? (
+            <button
+              onClick={handleChangePlayer}
+              className="relative overflow-hidden flex items-center gap-3 px-10 py-[13px] rounded-xl border border-[rgba(0,254,102,0.25)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.85rem] transition-[transform,box-shadow,border-color] duration-150 font-[Oxanium,sans-serif] text-[rgba(0,254,102,0.7)] bg-[rgba(0,254,102,0.05)] hover:border-[rgba(0,254,102,0.5)] hover:text-[#00fe66] hover:-translate-y-0.5"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Change Dream Player
+            </button>
+          ) : (
+            <>
+              {isPending && (
+                <div className="flex items-center gap-2 mb-1">
+                  {[0, 150, 300].map((delay) => (
+                    <div
+                      key={delay}
+                      className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-bounce"
+                      style={{ animationDelay: `${delay}ms` }}
+                    />
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={handleCreate}
+                disabled={!hasAnyPlayer || isPending}
+                className={[
+                  "relative overflow-hidden flex items-center gap-3 px-12 py-[14px] rounded-xl border-none cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.85rem] transition-[transform,box-shadow,opacity] duration-150 font-[Oxanium,sans-serif]",
+                  hasAnyPlayer && !isPending
+                    ? "text-[#0d0f0c] bg-gradient-to-br from-[#00fe66] to-[#00c44f] shadow-[0_0_24px_rgba(0,254,102,0.25),0_4px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(0,254,102,0.4),0_8px_24px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97]"
+                    : "text-[rgba(0,254,102,0.3)] bg-[rgba(0,254,102,0.05)] border border-[rgba(0,254,102,0.12)] cursor-not-allowed",
+                ].join(" ")}
+              >
+                <span className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none" />
+                <Plus className="w-4 h-4" strokeWidth={3} />
+                {isPending ? "Creating Player..." : "Create Player"}
+              </button>
+            </>
           )}
 
-          <button
-            onClick={handleCreate}
-            disabled={!hasAnyPlayer || creating}
-            className={[
-              "relative overflow-hidden flex items-center gap-3 px-12 py-[14px] rounded-xl",
-              "border-none cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.85rem]",
-              "transition-[transform,box-shadow,opacity] duration-150 font-[Oxanium,sans-serif]",
-              hasAnyPlayer && !creating
-                ? "text-[#0d0f0c] bg-gradient-to-br from-[#00fe66] to-[#00c44f] shadow-[0_0_24px_rgba(0,254,102,0.25),0_4px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(0,254,102,0.4),0_8px_24px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97]"
-                : "text-[rgba(0,254,102,0.3)] bg-[rgba(0,254,102,0.05)] border border-[rgba(0,254,102,0.12)] cursor-not-allowed",
-            ].join(" ")}
-          >
-            <span className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none" />
-            <Plus className="w-4 h-4" strokeWidth={3} />
-            {creating ? "Creating Player..." : "Create Player"}
-          </button>
-
           <p className="text-[10px] font-bold tracking-widest uppercase text-white/30 font-[Oxanium,sans-serif]">
-            {allSlotsFilled
-              ? "All attributes assigned — ready to create"
-              : "Click any attribute card to assign a player"}
+            {isReadOnly
+              ? "Your dream player is saved"
+              : allSlotsFilled
+                ? "All attributes assigned — ready to create"
+                : "Click any attribute card to assign a player"}
           </p>
         </div>
-
-        {/* Vignette overlay */}
       </div>
 
-      {/* Player Picker Modal */}
       {activeSlot !== null && (
         <PlayerPickerModal
-          slotPosition={identity.position || "ST"}
           isGK={identity.position === "GK"}
           statLabel={activeSlot.toUpperCase()}
           onClose={closeModal}
