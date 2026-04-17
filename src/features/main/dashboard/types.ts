@@ -79,3 +79,31 @@ export interface IGoalKeeperResponse {
 
   player_face_url: string;
 }
+
+export interface IDreamPlayerPayload {
+  name: string;
+  position: string;
+  nationality: string;
+  shirt_number: number;
+  preferred_foot: string;
+  pace: number;
+  shooting: number;
+  passing: number;
+  dribbling: number;
+  defending: number;
+  physic: number;
+}
+
+export interface IDreamPlayerResponse {
+  name: string;
+  position: string;
+  nationality: string;
+  shirt_number: number;
+  preferred_foot: string;
+  pace: number;
+  shooting: number;
+  passing: number;
+  dribbling: number;
+  defending: number;
+  physic: number;
+}
