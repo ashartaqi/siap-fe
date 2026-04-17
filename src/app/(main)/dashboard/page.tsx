@@ -36,6 +36,7 @@ const FIXTURE_LEAGUES = [
   { key: "PPL", label: "Primeira Liga", badge: "PPL" },
   { key: "PD", label: "La Liga", badge: "LL" },
   { key: "BL", label: "Bundesliga", badge: "BL" },
+  { key: "CL", label: "Champions League", badge: "CL" },
 ];
 
 const STANDING_LEAGUES = [
@@ -388,16 +389,17 @@ function LatestResults() {
       setLoading(true);
       try {
         const targetStatuses = ["FINISHED", "AWARDED"];
+        const now = new Date();
         const fetched = await Promise.allSettled(
           FIXTURE_LEAGUES.flatMap((lg) =>
             targetStatuses.map(async (status) => {
               const res = await fetch(
-                `${BASE}/fixtures?limit=11&league=${lg.key}&status_filter=${status}`,
+                `${BASE}/fixtures?limit=50&league=${lg.key}&status_filter=${status}`,
               );
               if (!res.ok) return [];
               const data: Match[] = await res.json();
               return data
-                .filter((m) => withinLastWeek(m.date))
+                .filter((m) => new Date(m.date) <= now)
                 .map((m) => ({ ...m, league: lg.key }));
             }),
           ),
