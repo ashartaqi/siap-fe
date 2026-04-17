@@ -4,6 +4,21 @@ import React from "react";
 import { Star, BarChart } from "lucide-react";
 import { Heart, CircleDot, ShieldCheck, Timer } from "lucide-react";
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface Match {
+  id: number | string;
+  home_team: string;
+  away_team: string;
+  home_team_score: number | null;
+  away_team_score: number | null;
+  status: string; // e.g. "FINISHED", "IN_PLAY", "TIMED", "SCHEDULED", "PAUSED", "HALFTIME"
+  date: string;
+  minute?: number | null;
+  league?: string;
+  winner?: string | null;
+}
+
 interface StandingRow {
   id: number | string;
   position: number;
@@ -12,13 +27,77 @@ interface StandingRow {
   points: number;
 }
 
-const LEAGUES = [
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const FIXTURE_LEAGUES = [
+  { key: "FL1", label: "Ligue 1", badge: "L1" },
+  { key: "SA", label: "Serie A", badge: "SA" },
+  { key: "PL", label: "Premier League", badge: "PL" },
+  { key: "PPL", label: "Primeira Liga", badge: "PPL" },
+  { key: "PD", label: "La Liga", badge: "LL" },
+  { key: "BL", label: "Bundesliga", badge: "BL" },
+];
+
+const STANDING_LEAGUES = [
   { key: "PL", label: "Premier League", badge: "PL" },
   { key: "PD", label: "La Liga", badge: "LL" },
   { key: "SA", label: "Serie A", badge: "SA" },
   { key: "BL1", label: "Bundesliga", badge: "BL" },
   { key: "FL1", label: "Ligue 1", badge: "L1" },
 ];
+
+const BASE = "http://127.0.0.1:8000/live";
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function isFinished(status: string) {
+  return ["FINISHED", "AWARDED"].includes(status);
+}
+
+function isUpcoming(status: string) {
+  return ["TIMED", "SCHEDULED", "POSTPONED"].includes(status);
+}
+
+function withinLastWeek(dateStr: string) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = now.getTime() - d.getTime();
+  return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+}
+
+function formatMatchTime(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatShortDate(dateStr: string) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function abbrev(name: string) {
+  // Try to return a 3-letter club abbreviation
+  const words = name.trim().split(/\s+/);
+  if (words.length === 1) return name.slice(0, 3).toUpperCase();
+  // Multi-word: use initials or first 3 of first word
+  return words
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 3)
+    .toUpperCase();
+}
+
+// ─── League Table Carousel ────────────────────────────────────────────────────
 
 function LeagueTableCarousel() {
   const [current, setCurrent] = React.useState(0);
@@ -29,24 +108,18 @@ function LeagueTableCarousel() {
   const cache = React.useRef<Record<string, StandingRow[]>>({});
 
   const load = React.useCallback(async (idx: number) => {
-    const key = LEAGUES[idx].key;
+    const key = STANDING_LEAGUES[idx].key;
     setStatus("loading");
-
     if (cache.current[key]) {
       setRows(cache.current[key]);
       setStatus("ok");
       return;
     }
-
     try {
-      const res = await fetch(
-        `http://127.0.0.1:8000/live/standings?limit=50&league=${key}`,
-      );
+      const res = await fetch(`${BASE}/standings?limit=10&league=${key}`);
       if (!res.ok) throw new Error();
       const data = await res.json();
-      const normalized: StandingRow[] = Array.isArray(data)
-        ? (data as StandingRow[])
-        : [];
+      const normalized: StandingRow[] = Array.isArray(data) ? data : [];
       cache.current[key] = normalized;
       setRows(normalized);
       setStatus("ok");
@@ -60,13 +133,14 @@ function LeagueTableCarousel() {
   }, [current, load]);
 
   const navigate = (dir: number) =>
-    setCurrent((c) => (c + dir + LEAGUES.length) % LEAGUES.length);
+    setCurrent(
+      (c) => (c + dir + STANDING_LEAGUES.length) % STANDING_LEAGUES.length,
+    );
 
-  const league = LEAGUES[current];
+  const league = STANDING_LEAGUES[current];
 
   return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
@@ -91,8 +165,6 @@ function LeagueTableCarousel() {
           </button>
         </div>
       </div>
-
-      {/* Table */}
       <div className="bg-surface-container-low rounded-lg overflow-hidden border border-[#474845]/10">
         <table className="w-full text-left">
           <thead className="sticky top-0 z-10 bg-surface-container-low">
@@ -104,7 +176,6 @@ function LeagueTableCarousel() {
             </tr>
           </thead>
         </table>
-        {/* Scrollable body */}
         <div
           className="overflow-y-auto league-scroll"
           style={{ maxHeight: "260px" }}
@@ -134,13 +205,9 @@ function LeagueTableCarousel() {
               {status === "ok" &&
                 rows.map((r) => {
                   const pos = r.position;
-                  const club = r.team_name;
-                  const played = r.played_games;
-                  const pts = r.points;
                   const total = rows.length;
                   const isTop = pos <= 3;
                   const isRel = pos > total - 3;
-
                   return (
                     <tr
                       key={r.id}
@@ -154,15 +221,15 @@ function LeagueTableCarousel() {
                       <td
                         className={`px-3 py-2 font-medium uppercase tracking-tighter ${isRel ? "opacity-60" : ""}`}
                       >
-                        {club}
+                        {r.team_name}
                       </td>
                       <td className="px-3 py-2 text-center text-on-surface-variant">
-                        {played}
+                        {r.played_games}
                       </td>
                       <td
                         className={`px-3 py-2 text-right font-bold ${pos === 1 ? "text-primary-container" : ""}`}
                       >
-                        {pts}
+                        {r.points}
                       </td>
                     </tr>
                   );
@@ -170,10 +237,8 @@ function LeagueTableCarousel() {
             </tbody>
           </table>
         </div>
-
-        {/* Dot indicators */}
         <div className="flex justify-center gap-1.5 py-2 border-t border-[#474845]/10">
-          {LEAGUES.map((l, i) => (
+          {STANDING_LEAGUES.map((l, i) => (
             <button
               key={l.key}
               onClick={() => setCurrent(i)}
@@ -188,6 +253,261 @@ function LeagueTableCarousel() {
     </div>
   );
 }
+
+// ─── Fixtures Strip ───────────────────────────────────────────────────────────
+
+function FixturesStrip() {
+  const [allMatches, setAllMatches] = React.useState<Match[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchAll() {
+      setLoading(true);
+      try {
+        const targetStatuses = ["TIMED", "SCHEDULED", "POSTPONED"];
+        const results = await Promise.allSettled(
+          FIXTURE_LEAGUES.flatMap((lg) =>
+            targetStatuses.map(async (status) => {
+              const res = await fetch(
+                `${BASE}/fixtures?limit=11&league=${lg.key}&status_filter=${status}`,
+              );
+              if (!res.ok) return [];
+              const data: Match[] = await res.json();
+              const now = new Date();
+              return data
+                .filter((m) => new Date(m.date) > now)
+                .map((m) => ({ ...m, league: lg.key }));
+            }),
+          ),
+        );
+        const merged: Match[] = [];
+        for (const r of results) {
+          if (r.status === "fulfilled") merged.push(...r.value);
+        }
+        merged.sort((a, b) => {
+          const aLive = ["IN_PLAY", "PAUSED", "HALFTIME"].includes(a.status)
+            ? 0
+            : 1;
+          const bLive = ["IN_PLAY", "PAUSED", "HALFTIME"].includes(b.status)
+            ? 0
+            : 1;
+          if (aLive !== bLive) return aLive - bLive;
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+        setAllMatches(merged.slice(0, 11));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAll();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+        {[...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            className="flex-none w-72 h-32 bg-surface-container-low border border-[#474845]/20 rounded-lg animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (allMatches.length === 0) {
+    return (
+      <p className="text-on-surface-variant text-sm">
+        No fixtures available right now.
+      </p>
+    );
+  }
+
+  const leagueName = (key: string) =>
+    FIXTURE_LEAGUES.find((l) => l.key === key)?.label ?? key;
+
+  return (
+    <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
+      {allMatches.map((m) => {
+        const upcoming = isUpcoming(m.status);
+        return (
+          <div
+            key={`${m.league}-${m.id}`}
+            className="flex-none w-72 bg-surface-container-low border border-[#474845]/20 p-4 rounded-lg neon-glow transition-all duration-300"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                {upcoming ? (
+                  <span className="text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container-highest rounded uppercase">
+                    {formatMatchTime(m.date)}
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container-highest rounded uppercase">
+                    Upcoming
+                  </span>
+                )}
+                <span className="text-[9px] font-bold text-on-surface-variant/50 uppercase">
+                  {leagueName(m.league ?? "")}
+                </span>
+              </div>
+              <Star className="w-4 h-4 text-on-surface-variant" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-headline font-medium text-sm truncate pr-2">
+                  {m.home_team}
+                </span>
+                <span className="font-headline font-bold text-lg">
+                  {m.home_team_score !== null ? m.home_team_score : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-on-surface/60">
+                <span className="font-headline font-medium text-sm truncate pr-2">
+                  {m.away_team}
+                </span>
+                <span className="font-headline font-bold text-lg">
+                  {m.away_team_score !== null ? m.away_team_score : "-"}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Latest Results ───────────────────────────────────────────────────────────
+
+function LatestResults() {
+  const [results, setResults] = React.useState<Match[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchAll() {
+      setLoading(true);
+      try {
+        const targetStatuses = ["FINISHED", "AWARDED"];
+        const fetched = await Promise.allSettled(
+          FIXTURE_LEAGUES.flatMap((lg) =>
+            targetStatuses.map(async (status) => {
+              const res = await fetch(
+                `${BASE}/fixtures?limit=11&league=${lg.key}&status_filter=${status}`,
+              );
+              if (!res.ok) return [];
+              const data: Match[] = await res.json();
+              return data
+                .filter((m) => withinLastWeek(m.date))
+                .map((m) => ({ ...m, league: lg.key }));
+            }),
+          ),
+        );
+        const merged: Match[] = [];
+        for (const r of fetched) {
+          if (r.status === "fulfilled") merged.push(...r.value);
+        }
+        // Sort by most recent first
+        merged.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        );
+        setResults(merged.slice(0, 11));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAll();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            className="h-16 bg-surface-container-low rounded animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (results.length === 0) {
+    return (
+      <p className="text-on-surface-variant text-sm">
+        No results from the past week.
+      </p>
+    );
+  }
+
+  const leagueName = (key: string) =>
+    FIXTURE_LEAGUES.find((l) => l.key === key)?.label ?? key;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {results.map((m) => {
+        const homeWon =
+          m.winner === "HOME_TEAM" ||
+          (m.home_team_score !== null &&
+            m.away_team_score !== null &&
+            m.home_team_score > m.away_team_score);
+        const awayWon =
+          m.winner === "AWAY_TEAM" ||
+          (m.home_team_score !== null &&
+            m.away_team_score !== null &&
+            m.away_team_score > m.home_team_score);
+        const draw =
+          m.winner === "DRAW" ||
+          (m.home_team_score !== null &&
+            m.away_team_score !== null &&
+            m.home_team_score === m.away_team_score);
+
+        const accentColor = homeWon
+          ? "border-[#00fe66]"
+          : awayWon
+            ? "border-[#ff7351]"
+            : "border-[#474845]";
+        const resultLabel = draw ? "D" : homeWon ? "W" : "L";
+        const resultColor = draw
+          ? "text-on-surface-variant"
+          : homeWon
+            ? "text-primary-container"
+            : "text-error";
+
+        return (
+          <div
+            key={`${m.league}-${m.id}`}
+            className={`bg-surface-container-low p-4 border-l-4 ${accentColor} flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors`}
+          >
+            <div className="flex flex-col gap-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-label text-[10px] text-on-surface-variant uppercase">
+                  {formatShortDate(m.date)}
+                </span>
+                <span className="text-[9px] font-bold text-on-surface-variant/40 uppercase">
+                  {leagueName(m.league ?? "")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`font-headline font-bold ${resultColor}`}>
+                  {resultLabel}
+                </span>
+                <span className="font-headline font-bold text-sm truncate">
+                  {m.home_team}{" "}
+                  {m.home_team_score !== null ? m.home_team_score : "-"} –{" "}
+                  {m.away_team_score !== null ? m.away_team_score : "-"}{" "}
+                  {m.away_team}
+                </span>
+              </div>
+            </div>
+            <BarChart className="w-5 h-5 text-on-surface-variant group-hover:text-primary-container transition-colors flex-none ml-2" />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Dashboard Page ───────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   return (
@@ -219,7 +539,7 @@ export default function DashboardPage() {
       />
 
       <main className="max-w-[1600px] mx-auto p-4 md:p-8 space-y-8 relative z-10">
-        {/* SECTION 1: Current Fixtures (Horizontal Scroll) */}
+        {/* SECTION 1: Live + Upcoming Fixtures */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-headline font-bold text-xl uppercase tracking-widest flex items-center gap-2">
@@ -227,165 +547,19 @@ export default function DashboardPage() {
               Fixtures
             </h2>
           </div>
-          <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
-            {/* Match Card 1 */}
-            <div className="flex-none w-72 bg-surface-container-low border border-[#474845]/20 p-4 rounded-lg neon-glow transition-all duration-300">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-[10px] font-bold text-primary-container px-2 py-0.5 bg-primary-container/10 rounded uppercase">
-                  Live 64
-                </span>
-                <Star className="w-4 h-4 text-on-surface-variant" />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-headline font-medium text-sm">ARS</span>
-                  <span className="font-headline font-bold text-lg">2</span>
-                </div>
-                <div className="flex justify-between items-center text-on-surface/40">
-                  <span className="font-headline font-medium text-sm">MCI</span>
-                  <span className="font-headline font-bold text-lg">1</span>
-                </div>
-              </div>
-            </div>
-            {/* Match Card 2 */}
-            <div className="flex-none w-72 bg-surface-container-low border border-[#474845]/20 p-4 rounded-lg neon-glow transition-all duration-300">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container-highest rounded uppercase">
-                  20:00 GMT
-                </span>
-                <Star className="w-4 h-4 text-on-surface-variant" />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-headline font-medium text-sm">LIV</span>
-                  <span className="font-headline font-bold text-lg text-on-surface-variant">
-                    -
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-headline font-medium text-sm">CHE</span>
-                  <span className="font-headline font-bold text-lg text-on-surface-variant">
-                    -
-                  </span>
-                </div>
-              </div>
-            </div>
-            {/* Match Card 3 */}
-            <div className="flex-none w-72 bg-surface-container-low border border-[#474845]/20 p-4 rounded-lg neon-glow transition-all duration-300">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-[10px] font-bold text-primary-container px-2 py-0.5 bg-primary-container/10 rounded uppercase">
-                  Live 12
-                </span>
-                <Star className="w-4 h-4 text-on-surface-variant" />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-headline font-medium text-sm">TOT</span>
-                  <span className="font-headline font-bold text-lg">0</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-headline font-medium text-sm">NEW</span>
-                  <span className="font-headline font-bold text-lg">0</span>
-                </div>
-              </div>
-            </div>
-            {/* Match Card 4 */}
-            <div className="flex-none w-72 bg-surface-container-low border border-[#474845]/20 p-4 rounded-lg neon-glow transition-all duration-300">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container-highest rounded uppercase">
-                  Full Time
-                </span>
-                <Star className="w-4 h-4 text-on-surface-variant" />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="font-headline font-medium text-sm">MUN</span>
-                  <span className="font-headline font-bold text-lg">1</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-headline font-medium text-sm">BHA</span>
-                  <span className="font-headline font-bold text-lg">3</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <FixturesStrip />
         </section>
 
         {/* Main Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8">
           {/* LEFT COLUMN */}
           <div className="space-y-8">
-            {/* Latest Match Results */}
+            {/* Latest Match Results — last 7 days, FINISHED */}
             <section className="space-y-4">
               <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
                 Latest Results
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-surface-container-low p-4 border-l-4 border-[#00fe66] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-label text-[10px] text-on-surface-variant uppercase">
-                      Sat, 14 Oct
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-headline font-bold text-primary-container">
-                        W
-                      </span>
-                      <span className="font-headline text-sm">
-                        Liverpool 3 - 0 Everton
-                      </span>
-                    </div>
-                  </div>
-                  <BarChart className="w-5 h-5 text-on-surface-variant group-hover:text-primary-container transition-colors" />
-                </div>
-                <div className="bg-surface-container-low p-4 border-l-4 border-[#ff7351] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-label text-[10px] text-on-surface-variant uppercase">
-                      Sat, 14 Oct
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-headline font-bold text-error">
-                        L
-                      </span>
-                      <span className="font-headline text-sm">
-                        Wolves 1 - 2 Aston Villa
-                      </span>
-                    </div>
-                  </div>
-                  <BarChart className="w-5 h-5 text-on-surface-variant group-hover:text-primary-container transition-colors" />
-                </div>
-                <div className="bg-surface-container-low p-4 border-l-4 border-[#474845] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-label text-[10px] text-on-surface-variant uppercase">
-                      Sun, 15 Oct
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-headline font-bold text-on-surface-variant">
-                        D
-                      </span>
-                      <span className="font-headline text-sm">
-                        Fulham 0 - 0 Palace
-                      </span>
-                    </div>
-                  </div>
-                  <BarChart className="w-5 h-5 text-on-surface-variant group-hover:text-primary-container transition-colors" />
-                </div>
-                <div className="bg-surface-container-low p-4 border-l-4 border-[#00fe66] flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-label text-[10px] text-on-surface-variant uppercase">
-                      Sun, 15 Oct
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-headline font-bold text-primary-container">
-                        W
-                      </span>
-                      <span className="font-headline text-sm">
-                        Chelsea 4 - 1 Burnley
-                      </span>
-                    </div>
-                  </div>
-                  <BarChart className="w-5 h-5 text-on-surface-variant group-hover:text-primary-container transition-colors" />
-                </div>
-              </div>
+              <LatestResults />
             </section>
 
             {/* Top Scorers */}
@@ -587,21 +761,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <span className="w-8 h-8 rounded bg-primary-container text-on-primary font-headline font-bold flex items-center justify-center text-xs">
-                    W
-                  </span>
-                  <span className="w-8 h-8 rounded bg-primary-container text-on-primary font-headline font-bold flex items-center justify-center text-xs">
-                    W
-                  </span>
-                  <span className="w-8 h-8 rounded bg-primary-container text-on-primary font-headline font-bold flex items-center justify-center text-xs">
-                    W
-                  </span>
-                  <span className="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant font-headline font-bold flex items-center justify-center text-xs border border-[#474845]/20">
-                    D
-                  </span>
-                  <span className="w-8 h-8 rounded bg-primary-container text-on-primary font-headline font-bold flex items-center justify-center text-xs">
-                    W
-                  </span>
+                  {["W", "W", "W", "D", "W"].map((r, i) => (
+                    <span
+                      key={i}
+                      className={`w-8 h-8 rounded font-headline font-bold flex items-center justify-center text-xs ${r === "W" ? "bg-primary-container text-on-primary" : "bg-surface-container-highest text-on-surface-variant border border-[#474845]/20"}`}
+                    >
+                      {r}
+                    </span>
+                  ))}
                 </div>
               </div>
               <div className="p-6 space-y-4">
@@ -609,24 +776,16 @@ export default function DashboardPage() {
                   Upcoming Fixtures
                 </p>
                 <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-on-surface-variant">
-                      vs Sevilla (A)
-                    </span>
-                    <span className="font-medium">Tue, 24 Oct</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-on-surface-variant">
-                      vs Sheff Utd (H)
-                    </span>
-                    <span className="font-medium">Sat, 28 Oct</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-on-surface-variant">
-                      vs West Ham (A)
-                    </span>
-                    <span className="font-medium">Wed, 01 Nov</span>
-                  </div>
+                  {[
+                    { opp: "vs Sevilla (A)", date: "Tue, 24 Oct" },
+                    { opp: "vs Sheff Utd (H)", date: "Sat, 28 Oct" },
+                    { opp: "vs West Ham (A)", date: "Wed, 01 Nov" },
+                  ].map((f) => (
+                    <div key={f.opp} className="flex justify-between text-sm">
+                      <span className="text-on-surface-variant">{f.opp}</span>
+                      <span className="font-medium">{f.date}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
@@ -652,41 +811,40 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="space-y-4">
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
-                    <span>Passing Accuracy</span>
-                    <span className="text-primary-container">89%</span>
+                {[
+                  { label: "Passing Accuracy", pct: 89 },
+                  { label: "Successful Dribbles", pct: 74 },
+                ].map((s) => (
+                  <div key={s.label} className="space-y-1">
+                    <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
+                      <span>{s.label}</span>
+                      <span className="text-primary-container">{s.pct}%</span>
+                    </div>
+                    <div className="w-full h-1 bg-surface-container-highest">
+                      <div
+                        className="h-full bg-primary-container"
+                        style={{ width: `${s.pct}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full h-1 bg-surface-container-highest">
-                    <div className="h-full bg-primary-container w-[89%]"></div>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
-                    <span>Successful Dribbles</span>
-                    <span className="text-primary-container">74%</span>
-                  </div>
-                  <div className="w-full h-1 bg-surface-container-highest">
-                    <div className="h-full bg-primary-container w-[74%]"></div>
-                  </div>
-                </div>
+                ))}
                 <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div className="bg-surface-container-highest p-3 rounded text-center">
-                    <span className="block font-headline font-black text-xl">
-                      05
-                    </span>
-                    <span className="text-[8px] uppercase text-on-surface-variant font-bold tracking-widest">
-                      Goals
-                    </span>
-                  </div>
-                  <div className="bg-surface-container-highest p-3 rounded text-center">
-                    <span className="block font-headline font-black text-xl">
-                      04
-                    </span>
-                    <span className="text-[8px] uppercase text-on-surface-variant font-bold tracking-widest">
-                      Assists
-                    </span>
-                  </div>
+                  {[
+                    { v: "05", l: "Goals" },
+                    { v: "04", l: "Assists" },
+                  ].map((s) => (
+                    <div
+                      key={s.l}
+                      className="bg-surface-container-highest p-3 rounded text-center"
+                    >
+                      <span className="block font-headline font-black text-xl">
+                        {s.v}
+                      </span>
+                      <span className="text-[8px] uppercase text-on-surface-variant font-bold tracking-widest">
+                        {s.l}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </section>
@@ -697,54 +855,42 @@ export default function DashboardPage() {
                 League Average
               </h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CircleDot className="w-4 h-4 text-on-surface-variant" />
-                    <span className="text-xs font-medium uppercase text-on-surface-variant">
-                      Avg Goals / Game
+                {[
+                  { Icon: CircleDot, label: "Avg Goals / Game", value: "2.84" },
+                  { Icon: ShieldCheck, label: "Clean Sheets", value: "22%" },
+                  { Icon: Timer, label: "Effective Play", value: "56m" },
+                ].map(({ Icon, label, value }) => (
+                  <div
+                    key={label}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-4 h-4 text-on-surface-variant" />
+                      <span className="text-xs font-medium uppercase text-on-surface-variant">
+                        {label}
+                      </span>
+                    </div>
+                    <span className="font-headline font-bold text-primary-container">
+                      {value}
                     </span>
                   </div>
-                  <span className="font-headline font-bold text-primary-container">
-                    2.84
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck className="w-4 h-4 text-on-surface-variant" />
-                    <span className="text-xs font-medium uppercase text-on-surface-variant">
-                      Clean Sheets
-                    </span>
-                  </div>
-                  <span className="font-headline font-bold text-primary-container">
-                    22%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Timer className="w-4 h-4 text-on-surface-variant" />
-                    <span className="text-xs font-medium uppercase text-on-surface-variant">
-                      Effective Play
-                    </span>
-                  </div>
-                  <span className="font-headline font-bold text-primary-container">
-                    56m
-                  </span>
-                </div>
+                ))}
               </div>
               <div className="pt-4 space-y-3">
                 <p className="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest">
                   Trending Now
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-medium border border-[#474845]/10 cursor-pointer hover:border-[#00fe66]/40">
-                    #NorthLondonDerby
-                  </span>
-                  <span className="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-medium border border-[#474845]/10 cursor-pointer hover:border-[#00fe66]/40">
-                    #HaalandRecord
-                  </span>
-                  <span className="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-medium border border-[#474845]/10 cursor-pointer hover:border-[#00fe66]/40">
-                    #VARAnalysis
-                  </span>
+                  {["#NorthLondonDerby", "#HaalandRecord", "#VARAnalysis"].map(
+                    (tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-medium border border-[#474845]/10 cursor-pointer hover:border-[#00fe66]/40"
+                      >
+                        {tag}
+                      </span>
+                    ),
+                  )}
                 </div>
               </div>
             </section>
