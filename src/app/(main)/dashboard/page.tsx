@@ -20,6 +20,24 @@ interface Match {
   winner?: string | null;
 }
 
+interface Player {
+  id: number;
+  short_name: string;
+  long_name: string;
+  player_positions: string;
+  overall: number;
+  age: number;
+  club_name: string;
+  nationality_name: string;
+  pace?: number;
+  shooting?: number;
+  passing?: number;
+  dribbling?: number;
+  defending?: number;
+  physic?: number;
+  player_face_url?: string;
+}
+
 interface Club {
   id: number;
   name: string;
@@ -262,7 +280,7 @@ function FixturesStrip() {
           FIXTURE_LEAGUES.flatMap((lg) =>
             targetStatuses.map(async (status) => {
               const res = await fetch(
-                `${BASE}/fixtures?limit=11&league=${lg.key}&status_filter=${status}`,
+                `${BASE}/fixtures?limit=10&league=${lg.key}&status_filter=${status}`,
               );
               if (!res.ok) return [];
               const data: Match[] = await res.json();
@@ -663,6 +681,135 @@ function FavoriteTeamSpotlight() {
   );
 }
 
+// ─── Favorite Player Card ─────────────────────────────────────────────────────
+
+function FavoritePlayerCard() {
+  const [favoritePlayer, setFavoritePlayer] = React.useState<Player | null>(
+    null,
+  );
+  const [upcomingFixes, setUpcomingFixes] = React.useState<Match[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      try {
+        const _res = await axiosClient.get("/players/fav");
+        const favPlayers = _res.data;
+        if (favPlayers && favPlayers.length > 0) {
+          const player = favPlayers[0];
+          setFavoritePlayer(player);
+
+          const teamName = player.club_name;
+          const fetchUpcoming = async (role: string) => {
+            const res1 = await fetch(
+              `${BASE}/fixtures?limit=5&status_filter=SCHEDULED&${role}=${teamName}`,
+            );
+            const res2 = await fetch(
+              `${BASE}/fixtures?limit=5&status_filter=TIMED&${role}=${teamName}`,
+            );
+            const d1 = res1.ok ? await res1.json() : [];
+            const d2 = res2.ok ? await res2.json() : [];
+            return [...d1, ...d2];
+          };
+          const homeUp = await fetchUpcoming("home_team");
+          const awayUp = await fetchUpcoming("away_team");
+          const allUp = [...homeUp, ...awayUp]
+            .filter((m: Match) => new Date(m.date) > new Date())
+            .sort(
+              (a: Match, b: Match) =>
+                new Date(a.date).getTime() - new Date(b.date).getTime(),
+            )
+            .slice(0, 3);
+
+          setUpcomingFixes(allUp);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-surface-container-low p-6 rounded-lg border border-[#474845]/10 h-64 animate-pulse"></div>
+    );
+  }
+
+  if (!favoritePlayer) {
+    return (
+      <section className="bg-surface-container-low rounded-lg border border-[#474845]/30 p-6 text-center text-sm text-on-surface-variant">
+        No favorite player selected.
+      </section>
+    );
+  }
+
+  return (
+    <section className="bg-surface-container-low p-6 rounded-lg border border-[#474845]/10 relative overflow-hidden">
+      <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">
+        Player Focus
+      </h3>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="font-headline font-black text-lg uppercase truncate max-w-[160px]">
+              {favoritePlayer.short_name}
+            </h4>
+            <span className="bg-primary-container text-on-primary text-xs font-bold px-2 py-0.5 rounded">
+              {favoritePlayer.overall?.toString().padStart(2, "0")} OVR
+            </span>
+          </div>
+          <p className="text-xs text-on-surface-variant uppercase truncate max-w-[200px]">
+            {favoritePlayer.player_positions} | {favoritePlayer.club_name}
+          </p>
+        </div>
+        {favoritePlayer.player_face_url && (
+          <img
+            src={favoritePlayer.player_face_url}
+            alt={favoritePlayer.short_name}
+            className="w-12 h-12 object-cover rounded-full border-2 border-primary-container/20 shadow-lg"
+          />
+        )}
+      </div>
+
+      <div>
+        <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-3">
+          Upcoming Fixtures
+        </p>
+        <div className="space-y-3">
+          {upcomingFixes.length === 0 && (
+            <p className="text-xs text-on-surface-variant">
+              No upcoming matches.
+            </p>
+          )}
+          {upcomingFixes.map((f) => {
+            const isHome = f.home_team
+              .toLowerCase()
+              .includes(favoritePlayer.club_name.toLowerCase());
+            const opp = isHome
+              ? `vs ${f.away_team} (H)`
+              : `vs ${f.home_team} (A)`;
+            const d = new Date(f.date).toLocaleDateString("en-GB", {
+              weekday: "short",
+              day: "2-digit",
+              month: "short",
+            });
+            return (
+              <div key={f.id} className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">{opp}</span>
+                <span className="font-medium">{d}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Dashboard Page ───────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -906,58 +1053,7 @@ export default function DashboardPage() {
             </section>
 
             {/* Favorite Player Card */}
-            <section className="bg-surface-container-low p-6 rounded-lg border border-[#474845]/10 relative overflow-hidden">
-              <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">
-                Player Focus
-              </h3>
-              <div className="flex items-center gap-4 mb-6">
-                <div>
-                  <h4 className="font-headline font-black text-lg uppercase">
-                    B. Saka
-                  </h4>
-                  <p className="text-xs text-on-surface-variant">
-                    Right Winger | ARS
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { label: "Passing Accuracy", pct: 89 },
-                  { label: "Successful Dribbles", pct: 74 },
-                ].map((s) => (
-                  <div key={s.label} className="space-y-1">
-                    <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
-                      <span>{s.label}</span>
-                      <span className="text-primary-container">{s.pct}%</span>
-                    </div>
-                    <div className="w-full h-1 bg-surface-container-highest">
-                      <div
-                        className="h-full bg-primary-container"
-                        style={{ width: `${s.pct}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-                <div className="grid grid-cols-2 gap-4 pt-2">
-                  {[
-                    { v: "05", l: "Goals" },
-                    { v: "04", l: "Assists" },
-                  ].map((s) => (
-                    <div
-                      key={s.l}
-                      className="bg-surface-container-highest p-3 rounded text-center"
-                    >
-                      <span className="block font-headline font-black text-xl">
-                        {s.v}
-                      </span>
-                      <span className="text-[8px] uppercase text-on-surface-variant font-bold tracking-widest">
-                        {s.l}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <FavoritePlayerCard />
 
             {/* League Average */}
             <section className="bg-surface-container-low p-6 rounded-lg space-y-6">
