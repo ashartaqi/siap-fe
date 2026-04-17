@@ -37,7 +37,7 @@ export default function MainLayout({
           </li>
           <li>
             <Link
-              href="/DreamPlayer"
+              href="/dream-player"
               className="group flex items-center gap-3 px-4 py-3 text-[13px] font-condensed font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-neon)] hover:bg-[rgba(0,255,127,0.05)] rounded-lg transition-all"
             >
               <UserStar
@@ -49,7 +49,7 @@ export default function MainLayout({
           </li>
           <li>
             <Link
-              href="/DreamTeam"
+              href="/dream-team"
               className="group flex items-center gap-3 px-4 py-3 text-[13px] font-condensed font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-neon)] hover:bg-[rgba(0,255,127,0.05)] rounded-lg transition-all"
             >
               <Users
