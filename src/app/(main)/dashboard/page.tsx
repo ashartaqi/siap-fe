@@ -4,6 +4,191 @@ import React from "react";
 import { Star, BarChart } from "lucide-react";
 import { Heart, CircleDot, ShieldCheck, Timer } from "lucide-react";
 
+interface StandingRow {
+  id: number | string;
+  position: number;
+  team_name: string;
+  played_games: number;
+  points: number;
+}
+
+const LEAGUES = [
+  { key: "PL", label: "Premier League", badge: "PL" },
+  { key: "PD", label: "La Liga", badge: "LL" },
+  { key: "SA", label: "Serie A", badge: "SA" },
+  { key: "BL1", label: "Bundesliga", badge: "BL" },
+  { key: "FL1", label: "Ligue 1", badge: "L1" },
+];
+
+function LeagueTableCarousel() {
+  const [current, setCurrent] = React.useState(0);
+  const [rows, setRows] = React.useState<StandingRow[]>([]);
+  const [status, setStatus] = React.useState<"loading" | "error" | "ok">(
+    "loading",
+  );
+  const cache = React.useRef<Record<string, StandingRow[]>>({});
+
+  const load = React.useCallback(async (idx: number) => {
+    const key = LEAGUES[idx].key;
+    setStatus("loading");
+
+    if (cache.current[key]) {
+      setRows(cache.current[key]);
+      setStatus("ok");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/live/standings?limit=50&league=${key}`,
+      );
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const normalized: StandingRow[] = Array.isArray(data)
+        ? (data as StandingRow[])
+        : [];
+      cache.current[key] = normalized;
+      setRows(normalized);
+      setStatus("ok");
+    } catch {
+      setStatus("error");
+    }
+  }, []);
+
+  React.useEffect(() => {
+    load(current);
+  }, [current, load]);
+
+  const navigate = (dir: number) =>
+    setCurrent((c) => (c + dir + LEAGUES.length) % LEAGUES.length);
+
+  const league = LEAGUES[current];
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
+            League Table
+          </h2>
+          <span className="text-[9px] font-bold text-primary-container px-2 py-0.5 bg-primary-container/10 border border-primary-container/20 rounded uppercase tracking-widest">
+            {league.badge}
+          </span>
+        </div>
+        <div className="flex gap-1">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-7 h-7 rounded bg-surface-container-highest border border-[#474845]/20 text-on-surface-variant hover:border-primary-container/40 hover:text-primary-container transition-all flex items-center justify-center text-xs"
+          >
+            ←
+          </button>
+          <button
+            onClick={() => navigate(1)}
+            className="w-7 h-7 rounded bg-surface-container-highest border border-[#474845]/20 text-on-surface-variant hover:border-primary-container/40 hover:text-primary-container transition-all flex items-center justify-center text-xs"
+          >
+            →
+          </button>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-surface-container-low rounded-lg overflow-hidden border border-[#474845]/10">
+        <table className="w-full text-left">
+          <thead className="sticky top-0 z-10 bg-surface-container-low">
+            <tr className="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-[#474845]/10">
+              <th className="px-3 py-2 font-bold">Pos</th>
+              <th className="px-3 py-2 font-bold">Club</th>
+              <th className="px-3 py-2 font-bold text-center">P</th>
+              <th className="px-3 py-2 font-bold text-right">Pts</th>
+            </tr>
+          </thead>
+        </table>
+        {/* Scrollable body */}
+        <div
+          className="overflow-y-auto league-scroll"
+          style={{ maxHeight: "260px" }}
+        >
+          <table className="w-full text-left">
+            <tbody className="text-xs">
+              {status === "loading" && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="p-4 text-center text-[10px] uppercase tracking-widest text-on-surface-variant"
+                  >
+                    Loading...
+                  </td>
+                </tr>
+              )}
+              {status === "error" && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="p-4 text-center text-[10px] uppercase tracking-widest text-error"
+                  >
+                    Failed to load
+                  </td>
+                </tr>
+              )}
+              {status === "ok" &&
+                rows.map((r) => {
+                  const pos = r.position;
+                  const club = r.team_name;
+                  const played = r.played_games;
+                  const pts = r.points;
+                  const total = rows.length;
+                  const isTop = pos <= 3;
+                  const isRel = pos > total - 3;
+
+                  return (
+                    <tr
+                      key={r.id}
+                      className={`border-b border-[#474845]/5 ${isTop ? "bg-primary-container/5" : isRel ? "bg-error/5" : ""}`}
+                    >
+                      <td
+                        className={`px-3 py-2 font-headline font-bold ${isTop ? "text-primary-container" : isRel ? "text-error" : "text-on-surface-variant"}`}
+                      >
+                        {String(pos).padStart(2, "0")}
+                      </td>
+                      <td
+                        className={`px-3 py-2 font-medium uppercase tracking-tighter ${isRel ? "opacity-60" : ""}`}
+                      >
+                        {club}
+                      </td>
+                      <td className="px-3 py-2 text-center text-on-surface-variant">
+                        {played}
+                      </td>
+                      <td
+                        className={`px-3 py-2 text-right font-bold ${pos === 1 ? "text-primary-container" : ""}`}
+                      >
+                        {pts}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Dot indicators */}
+        <div className="flex justify-center gap-1.5 py-2 border-t border-[#474845]/10">
+          {LEAGUES.map((l, i) => (
+            <button
+              key={l.key}
+              onClick={() => setCurrent(i)}
+              className={`h-1 rounded-full transition-all duration-300 ${i === current ? "w-4 bg-primary-container" : "w-1 bg-[#474845]/40"}`}
+            />
+          ))}
+        </div>
+        <p className="text-center text-[9px] uppercase tracking-widest text-on-surface-variant pb-2">
+          {league.label}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   return (
     <div className="bg-background text-on-surface font-body selection:bg-primary selection:text-on-primary kinetic-grid min-h-screen">
@@ -25,6 +210,10 @@ export default function DashboardPage() {
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #242723; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #00FF66; }
+        .league-scroll::-webkit-scrollbar { width: 4px; }
+        .league-scroll::-webkit-scrollbar-track { background: transparent; }
+        .league-scroll::-webkit-scrollbar-thumb { background: #242723; border-radius: 10px; }
+        .league-scroll::-webkit-scrollbar-thumb:hover { background: #00FF66; }
       `,
         }}
       />
@@ -35,11 +224,8 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <h2 className="font-headline font-bold text-xl uppercase tracking-widest flex items-center gap-2">
               <span className="w-2 h-2 bg-primary-container rounded-full animate-pulse"></span>
-              Live Fixtures
+              Fixtures
             </h2>
-            <span className="font-label text-xs text-on-surface-variant uppercase">
-              Updated 2s ago
-            </span>
           </div>
           <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
             {/* Match Card 1 */}
@@ -447,103 +633,7 @@ export default function DashboardPage() {
 
             {/* League Table */}
             <section className="space-y-4">
-              <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
-                League Table
-              </h2>
-              <div className="bg-surface-container-low rounded-lg overflow-hidden border border-[#474845]/10">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-[#474845]/10">
-                      <th className="p-4 font-bold">Pos</th>
-                      <th className="p-4 font-bold">Club</th>
-                      <th className="p-4 font-bold text-center">P</th>
-                      <th className="p-4 font-bold text-right">Pts</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    <tr className="bg-primary-container/5 border-b border-[#474845]/5">
-                      <td className="p-4 font-headline font-bold text-primary-container">
-                        01
-                      </td>
-                      <td className="p-4 font-medium uppercase tracking-tighter">
-                        Arsenal
-                      </td>
-                      <td className="p-4 text-center text-on-surface-variant">
-                        8
-                      </td>
-                      <td className="p-4 text-right font-bold">20</td>
-                    </tr>
-                    <tr className="bg-primary-container/5 border-b border-[#474845]/5">
-                      <td className="p-4 font-headline font-bold text-primary-container">
-                        02
-                      </td>
-                      <td className="p-4 font-medium uppercase tracking-tighter">
-                        Tottenham
-                      </td>
-                      <td className="p-4 text-center text-on-surface-variant">
-                        8
-                      </td>
-                      <td className="p-4 text-right font-bold">20</td>
-                    </tr>
-                    <tr className="bg-primary-container/5 border-b border-[#474845]/5">
-                      <td className="p-4 font-headline font-bold text-primary-container">
-                        03
-                      </td>
-                      <td className="p-4 font-medium uppercase tracking-tighter">
-                        Man City
-                      </td>
-                      <td className="p-4 text-center text-on-surface-variant">
-                        8
-                      </td>
-                      <td className="p-4 text-right font-bold">18</td>
-                    </tr>
-                    <tr className="border-b border-[#474845]/5">
-                      <td className="p-4 font-headline font-bold text-on-surface-variant">
-                        04
-                      </td>
-                      <td className="p-4 font-medium uppercase tracking-tighter">
-                        Liverpool
-                      </td>
-                      <td className="p-4 text-center text-on-surface-variant">
-                        8
-                      </td>
-                      <td className="p-4 text-right font-bold">17</td>
-                    </tr>
-                    <tr>
-                      <td
-                        className="p-2 bg-surface-container-highest/20 text-center text-[8px] uppercase tracking-[0.2em] text-on-surface-variant"
-                        colSpan={4}
-                      >
-                        Relegation Zone
-                      </td>
-                    </tr>
-                    <tr className="bg-error/5 border-t border-[#474845]/5">
-                      <td className="p-4 font-headline font-bold text-error">
-                        18
-                      </td>
-                      <td className="p-4 font-medium uppercase tracking-tighter opacity-60">
-                        Burnley
-                      </td>
-                      <td className="p-4 text-center text-on-surface-variant">
-                        8
-                      </td>
-                      <td className="p-4 text-right font-bold">4</td>
-                    </tr>
-                    <tr className="bg-error/5 border-t border-[#474845]/5">
-                      <td className="p-4 font-headline font-bold text-error">
-                        19
-                      </td>
-                      <td className="p-4 font-medium uppercase tracking-tighter opacity-60">
-                        Bournemouth
-                      </td>
-                      <td className="p-4 text-center text-on-surface-variant">
-                        8
-                      </td>
-                      <td className="p-4 text-right font-bold">3</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <LeagueTableCarousel />
             </section>
 
             {/* Favorite Player Card */}
