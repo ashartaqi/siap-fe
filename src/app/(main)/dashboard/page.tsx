@@ -2,8 +2,12 @@
 
 import React from "react";
 import axiosClient from "@/lib/axiosClient";
-import { Star, BarChart } from "lucide-react";
-import { Heart, CircleDot, ShieldCheck, Timer } from "lucide-react";
+import {
+  Carousel,
+  CarouselHeader,
+  CarouselDots,
+} from "@/components/common/Carousel";
+import { Star, BarChart, Heart, ShieldCheck } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -108,6 +112,10 @@ function formatShortDate(dateStr: string) {
   });
 }
 
+function leagueName(key: string) {
+  return FIXTURE_LEAGUES.find((l) => l.key === key)?.label ?? key;
+}
+
 // ─── League Table Carousel ────────────────────────────────────────────────────
 
 function LeagueTableCarousel() {
@@ -143,39 +151,26 @@ function LeagueTableCarousel() {
     load(current);
   }, [current, load]);
 
-  const navigate = (dir: number) =>
-    setCurrent(
-      (c) => (c + dir + STANDING_LEAGUES.length) % STANDING_LEAGUES.length,
-    );
-
   const league = STANDING_LEAGUES[current];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
-            League Table
-          </h2>
-          <span className="text-[9px] font-bold text-primary-container px-2 py-0.5 bg-primary-container/10 border border-primary-container/20 rounded uppercase tracking-widest">
-            {league.badge}
-          </span>
-        </div>
-        <div className="flex gap-1">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-7 h-7 rounded bg-surface-container-highest border border-[#474845]/20 text-on-surface-variant hover:border-primary-container/40 hover:text-primary-container transition-all flex items-center justify-center text-xs"
-          >
-            ←
-          </button>
-          <button
-            onClick={() => navigate(1)}
-            className="w-7 h-7 rounded bg-surface-container-highest border border-[#474845]/20 text-on-surface-variant hover:border-primary-container/40 hover:text-primary-container transition-all flex items-center justify-center text-xs"
-          >
-            →
-          </button>
-        </div>
-      </div>
+      <CarouselHeader
+        title={
+          <div className="flex items-center gap-2">
+            <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
+              League Table
+            </h2>
+            <span className="text-[9px] font-bold text-primary-container px-2 py-0.5 bg-primary-container/10 border border-primary-container/20 rounded uppercase tracking-widest">
+              {league.badge}
+            </span>
+          </div>
+        }
+        currentIndex={current}
+        totalItems={STANDING_LEAGUES.length}
+        onIndexChange={setCurrent}
+        className="mb-3"
+      />
       <div className="bg-surface-container-low rounded-lg overflow-hidden border border-[#474845]/10">
         <table className="w-full text-left">
           <thead className="sticky top-0 z-10 bg-surface-container-low">
@@ -217,15 +212,25 @@ function LeagueTableCarousel() {
                 rows.map((r) => {
                   const pos = r.position;
                   const total = rows.length;
-                  const isTop = pos <= 3;
                   const isRel = pos > total - 3;
+
+                  const isPL = league.key === "PL";
+                  const clLimit = isPL ? 5 : 4;
+                  const elLimit = isPL ? 6 : 5;
+                  const colLimit = isPL ? 7 : 6;
+
+                  let rowBg = isRel ? "bg-error/5" : "";
+                  if (pos <= clLimit) rowBg = "bg-blue-500/40";
+                  else if (pos <= elLimit) rowBg = "bg-orange-400/40";
+                  else if (pos <= colLimit) rowBg = "bg-green-500/40";
+
                   return (
                     <tr
                       key={r.id}
-                      className={`border-b border-[#474845]/5 ${isTop ? "bg-primary-container/5" : isRel ? "bg-error/5" : ""}`}
+                      className={`border-b border-[#474845]/5 ${rowBg}`}
                     >
                       <td
-                        className={`px-3 py-2 font-headline font-bold ${isTop ? "text-primary-container" : isRel ? "text-error" : "text-on-surface-variant"}`}
+                        className={`px-3 py-2 font-headline font-bold ${pos === 1 ? "text-primary-container" : isRel ? "text-error" : "text-on-surface-variant"}`}
                       >
                         {String(pos).padStart(2, "0")}
                       </td>
@@ -248,15 +253,12 @@ function LeagueTableCarousel() {
             </tbody>
           </table>
         </div>
-        <div className="flex justify-center gap-1.5 py-2 border-t border-[#474845]/10">
-          {STANDING_LEAGUES.map((l, i) => (
-            <button
-              key={l.key}
-              onClick={() => setCurrent(i)}
-              className={`h-1 rounded-full transition-all duration-300 ${i === current ? "w-4 bg-primary-container" : "w-1 bg-[#474845]/40"}`}
-            />
-          ))}
-        </div>
+        <CarouselDots
+          currentIndex={current}
+          totalItems={STANDING_LEAGUES.length}
+          onIndexChange={setCurrent}
+          className="py-2 border-t border-[#474845]/10"
+        />
         <p className="text-center text-[9px] uppercase tracking-widest text-on-surface-variant pb-2">
           {league.label}
         </p>
@@ -333,9 +335,6 @@ function FixturesStrip() {
       </p>
     );
   }
-
-  const leagueName = (key: string) =>
-    FIXTURE_LEAGUES.find((l) => l.key === key)?.label ?? key;
 
   return (
     <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
@@ -415,7 +414,6 @@ function LatestResults() {
         for (const r of fetched) {
           if (r.status === "fulfilled") merged.push(...r.value);
         }
-        // Sort by most recent first
         merged.sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
@@ -447,9 +445,6 @@ function LatestResults() {
       </p>
     );
   }
-
-  const leagueName = (key: string) =>
-    FIXTURE_LEAGUES.find((l) => l.key === key)?.label ?? key;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -617,6 +612,15 @@ function FavoriteTeamSpotlight() {
           <Heart className="w-4 h-4 text-primary-container fill-primary-container" />
         </div>
         <div className="flex items-center gap-4 mb-6">
+          {favoriteTeam.logo_url ? (
+            <img
+              src={favoriteTeam.logo_url}
+              alt={favoriteTeam.name}
+              className="w-14 h-14 object-contain rounded-lg bg-surface-container-highest p-1 border border-[#00fe66]/20 shadow-md flex-none"
+            />
+          ) : (
+            <ShieldCheck className="w-14 h-14 text-primary-container/40 flex-none" />
+          )}
           <div>
             <h3 className="font-headline font-black text-2xl uppercase tracking-tighter">
               {favoriteTeam.name}
@@ -680,11 +684,118 @@ function FavoriteTeamSpotlight() {
 
 // ─── Favorite Player Card ─────────────────────────────────────────────────────
 
-function FavoritePlayerCard() {
-  const [favoritePlayer, setFavoritePlayer] = React.useState<Player | null>(
-    null,
-  );
+function PlayerItem({ player }: { player: Player }) {
   const [upcomingFixes, setUpcomingFixes] = React.useState<Match[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadFixtures() {
+      try {
+        const teamName = player.club_name;
+        const res1 = await fetch(
+          `${BASE}/fixtures?limit=5&status_filter=SCHEDULED&home_team=${teamName}`,
+        );
+        const res2 = await fetch(
+          `${BASE}/fixtures?limit=5&status_filter=TIMED&home_team=${teamName}`,
+        );
+        const home1 = res1.ok ? await res1.json() : [];
+        const home2 = res2.ok ? await res2.json() : [];
+
+        const res3 = await fetch(
+          `${BASE}/fixtures?limit=5&status_filter=SCHEDULED&away_team=${teamName}`,
+        );
+        const res4 = await fetch(
+          `${BASE}/fixtures?limit=5&status_filter=TIMED&away_team=${teamName}`,
+        );
+        const away1 = res3.ok ? await res3.json() : [];
+        const away2 = res4.ok ? await res4.json() : [];
+
+        const allUp = [...home1, ...home2, ...away1, ...away2]
+          .filter((m: Match) => new Date(m.date) > new Date())
+          .sort(
+            (a: Match, b: Match) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime(),
+          )
+          .slice(0, 2); // get only next 2 fixtures!
+
+        setUpcomingFixes(allUp);
+      } catch (e) {
+        console.error("Failed to load player fixtures", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadFixtures();
+  }, [player]);
+
+  return (
+    <div className="bg-surface-container-low p-6 rounded-lg border border-[#474845]/10 relative overflow-hidden mb-4">
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <div>
+          <h4 className="font-headline font-black text-lg uppercase mb-1 leading-tight break-words">
+            {player.short_name}
+          </h4>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-on-surface-variant uppercase truncate max-w-[160px]">
+              {player.player_positions} | {player.club_name}
+            </p>
+            <span className="bg-primary-container text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded">
+              {player.overall?.toString().padStart(2, "0")} OVR
+            </span>
+          </div>
+        </div>
+        {player.player_face_url && (
+          <img
+            src={player.player_face_url}
+            alt={player.short_name}
+            className="w-12 h-12 object-cover rounded-full border-2 border-primary-container/20 shadow-lg flex-none"
+          />
+        )}
+      </div>
+
+      <div>
+        <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-3">
+          Upcoming Fixtures
+        </p>
+        <div className="space-y-3">
+          {loading ? (
+            <p className="text-xs text-on-surface-variant animate-pulse">
+              Loading fixtures...
+            </p>
+          ) : upcomingFixes.length === 0 ? (
+            <p className="text-xs text-on-surface-variant">
+              No upcoming matches.
+            </p>
+          ) : (
+            upcomingFixes.map((f) => {
+              const isHome = f.home_team
+                .toLowerCase()
+                .includes(player.club_name.toLowerCase());
+              const opp = isHome
+                ? `vs ${f.away_team} (H)`
+                : `vs ${f.home_team} (A)`;
+              const d = new Date(f.date).toLocaleDateString("en-GB", {
+                weekday: "short",
+                day: "2-digit",
+                month: "short",
+              });
+              return (
+                <div key={f.id} className="flex justify-between text-sm">
+                  <span className="text-on-surface-variant">{opp}</span>
+                  <span className="font-medium">{d}</span>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FavoritePlayers() {
+  const [favoritePlayers, setFavoritePlayers] = React.useState<Player[]>([]);
+  const [current, setCurrent] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -694,32 +805,7 @@ function FavoritePlayerCard() {
         const _res = await axiosClient.get("/players/fav");
         const favPlayers = _res.data;
         if (favPlayers && favPlayers.length > 0) {
-          const player = favPlayers[0];
-          setFavoritePlayer(player);
-
-          const teamName = player.club_name;
-          const fetchUpcoming = async (role: string) => {
-            const res1 = await fetch(
-              `${BASE}/fixtures?limit=5&status_filter=SCHEDULED&${role}=${teamName}`,
-            );
-            const res2 = await fetch(
-              `${BASE}/fixtures?limit=5&status_filter=TIMED&${role}=${teamName}`,
-            );
-            const d1 = res1.ok ? await res1.json() : [];
-            const d2 = res2.ok ? await res2.json() : [];
-            return [...d1, ...d2];
-          };
-          const homeUp = await fetchUpcoming("home_team");
-          const awayUp = await fetchUpcoming("away_team");
-          const allUp = [...homeUp, ...awayUp]
-            .filter((m: Match) => new Date(m.date) > new Date())
-            .sort(
-              (a: Match, b: Match) =>
-                new Date(a.date).getTime() - new Date(b.date).getTime(),
-            )
-            .slice(0, 3);
-
-          setUpcomingFixes(allUp);
+          setFavoritePlayers(favPlayers);
         }
       } catch (err) {
         console.error(err);
@@ -736,73 +822,33 @@ function FavoritePlayerCard() {
     );
   }
 
-  if (!favoritePlayer) {
+  if (favoritePlayers.length === 0) {
     return (
       <section className="bg-surface-container-low rounded-lg border border-[#474845]/30 p-6 text-center text-sm text-on-surface-variant">
-        No favorite player selected.
+        No favorite players selected.
       </section>
     );
   }
 
   return (
-    <section className="bg-surface-container-low p-6 rounded-lg border border-[#474845]/10 relative overflow-hidden">
-      <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">
-        Player Focus
-      </h3>
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <h4 className="font-headline font-black text-lg uppercase mb-1 leading-tight break-words">
-            {favoritePlayer.short_name}
-          </h4>
-          <div className="flex items-center gap-2">
-            <p className="text-xs text-on-surface-variant uppercase truncate max-w-[160px]">
-              {favoritePlayer.player_positions} | {favoritePlayer.club_name}
-            </p>
-            <span className="bg-primary-container text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded">
-              {favoritePlayer.overall?.toString().padStart(2, "0")} OVR
-            </span>
-          </div>
-        </div>
-        {favoritePlayer.player_face_url && (
-          <img
-            src={favoritePlayer.player_face_url}
-            alt={favoritePlayer.short_name}
-            className="w-12 h-12 object-cover rounded-full border-2 border-primary-container/20 shadow-lg"
-          />
-        )}
-      </div>
-
-      <div>
-        <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-3">
-          Upcoming Fixtures
-        </p>
-        <div className="space-y-3">
-          {upcomingFixes.length === 0 && (
-            <p className="text-xs text-on-surface-variant">
-              No upcoming matches.
-            </p>
-          )}
-          {upcomingFixes.map((f) => {
-            const isHome = f.home_team
-              .toLowerCase()
-              .includes(favoritePlayer.club_name.toLowerCase());
-            const opp = isHome
-              ? `vs ${f.away_team} (H)`
-              : `vs ${f.home_team} (A)`;
-            const d = new Date(f.date).toLocaleDateString("en-GB", {
-              weekday: "short",
-              day: "2-digit",
-              month: "short",
-            });
-            return (
-              <div key={f.id} className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">{opp}</span>
-                <span className="font-medium">{d}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+    <section>
+      <Carousel
+        title={
+          <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+            Favorite Players
+          </h3>
+        }
+        currentIndex={current}
+        totalItems={favoritePlayers.length}
+        onIndexChange={setCurrent}
+        headerClassName="mb-4"
+        dotsContainerClassName="-mt-2 mb-4"
+      >
+        <PlayerItem
+          key={favoritePlayers[current].id}
+          player={favoritePlayers[current]}
+        />
+      </Carousel>
     </section>
   );
 }
@@ -962,8 +1008,8 @@ export default function DashboardPage() {
               <LeagueTableCarousel />
             </section>
 
-            {/* Favorite Player Card */}
-            <FavoritePlayerCard />
+            {/* Favorite Player Card(s) */}
+            <FavoritePlayers />
           </aside>
         </div>
       </main>
