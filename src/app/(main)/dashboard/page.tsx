@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import axiosClient from "@/lib/axiosClient";
 import { Star, BarChart } from "lucide-react";
 import { Heart, CircleDot, ShieldCheck, Timer } from "lucide-react";
 
@@ -17,6 +18,20 @@ interface Match {
   minute?: number | null;
   league?: string;
   winner?: string | null;
+}
+
+interface Club {
+  id: number;
+  name: string;
+  league_name: string;
+  nationality_name: string;
+  overall: number;
+  attack: number;
+  midfield: number;
+  defence: number;
+  home_stadium: string;
+  captain: string;
+  logo_url: string;
 }
 
 interface StandingRow {
@@ -51,19 +66,8 @@ const BASE = "http://127.0.0.1:8000/live";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function isFinished(status: string) {
-  return ["FINISHED", "AWARDED"].includes(status);
-}
-
 function isUpcoming(status: string) {
   return ["TIMED", "SCHEDULED", "POSTPONED"].includes(status);
-}
-
-function withinLastWeek(dateStr: string) {
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diff = now.getTime() - d.getTime();
-  return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
 }
 
 function formatMatchTime(dateStr: string) {
@@ -86,18 +90,6 @@ function formatShortDate(dateStr: string) {
   });
 }
 
-function abbrev(name: string) {
-  // Try to return a 3-letter club abbreviation
-  const words = name.trim().split(/\s+/);
-  if (words.length === 1) return name.slice(0, 3).toUpperCase();
-  // Multi-word: use initials or first 3 of first word
-  return words
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 3)
-    .toUpperCase();
-}
-
 // ─── League Table Carousel ────────────────────────────────────────────────────
 
 function LeagueTableCarousel() {
@@ -117,7 +109,7 @@ function LeagueTableCarousel() {
       return;
     }
     try {
-      const res = await fetch(`${BASE}/standings?limit=10&league=${key}`);
+      const res = await fetch(`${BASE}/standings?limit=20&league=${key}`);
       if (!res.ok) throw new Error();
       const data = await res.json();
       const normalized: StandingRow[] = Array.isArray(data) ? data : [];
@@ -509,6 +501,168 @@ function LatestResults() {
   );
 }
 
+// ─── Favorite Team Spotlight ──────────────────────────────────────────────────
+
+function FavoriteTeamSpotlight() {
+  const [favoriteTeam, setFavoriteTeam] = React.useState<Club | null>(null);
+  const [recentForm, setRecentForm] = React.useState<string[]>([]);
+  const [upcomingFixes, setUpcomingFixes] = React.useState<Match[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      try {
+        const _res = await axiosClient.get("/teams/fav");
+        const favTeams = _res.data;
+        if (favTeams && favTeams.length > 0) {
+          const team = favTeams[0];
+          setFavoriteTeam(team);
+
+          const fetchRecent = async (role: string) => {
+            const res = await fetch(
+              `${BASE}/fixtures?limit=5&status_filter=FINISHED&${role}=${team.name}`,
+            );
+            return res.ok ? await res.json() : [];
+          };
+          const homeRecent = await fetchRecent("home_team");
+          const awayRecent = await fetchRecent("away_team");
+          const allRecent = [...homeRecent, ...awayRecent]
+            .sort(
+              (a: Match, b: Match) =>
+                new Date(b.date).getTime() - new Date(a.date).getTime(),
+            )
+            .slice(0, 5);
+
+          const form = allRecent.map((m: Match) => {
+            const isHome = m.home_team
+              .toLowerCase()
+              .includes(team.name.toLowerCase());
+            const winTeam = m.winner;
+            if (winTeam === "DRAW") return "D";
+            if (winTeam === "HOME_TEAM" && isHome) return "W";
+            if (winTeam === "AWAY_TEAM" && !isHome) return "W";
+            return "L";
+          });
+          setRecentForm(form.reverse());
+
+          const fetchUpcoming = async (role: string) => {
+            const res1 = await fetch(
+              `${BASE}/fixtures?limit=5&status_filter=SCHEDULED&${role}=${team.name}`,
+            );
+            const res2 = await fetch(
+              `${BASE}/fixtures?limit=5&status_filter=TIMED&${role}=${team.name}`,
+            );
+            const d1 = res1.ok ? await res1.json() : [];
+            const d2 = res2.ok ? await res2.json() : [];
+            return [...d1, ...d2];
+          };
+          const homeUp = await fetchUpcoming("home_team");
+          const awayUp = await fetchUpcoming("away_team");
+          const allUp = [...homeUp, ...awayUp]
+            .filter((m: Match) => new Date(m.date) > new Date())
+            .sort(
+              (a: Match, b: Match) =>
+                new Date(a.date).getTime() - new Date(b.date).getTime(),
+            )
+            .slice(0, 3);
+
+          setUpcomingFixes(allUp);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-surface-container-low rounded-lg h-64 animate-pulse border border-[#00fe66]/30"></div>
+    );
+  }
+
+  if (!favoriteTeam) {
+    return (
+      <section className="bg-surface-container-low rounded-lg border border-[#474845]/30 p-6 text-center text-sm text-on-surface-variant">
+        No favorite team selected.
+      </section>
+    );
+  }
+
+  return (
+    <section className="bg-surface-container-low rounded-lg border border-[#00fe66]/30 overflow-hidden">
+      <div className="p-6 bg-primary-container/5 border-b border-[#474845]/10">
+        <div className="flex items-center justify-between mb-4">
+          <span className="font-label text-[10px] uppercase tracking-widest text-primary-container">
+            My Favorite Team
+          </span>
+          <Heart className="w-4 h-4 text-primary-container fill-primary-container" />
+        </div>
+        <div className="flex items-center gap-4 mb-6">
+          <div>
+            <h3 className="font-headline font-black text-2xl uppercase tracking-tighter">
+              {favoriteTeam.name}
+            </h3>
+            <p className="text-on-surface-variant text-sm font-label uppercase">
+              • {favoriteTeam.league_name || "League"}
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {recentForm.map((r, i) => (
+            <span
+              key={i}
+              className={`w-8 h-8 rounded font-headline font-bold flex items-center justify-center text-xs ${
+                r === "W"
+                  ? "bg-primary-container text-on-primary"
+                  : r === "L"
+                    ? "bg-error text-on-error"
+                    : "bg-surface-container-highest text-on-surface-variant border border-[#474845]/20"
+              }`}
+            >
+              {r}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div className="p-6 space-y-4">
+        <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+          Upcoming Fixtures
+        </p>
+        <div className="space-y-3">
+          {upcomingFixes.length === 0 && (
+            <p className="text-xs text-on-surface-variant">
+              No upcoming matches.
+            </p>
+          )}
+          {upcomingFixes.map((f) => {
+            const isHome = f.home_team
+              .toLowerCase()
+              .includes(favoriteTeam.name.toLowerCase());
+            const opp = isHome
+              ? `vs ${f.away_team} (H)`
+              : `vs ${f.home_team} (A)`;
+            const d = new Date(f.date).toLocaleDateString("en-GB", {
+              weekday: "short",
+              day: "2-digit",
+              month: "short",
+            });
+            return (
+              <div key={f.id} className="flex justify-between text-sm">
+                <span className="text-on-surface-variant">{opp}</span>
+                <span className="font-medium">{d}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Dashboard Page ───────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -744,53 +898,7 @@ export default function DashboardPage() {
           {/* RIGHT SIDEBAR */}
           <aside className="space-y-8">
             {/* Favorite Team Spotlight */}
-            <section className="bg-surface-container-low rounded-lg border border-[#00fe66]/30 overflow-hidden">
-              <div className="p-6 bg-primary-container/5 border-b border-[#474845]/10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="font-label text-[10px] uppercase tracking-widest text-primary-container">
-                    My Favorite Team
-                  </span>
-                  <Heart className="w-4 h-4 text-primary-container fill-primary-container" />
-                </div>
-                <div className="flex items-center gap-4 mb-6">
-                  <div>
-                    <h3 className="font-headline font-black text-2xl uppercase tracking-tighter">
-                      Arsenal FC
-                    </h3>
-                    <p className="text-on-surface-variant text-sm font-label uppercase">
-                      1st • Premier League
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  {["W", "W", "W", "D", "W"].map((r, i) => (
-                    <span
-                      key={i}
-                      className={`w-8 h-8 rounded font-headline font-bold flex items-center justify-center text-xs ${r === "W" ? "bg-primary-container text-on-primary" : "bg-surface-container-highest text-on-surface-variant border border-[#474845]/20"}`}
-                    >
-                      {r}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="p-6 space-y-4">
-                <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  Upcoming Fixtures
-                </p>
-                <div className="space-y-3">
-                  {[
-                    { opp: "vs Sevilla (A)", date: "Tue, 24 Oct" },
-                    { opp: "vs Sheff Utd (H)", date: "Sat, 28 Oct" },
-                    { opp: "vs West Ham (A)", date: "Wed, 01 Nov" },
-                  ].map((f) => (
-                    <div key={f.opp} className="flex justify-between text-sm">
-                      <span className="text-on-surface-variant">{f.opp}</span>
-                      <span className="font-medium">{f.date}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
+            <FavoriteTeamSpotlight />
 
             {/* League Table */}
             <section className="space-y-4">
