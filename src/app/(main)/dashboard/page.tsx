@@ -357,9 +357,6 @@ function FixturesStrip() {
                     Upcoming
                   </span>
                 )}
-                <span className="text-[9px] font-bold text-on-surface-variant/50 uppercase">
-                  {leagueName(m.league ?? "")}
-                </span>
               </div>
               <Star className="w-4 h-4 text-on-surface-variant" />
             </div>
