@@ -754,17 +754,17 @@ function FavoritePlayerCard() {
       </h3>
       <div className="flex items-center justify-between gap-4 mb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-headline font-black text-lg uppercase truncate max-w-[160px]">
-              {favoritePlayer.short_name}
-            </h4>
-            <span className="bg-primary-container text-on-primary text-xs font-bold px-2 py-0.5 rounded">
+          <h4 className="font-headline font-black text-lg uppercase mb-1 leading-tight break-words">
+            {favoritePlayer.short_name}
+          </h4>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-on-surface-variant uppercase truncate max-w-[160px]">
+              {favoritePlayer.player_positions} | {favoritePlayer.club_name}
+            </p>
+            <span className="bg-primary-container text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded">
               {favoritePlayer.overall?.toString().padStart(2, "0")} OVR
             </span>
           </div>
-          <p className="text-xs text-on-surface-variant uppercase truncate max-w-[200px]">
-            {favoritePlayer.player_positions} | {favoritePlayer.club_name}
-          </p>
         </div>
         {favoritePlayer.player_face_url && (
           <img
@@ -863,93 +863,6 @@ export default function DashboardPage() {
                 Latest Results
               </h2>
               <LatestResults />
-            </section>
-
-            {/* Top Scorers */}
-            <section className="space-y-4">
-              <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
-                Top Scorers
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-surface-container-low border border-[#00fe66]/20 p-6 rounded-lg relative overflow-hidden group">
-                  <div className="relative z-10 space-y-4">
-                    <span className="font-headline font-black text-6xl text-primary-container/20">
-                      01
-                    </span>
-                    <div>
-                      <h3 className="font-headline font-black text-2xl uppercase tracking-tight">
-                        E. Haaland
-                      </h3>
-                      <p className="text-on-surface-variant text-sm">
-                        Manchester City
-                      </p>
-                    </div>
-                    <div className="flex items-end gap-2">
-                      <span className="font-headline font-black text-4xl text-primary-container">
-                        12
-                      </span>
-                      <span className="font-label text-xs uppercase text-on-surface-variant mb-1">
-                        Goals
-                      </span>
-                    </div>
-                    <div className="w-full h-1 bg-surface-container-highest">
-                      <div className="h-full bg-primary-container shadow-[0_0_8px_rgba(0,255,102,0.6)] w-[85%]"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-surface-container-low border border-[#474845]/20 p-6 rounded-lg relative group">
-                  <div className="relative z-10 space-y-4">
-                    <span className="font-headline font-black text-6xl text-on-surface-variant/20">
-                      02
-                    </span>
-                    <div>
-                      <h3 className="font-headline font-bold text-xl uppercase tracking-tight">
-                        M. Salah
-                      </h3>
-                      <p className="text-on-surface-variant text-sm">
-                        Liverpool FC
-                      </p>
-                    </div>
-                    <div className="flex items-end gap-2">
-                      <span className="font-headline font-black text-4xl text-on-surface">
-                        09
-                      </span>
-                      <span className="font-label text-xs uppercase text-on-surface-variant mb-1">
-                        Goals
-                      </span>
-                    </div>
-                    <div className="w-full h-1 bg-surface-container-highest">
-                      <div className="h-full bg-on-surface-variant w-[65%]"></div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-surface-container-low border border-[#474845]/20 p-6 rounded-lg relative group">
-                  <div className="relative z-10 space-y-4">
-                    <span className="font-headline font-black text-6xl text-on-surface-variant/20">
-                      03
-                    </span>
-                    <div>
-                      <h3 className="font-headline font-bold text-xl uppercase tracking-tight">
-                        Son H.M.
-                      </h3>
-                      <p className="text-on-surface-variant text-sm">
-                        Tottenham
-                      </p>
-                    </div>
-                    <div className="flex items-end gap-2">
-                      <span className="font-headline font-black text-4xl text-on-surface">
-                        07
-                      </span>
-                      <span className="font-label text-xs uppercase text-on-surface-variant mb-1">
-                        Goals
-                      </span>
-                    </div>
-                    <div className="w-full h-1 bg-surface-container-highest">
-                      <div className="h-full bg-on-surface-variant w-[45%]"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </section>
 
             {/* Neural Predictions */}
@@ -1054,52 +967,6 @@ export default function DashboardPage() {
 
             {/* Favorite Player Card */}
             <FavoritePlayerCard />
-
-            {/* League Average */}
-            <section className="bg-surface-container-low p-6 rounded-lg space-y-6">
-              <h3 className="font-headline font-bold text-sm uppercase tracking-widest border-b border-[#474845]/10 pb-4">
-                League Average
-              </h3>
-              <div className="space-y-4">
-                {[
-                  { Icon: CircleDot, label: "Avg Goals / Game", value: "2.84" },
-                  { Icon: ShieldCheck, label: "Clean Sheets", value: "22%" },
-                  { Icon: Timer, label: "Effective Play", value: "56m" },
-                ].map(({ Icon, label, value }) => (
-                  <div
-                    key={label}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 text-on-surface-variant" />
-                      <span className="text-xs font-medium uppercase text-on-surface-variant">
-                        {label}
-                      </span>
-                    </div>
-                    <span className="font-headline font-bold text-primary-container">
-                      {value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="pt-4 space-y-3">
-                <p className="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest">
-                  Trending Now
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["#NorthLondonDerby", "#HaalandRecord", "#VARAnalysis"].map(
-                    (tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-surface-container-highest rounded text-[10px] font-medium border border-[#474845]/10 cursor-pointer hover:border-[#00fe66]/40"
-                      >
-                        {tag}
-                      </span>
-                    ),
-                  )}
-                </div>
-              </div>
-            </section>
           </aside>
         </div>
       </main>
