@@ -419,7 +419,7 @@ function LatestResults() {
         merged.sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
-        setResults(merged.slice(0, 11));
+        setResults(merged.slice(0, 10));
       } finally {
         setLoading(false);
       }
