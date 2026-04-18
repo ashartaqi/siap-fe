@@ -1,515 +1,17 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import axiosClient from "@/lib/axiosClient";
-import {
-  Carousel,
-  CarouselHeader,
-  CarouselDots,
-} from "@/components/common/Carousel";
-import { Star, BarChart, Heart, ShieldCheck } from "lucide-react";
+import { Carousel } from "@/components/common/Carousel";
+import { Heart, ShieldCheck } from "lucide-react";
+import Image from "next/image";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface Match {
-  id: number | string;
-  home_team: string;
-  away_team: string;
-  home_team_score: number | null;
-  away_team_score: number | null;
-  status: string; // e.g. "FINISHED", "IN_PLAY", "TIMED", "SCHEDULED", "PAUSED", "HALFTIME"
-  date: string;
-  minute?: number | null;
-  league?: string;
-  winner?: string | null;
-}
-
-interface Player {
-  id: number;
-  short_name: string;
-  long_name: string;
-  player_positions: string;
-  overall: number;
-  age: number;
-  club_name: string;
-  nationality_name: string;
-  pace?: number;
-  shooting?: number;
-  passing?: number;
-  dribbling?: number;
-  defending?: number;
-  physic?: number;
-  player_face_url?: string;
-}
-
-interface Club {
-  id: number;
-  name: string;
-  league_name: string;
-  nationality_name: string;
-  overall: number;
-  attack: number;
-  midfield: number;
-  defence: number;
-  home_stadium: string;
-  captain: string;
-  logo_url: string;
-}
-
-interface StandingRow {
-  id: number | string;
-  position: number;
-  team_name: string;
-  played_games: number;
-  points: number;
-}
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const FIXTURE_LEAGUES = [
-  { key: "FL1", label: "Ligue 1", badge: "L1" },
-  { key: "SA", label: "Serie A", badge: "SA" },
-  { key: "PL", label: "Premier League", badge: "PL" },
-  { key: "PPL", label: "Primeira Liga", badge: "PPL" },
-  { key: "PD", label: "La Liga", badge: "LL" },
-  { key: "BL", label: "Bundesliga", badge: "BL" },
-  { key: "CL", label: "Champions League", badge: "CL" },
-];
-
-const STANDING_LEAGUES = [
-  { key: "PL", label: "Premier League", badge: "PL" },
-  { key: "PD", label: "La Liga", badge: "LL" },
-  { key: "SA", label: "Serie A", badge: "SA" },
-  { key: "BL1", label: "Bundesliga", badge: "BL" },
-  { key: "FL1", label: "Ligue 1", badge: "L1" },
-];
-
-const BASE = "http://127.0.0.1:8000/live";
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function isUpcoming(status: string) {
-  return ["TIMED", "SCHEDULED", "POSTPONED"].includes(status);
-}
-
-function formatMatchTime(dateStr: string) {
-  const d = new Date(dateStr);
-  return d.toLocaleString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatShortDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-}
-
-function leagueName(key: string) {
-  return FIXTURE_LEAGUES.find((l) => l.key === key)?.label ?? key;
-}
-
-// ─── League Table Carousel ────────────────────────────────────────────────────
-
-function LeagueTableCarousel() {
-  const [current, setCurrent] = React.useState(0);
-  const [rows, setRows] = React.useState<StandingRow[]>([]);
-  const [status, setStatus] = React.useState<"loading" | "error" | "ok">(
-    "loading",
-  );
-  const cache = React.useRef<Record<string, StandingRow[]>>({});
-
-  const load = React.useCallback(async (idx: number) => {
-    const key = STANDING_LEAGUES[idx].key;
-    setStatus("loading");
-    if (cache.current[key]) {
-      setRows(cache.current[key]);
-      setStatus("ok");
-      return;
-    }
-    try {
-      const res = await fetch(`${BASE}/standings?limit=20&league=${key}`);
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      const normalized: StandingRow[] = Array.isArray(data) ? data : [];
-      cache.current[key] = normalized;
-      setRows(normalized);
-      setStatus("ok");
-    } catch {
-      setStatus("error");
-    }
-  }, []);
-
-  React.useEffect(() => {
-    load(current);
-  }, [current, load]);
-
-  const league = STANDING_LEAGUES[current];
-
-  return (
-    <div>
-      <CarouselHeader
-        title={
-          <div className="flex items-center gap-2">
-            <h2 className="font-headline font-bold text-xl uppercase tracking-widest">
-              League Table
-            </h2>
-            <span className="text-[9px] font-bold text-primary-container px-2 py-0.5 bg-primary-container/10 border border-primary-container/20 rounded uppercase tracking-widest">
-              {league.badge}
-            </span>
-          </div>
-        }
-        currentIndex={current}
-        totalItems={STANDING_LEAGUES.length}
-        onIndexChange={setCurrent}
-        className="mb-3"
-      />
-      <div className="bg-surface-container-low rounded-lg overflow-hidden border border-[#474845]/10">
-        <table className="w-full text-left">
-          <thead className="sticky top-0 z-10 bg-surface-container-low">
-            <tr className="text-[10px] uppercase tracking-widest text-on-surface-variant border-b border-[#474845]/10">
-              <th className="px-3 py-2 font-bold">Pos</th>
-              <th className="px-3 py-2 font-bold">Club</th>
-              <th className="px-3 py-2 font-bold text-center">P</th>
-              <th className="px-3 py-2 font-bold text-right">Pts</th>
-            </tr>
-          </thead>
-        </table>
-        <div
-          className="overflow-y-auto league-scroll"
-          style={{ maxHeight: "260px" }}
-        >
-          <table className="w-full text-left">
-            <tbody className="text-xs">
-              {status === "loading" && (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="p-4 text-center text-[10px] uppercase tracking-widest text-on-surface-variant"
-                  >
-                    Loading...
-                  </td>
-                </tr>
-              )}
-              {status === "error" && (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="p-4 text-center text-[10px] uppercase tracking-widest text-error"
-                  >
-                    Failed to load
-                  </td>
-                </tr>
-              )}
-              {status === "ok" &&
-                rows.map((r) => {
-                  const pos = r.position;
-                  const total = rows.length;
-                  const isRel = pos > total - 3;
-
-                  const isPL = league.key === "PL";
-                  const clLimit = isPL ? 5 : 4;
-                  const elLimit = isPL ? 6 : 5;
-                  const colLimit = isPL ? 7 : 6;
-
-                  let rowBg = isRel ? "bg-error/5" : "";
-                  if (pos <= clLimit) rowBg = "bg-blue-500/40";
-                  else if (pos <= elLimit) rowBg = "bg-orange-400/40";
-                  else if (pos <= colLimit) rowBg = "bg-green-500/40";
-
-                  return (
-                    <tr
-                      key={r.id}
-                      className={`border-b border-[#474845]/5 ${rowBg}`}
-                    >
-                      <td
-                        className={`px-3 py-2 font-headline font-bold ${pos === 1 ? "text-primary-container" : isRel ? "text-error" : "text-on-surface-variant"}`}
-                      >
-                        {String(pos).padStart(2, "0")}
-                      </td>
-                      <td
-                        className={`px-3 py-2 font-medium uppercase tracking-tighter ${isRel ? "opacity-60" : ""}`}
-                      >
-                        {r.team_name}
-                      </td>
-                      <td className="px-3 py-2 text-center text-on-surface-variant">
-                        {r.played_games}
-                      </td>
-                      <td
-                        className={`px-3 py-2 text-right font-bold ${pos === 1 ? "text-primary-container" : ""}`}
-                      >
-                        {r.points}
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
-        <CarouselDots
-          currentIndex={current}
-          totalItems={STANDING_LEAGUES.length}
-          onIndexChange={setCurrent}
-          className="py-2 border-t border-[#474845]/10"
-        />
-        <p className="text-center text-[9px] uppercase tracking-widest text-on-surface-variant pb-2">
-          {league.label}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Fixtures Strip ───────────────────────────────────────────────────────────
-
-function FixturesStrip() {
-  const [allMatches, setAllMatches] = React.useState<Match[]>([]);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    async function fetchAll() {
-      setLoading(true);
-      try {
-        const targetStatuses = ["TIMED", "SCHEDULED", "POSTPONED"];
-        const results = await Promise.allSettled(
-          FIXTURE_LEAGUES.flatMap((lg) =>
-            targetStatuses.map(async (status) => {
-              const res = await fetch(
-                `${BASE}/fixtures?limit=10&league=${lg.key}&status_filter=${status}`,
-              );
-              if (!res.ok) return [];
-              const data: Match[] = await res.json();
-              const now = new Date();
-              return data
-                .filter((m) => new Date(m.date) > now)
-                .map((m) => ({ ...m, league: lg.key }));
-            }),
-          ),
-        );
-        const merged: Match[] = [];
-        for (const r of results) {
-          if (r.status === "fulfilled") merged.push(...r.value);
-        }
-        merged.sort((a, b) => {
-          const aLive = ["IN_PLAY", "PAUSED", "HALFTIME"].includes(a.status)
-            ? 0
-            : 1;
-          const bLive = ["IN_PLAY", "PAUSED", "HALFTIME"].includes(b.status)
-            ? 0
-            : 1;
-          if (aLive !== bLive) return aLive - bLive;
-          return new Date(a.date).getTime() - new Date(b.date).getTime();
-        });
-        setAllMatches(merged.slice(0, 11));
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAll();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="flex-none w-72 h-32 bg-surface-container-low border border-[#474845]/20 rounded-lg animate-pulse"
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (allMatches.length === 0) {
-    return (
-      <p className="text-on-surface-variant text-sm">
-        No fixtures available right now.
-      </p>
-    );
-  }
-
-  return (
-    <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar">
-      {allMatches.map((m) => {
-        const upcoming = isUpcoming(m.status);
-        return (
-          <div
-            key={`${m.league}-${m.id}`}
-            className="flex-none w-72 bg-surface-container-low border border-[#474845]/20 p-4 rounded-lg neon-glow transition-all duration-300"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                {upcoming ? (
-                  <span className="text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container-highest rounded uppercase">
-                    {formatMatchTime(m.date)}
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container-highest rounded uppercase">
-                    Upcoming
-                  </span>
-                )}
-              </div>
-              <Star className="w-4 h-4 text-on-surface-variant" />
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="font-headline font-medium text-sm truncate pr-2">
-                  {m.home_team}
-                </span>
-                <span className="font-headline font-bold text-lg">
-                  {m.home_team_score !== null ? m.home_team_score : "-"}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-on-surface/60">
-                <span className="font-headline font-medium text-sm truncate pr-2">
-                  {m.away_team}
-                </span>
-                <span className="font-headline font-bold text-lg">
-                  {m.away_team_score !== null ? m.away_team_score : "-"}
-                </span>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Latest Results ───────────────────────────────────────────────────────────
-
-function LatestResults() {
-  const [results, setResults] = React.useState<Match[]>([]);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    async function fetchAll() {
-      setLoading(true);
-      try {
-        const targetStatuses = ["FINISHED", "AWARDED"];
-        const now = new Date();
-        const fetched = await Promise.allSettled(
-          FIXTURE_LEAGUES.flatMap((lg) =>
-            targetStatuses.map(async (status) => {
-              const res = await fetch(
-                `${BASE}/fixtures?limit=50&league=${lg.key}&status_filter=${status}`,
-              );
-              if (!res.ok) return [];
-              const data: Match[] = await res.json();
-              return data
-                .filter((m) => new Date(m.date) <= now)
-                .map((m) => ({ ...m, league: lg.key }));
-            }),
-          ),
-        );
-        const merged: Match[] = [];
-        for (const r of fetched) {
-          if (r.status === "fulfilled") merged.push(...r.value);
-        }
-        merged.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-        );
-        setResults(merged.slice(0, 10));
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAll();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="h-16 bg-surface-container-low rounded animate-pulse"
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (results.length === 0) {
-    return (
-      <p className="text-on-surface-variant text-sm">
-        No results from the past week.
-      </p>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {results.map((m) => {
-        const homeWon =
-          m.winner === "HOME_TEAM" ||
-          (m.home_team_score !== null &&
-            m.away_team_score !== null &&
-            m.home_team_score > m.away_team_score);
-        const awayWon =
-          m.winner === "AWAY_TEAM" ||
-          (m.home_team_score !== null &&
-            m.away_team_score !== null &&
-            m.away_team_score > m.home_team_score);
-        const draw =
-          m.winner === "DRAW" ||
-          (m.home_team_score !== null &&
-            m.away_team_score !== null &&
-            m.home_team_score === m.away_team_score);
-
-        const accentColor = homeWon
-          ? "border-[#00fe66]"
-          : awayWon
-            ? "border-[#ff7351]"
-            : "border-[#474845]";
-        const resultLabel = draw ? "D" : homeWon ? "W" : "L";
-        const resultColor = draw
-          ? "text-on-surface-variant"
-          : homeWon
-            ? "text-primary-container"
-            : "text-error";
-
-        return (
-          <div
-            key={`${m.league}-${m.id}`}
-            className={`bg-surface-container-low p-4 border-l-4 ${accentColor} flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors`}
-          >
-            <div className="flex flex-col gap-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-label text-[10px] text-on-surface-variant uppercase">
-                  {formatShortDate(m.date)}
-                </span>
-                <span className="text-[9px] font-bold text-on-surface-variant/40 uppercase">
-                  {leagueName(m.league ?? "")}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`font-headline font-bold ${resultColor}`}>
-                  {resultLabel}
-                </span>
-                <span className="font-headline font-bold text-sm truncate">
-                  {m.home_team}{" "}
-                  {m.home_team_score !== null ? m.home_team_score : "-"} –{" "}
-                  {m.away_team_score !== null ? m.away_team_score : "-"}{" "}
-                  {m.away_team}
-                </span>
-              </div>
-            </div>
-            <BarChart className="w-5 h-5 text-on-surface-variant group-hover:text-primary-container transition-colors flex-none ml-2" />
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+import { Match, Player, Club } from "@/types/football";
+import { BASE } from "@/lib/footballUtils";
+import { LeagueTableCarousel } from "@/components/common/LeagueStandings";
+import { FixturesStrip } from "@/components/common/Fixtures";
+import { LatestResults } from "@/components/common/LatestResults";
 
 // ─── Favorite Team Spotlight ──────────────────────────────────────────────────
 
@@ -540,7 +42,8 @@ function FavoriteTeamSpotlight() {
           const allRecent = [...homeRecent, ...awayRecent]
             .sort(
               (a: Match, b: Match) =>
-                new Date(b.date).getTime() - new Date(a.date).getTime(),
+                new Date(b.date ?? "").getTime() -
+                new Date(a.date ?? "").getTime(),
             )
             .slice(0, 5);
 
@@ -570,10 +73,11 @@ function FavoriteTeamSpotlight() {
           const homeUp = await fetchUpcoming("home_team");
           const awayUp = await fetchUpcoming("away_team");
           const allUp = [...homeUp, ...awayUp]
-            .filter((m: Match) => new Date(m.date) > new Date())
+            .filter((m: Match) => new Date(m.date ?? "") > new Date())
             .sort(
               (a: Match, b: Match) =>
-                new Date(a.date).getTime() - new Date(b.date).getTime(),
+                new Date(a.date ?? "").getTime() -
+                new Date(b.date ?? "").getTime(),
             )
             .slice(0, 3);
 
@@ -613,9 +117,11 @@ function FavoriteTeamSpotlight() {
         </div>
         <div className="flex items-center gap-4 mb-6">
           {favoriteTeam.logo_url ? (
-            <img
+            <Image
               src={favoriteTeam.logo_url}
               alt={favoriteTeam.name}
+              width={56}
+              height={56}
               className="w-14 h-14 object-contain rounded-lg bg-surface-container-highest p-1 border border-[#00fe66]/20 shadow-md flex-none"
             />
           ) : (
@@ -664,7 +170,7 @@ function FavoriteTeamSpotlight() {
             const opp = isHome
               ? `vs ${f.away_team} (H)`
               : `vs ${f.home_team} (A)`;
-            const d = new Date(f.date).toLocaleDateString("en-GB", {
+            const d = new Date(f.date ?? "").toLocaleDateString("en-GB", {
               weekday: "short",
               day: "2-digit",
               month: "short",
@@ -711,10 +217,11 @@ function PlayerItem({ player }: { player: Player }) {
         const away2 = res4.ok ? await res4.json() : [];
 
         const allUp = [...home1, ...home2, ...away1, ...away2]
-          .filter((m: Match) => new Date(m.date) > new Date())
+          .filter((m: Match) => new Date(m.date ?? "") > new Date())
           .sort(
             (a: Match, b: Match) =>
-              new Date(a.date).getTime() - new Date(b.date).getTime(),
+              new Date(a.date ?? "").getTime() -
+              new Date(b.date ?? "").getTime(),
           )
           .slice(0, 2); // get only next 2 fixtures!
 
@@ -745,9 +252,11 @@ function PlayerItem({ player }: { player: Player }) {
           </div>
         </div>
         {player.player_face_url && (
-          <img
+          <Image
             src={player.player_face_url}
             alt={player.short_name}
+            width={48}
+            height={48}
             className="w-12 h-12 object-cover rounded-full border-2 border-primary-container/20 shadow-lg flex-none"
           />
         )}
@@ -774,7 +283,7 @@ function PlayerItem({ player }: { player: Player }) {
               const opp = isHome
                 ? `vs ${f.away_team} (H)`
                 : `vs ${f.home_team} (A)`;
-              const d = new Date(f.date).toLocaleDateString("en-GB", {
+              const d = new Date(f.date ?? "").toLocaleDateString("en-GB", {
                 weekday: "short",
                 day: "2-digit",
                 month: "short",
