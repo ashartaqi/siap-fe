@@ -343,11 +343,14 @@ export default function UCLPage() {
 
   return (
     <div
+      className="ucl-page"
       style={{
         position: "relative",
-        minHeight: "100%",
+        height: "100%",
         padding: "16px",
-        overflowX: "hidden",
+        overflowY: "scroll",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
         backgroundImage: "url('/ucl_background.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",

@@ -22,7 +22,7 @@ export default function MainLayout({
 
   return (
     <div
-      className="flex min-h-screen font-body"
+      className={`flex font-body ${isUCL ? "h-screen overflow-hidden" : "min-h-screen"}`}
       style={
         isUCL
           ? ({
@@ -136,7 +136,7 @@ export default function MainLayout({
 
       <main
         className={`flex-1 p-8 bg-[var(--color-black)] text-[var(--color-text)] ${
-          isUCL ? "overflow-hidden h-screen" : "overflow-y-auto h-screen"
+          isUCL ? "overflow-hidden" : "overflow-y-auto h-screen"
         }`}
       >
         {children}
