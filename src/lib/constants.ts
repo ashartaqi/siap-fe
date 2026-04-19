@@ -27,7 +27,7 @@ export const FIXTURE_LEAGUES = [
   { key: "PL", label: "Premier League", badge: "PL" },
   { key: "PPL", label: "Primeira Liga", badge: "PPL" },
   { key: "PD", label: "La Liga", badge: "LL" },
-  { key: "BL", label: "Bundesliga", badge: "BL" },
+  { key: "BL1", label: "Bundesliga", badge: "BL1" },
   { key: "CL", label: "Champions League", badge: "CL" },
 ];
 
@@ -35,7 +35,7 @@ export const STANDING_LEAGUES = [
   { key: "PL", label: "Premier League", badge: "PL" },
   { key: "PD", label: "La Liga", badge: "LL" },
   { key: "SA", label: "Serie A", badge: "SA" },
-  { key: "BL1", label: "Bundesliga", badge: "BL" },
+  { key: "BL1", label: "Bundesliga", badge: "BL1" },
   { key: "FL1", label: "Ligue 1", badge: "L1" },
 ];
 
@@ -43,7 +43,7 @@ export const LEAGUES_WITH_ACCENT = [
   { key: "PL", label: "Premier League", badge: "PL", accent: "#3b0764" },
   { key: "PD", label: "La Liga", badge: "LL", accent: "#7c1d1d" },
   { key: "SA", label: "Serie A", badge: "SA", accent: "#1e3a5f" },
-  { key: "BL", label: "Bundesliga", badge: "BL", accent: "#431407" },
+  { key: "BL1", label: "Bundesliga", badge: "BL1", accent: "#431407" },
   { key: "FL1", label: "Ligue 1", badge: "L1", accent: "#052e16" },
   { key: "PPL", label: "Primeira Liga", badge: "PPL", accent: "#3b1f00" },
 ];
