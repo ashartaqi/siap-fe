@@ -1,8 +1,24 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Monitor, Moon, Download } from "lucide-react";
-import { sections, favoriteTeams, leagues } from "@/lib/mockData";
+import { Check, Download } from "lucide-react";
+import {
+  SETTINGS_SECTIONS,
+  FAVORITE_TEAMS,
+  SETTINGS_LEAGUES,
+  THEME_OPTIONS,
+  ACCENT_COLORS,
+  TIMEZONE_OPTIONS,
+  MATCH_CLOCK_OPTIONS,
+  LANGUAGE_OPTIONS,
+  NOTIFICATION_SOUNDS,
+  EXPORT_ITEMS,
+  DATA_RETENTION_OPTIONS,
+  PRIMARY_STAT_OPTIONS,
+  XG_MODEL_OPTIONS,
+  POSSESSION_METRICS,
+  DASHBOARD_WIDGETS,
+} from "@/lib/constants";
 import { SettingsSidebar } from "@/components/ui/settings/SettingsSidebar";
 import { Section } from "@/components/common/Section";
 import { SettingRow } from "@/components/common/SettingRow";
@@ -17,7 +33,9 @@ export default function SettingsPage() {
 
   const toggleLeague = (league: string) => {
     setFollowedLeagues((prev) =>
-      prev.includes(league) ? prev.filter((l) => l !== league) : [...prev, league]
+      prev.includes(league)
+        ? prev.filter((l) => l !== league)
+        : [...prev, league],
     );
   };
 
@@ -25,7 +43,7 @@ export default function SettingsPage() {
     <div className="flex gap-6 max-w-[1100px]">
       {/* Sidebar Nav */}
       <SettingsSidebar
-        sections={sections}
+        sections={SETTINGS_SECTIONS}
         activeSection={activeSection}
         onSelect={setActiveSection}
       />
@@ -54,8 +72,16 @@ export default function SettingsPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <Input label="FIRST NAME" placeholder="First name" defaultValue="Nafay" />
-                <Input label="LAST NAME" placeholder="Last name" defaultValue="Khan" />
+                <Input
+                  label="FIRST NAME"
+                  placeholder="First name"
+                  defaultValue="Nafay"
+                />
+                <Input
+                  label="LAST NAME"
+                  placeholder="Last name"
+                  defaultValue="Khan"
+                />
               </div>
               <Input
                 label="EMAIL ADDRESS"
@@ -68,12 +94,7 @@ export default function SettingsPage() {
                   TIMEZONE
                 </div>
                 <Select
-                  options={[
-                    "Asia/Karachi (PKT)",
-                    "Europe/London (GMT)",
-                    "America/New_York (EST)",
-                    "Asia/Dubai (GST)",
-                  ]}
+                  options={TIMEZONE_OPTIONS}
                   defaultValue="Asia/Karachi (PKT)"
                   className="w-full"
                 />
@@ -82,7 +103,7 @@ export default function SettingsPage() {
 
             <Section title="Favourite Team">
               <div className="flex flex-wrap gap-2 pt-1">
-                {favoriteTeams.map((team) => (
+                {FAVORITE_TEAMS.map((team) => (
                   <button
                     key={team}
                     onClick={() => setFavoriteTeam(team)}
@@ -177,10 +198,7 @@ export default function SettingsPage() {
                 <Toggle defaultChecked={false} />
               </SettingRow>
               <SettingRow label="Notification Sound">
-                <Select
-                  options={["Default", "Whistle", "Stadium Roar", "None"]}
-                  defaultValue="Whistle"
-                />
+                <Select options={NOTIFICATION_SOUNDS} defaultValue="Whistle" />
               </SettingRow>
             </Section>
           </div>
@@ -191,26 +209,7 @@ export default function SettingsPage() {
           <div className="animate-fade-up bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl py-7 px-8">
             <Section title="Theme">
               <div className="grid grid-cols-3 gap-3 mb-4">
-                {[
-                  {
-                    label: "Dark (Default)",
-                    icon: Moon,
-                    active: true,
-                    colors: ["#000", "#0A0A0A", "#00FF7F"],
-                  },
-                  {
-                    label: "OLED Black",
-                    icon: Monitor,
-                    active: false,
-                    colors: ["#000", "#000", "#00A550"],
-                  },
-                  {
-                    label: "Light",
-                    icon: Monitor,
-                    active: false,
-                    colors: ["#F5F5F5", "#fff", "#006633"],
-                  },
-                ].map((t, i) => (
+                {THEME_OPTIONS.map((t, i) => (
                   <div
                     key={i}
                     className={`relative border rounded-lg p-4 cursor-pointer transition-all duration-150 ${
@@ -249,14 +248,7 @@ export default function SettingsPage() {
 
             <Section title="Accent Color">
               <div className="flex gap-2.5 pt-1">
-                {[
-                  "#00FF7F",
-                  "#00BFFF",
-                  "#FF6B35",
-                  "#FFD700",
-                  "#FF3B9A",
-                  "#A855F7",
-                ].map((c, i) => (
+                {ACCENT_COLORS.map((c, i) => (
                   <div
                     key={i}
                     className={`w-8 h-8 rounded-full cursor-pointer transition-all duration-150 border-3 ${
@@ -272,7 +264,10 @@ export default function SettingsPage() {
             </Section>
 
             <Section title="Display Preferences">
-              <SettingRow label="Compact Mode" desc="Reduce spacing and padding">
+              <SettingRow
+                label="Compact Mode"
+                desc="Reduce spacing and padding"
+              >
                 <Toggle defaultChecked={false} />
               </SettingRow>
               <SettingRow
@@ -289,19 +284,13 @@ export default function SettingsPage() {
               </SettingRow>
               <SettingRow label="Match Clock Display">
                 <Select
-                  options={["MM:SS", "Minutes only", "24h Clock"]}
+                  options={MATCH_CLOCK_OPTIONS}
                   defaultValue="Minutes only"
                 />
               </SettingRow>
               <SettingRow label="Language">
                 <Select
-                  options={[
-                    "English (UK)",
-                    "English (US)",
-                    "Urdu",
-                    "Arabic",
-                    "Spanish",
-                  ]}
+                  options={LANGUAGE_OPTIONS}
                   defaultValue="English (UK)"
                 />
               </SettingRow>
@@ -314,7 +303,7 @@ export default function SettingsPage() {
           <div className="animate-fade-up bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl py-7 px-8">
             <Section title="Followed Leagues">
               <div className="flex flex-col gap-2">
-                {leagues.map((league) => {
+                {SETTINGS_LEAGUES.map((league) => {
                   const isActive = followedLeagues.includes(league);
                   return (
                     <div
@@ -356,23 +345,14 @@ export default function SettingsPage() {
                 label="Primary Stat Display"
                 desc="Stat shown first in player cards"
               >
-                <Select
-                  options={[
-                    "Goals",
-                    "Assists",
-                    "xG",
-                    "Pass Accuracy",
-                    "Tackles",
-                  ]}
-                  defaultValue="Goals"
-                />
+                <Select options={PRIMARY_STAT_OPTIONS} defaultValue="Goals" />
               </SettingRow>
               <SettingRow
                 label="xG Model"
                 desc="Expected goals calculation method"
               >
                 <Select
-                  options={["Standard", "Advanced (Body Part)", "Post-shot xG"]}
+                  options={XG_MODEL_OPTIONS}
                   defaultValue="Advanced (Body Part)"
                 />
               </SettingRow>
@@ -380,10 +360,7 @@ export default function SettingsPage() {
                 label="Possession Style Metric"
                 desc="PPDA, Press Intensity, or Build-up"
               >
-                <Select
-                  options={["PPDA", "Press Intensity", "Build-up Index"]}
-                  defaultValue="PPDA"
-                />
+                <Select options={POSSESSION_METRICS} defaultValue="PPDA" />
               </SettingRow>
               <SettingRow
                 label="Per 90 Stats"
@@ -406,14 +383,7 @@ export default function SettingsPage() {
             </Section>
 
             <Section title="Dashboard Widgets">
-              {[
-                "Live Scores",
-                "Top Scorers",
-                "League Standings",
-                "Goals Trend Chart",
-                "Upcoming Fixtures",
-                "Team Comparison Radar",
-              ].map((w, i) => (
+              {DASHBOARD_WIDGETS.map((w, i) => (
                 <SettingRow key={w} label={w}>
                   <Toggle defaultChecked={i !== 3} />
                 </SettingRow>
@@ -443,9 +413,21 @@ export default function SettingsPage() {
                   CHANGE PASSWORD
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <Input label="Current password" placeholder="Current password" type="password" />
-                  <Input label="New password" placeholder="New password" type="password" />
-                  <Input label="Confirm new password" placeholder="Confirm new password" type="password" />
+                  <Input
+                    label="Current password"
+                    placeholder="Current password"
+                    type="password"
+                  />
+                  <Input
+                    label="New password"
+                    placeholder="New password"
+                    type="password"
+                  />
+                  <Input
+                    label="Confirm new password"
+                    placeholder="Confirm new password"
+                    type="password"
+                  />
                 </div>
                 <button className="mt-3 px-5 py-2.5 bg-[rgba(0,102,51,0.2)] border border-[#006633] rounded-lg text-[var(--color-green)] text-[12px] font-condensed font-bold tracking-[1px] cursor-pointer hover:bg-[rgba(0,102,51,0.3)] transition-colors">
                   UPDATE PASSWORD
@@ -496,28 +478,7 @@ export default function SettingsPage() {
           <div className="animate-fade-up bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl py-7 px-8">
             <Section title="Export Data">
               <div className="grid grid-cols-2 gap-3 mb-2">
-                {[
-                  {
-                    label: "Match History",
-                    desc: "All tracked matches & stats",
-                    format: "CSV",
-                  },
-                  {
-                    label: "Player Analytics",
-                    desc: "Custom metrics & xG data",
-                    format: "JSON",
-                  },
-                  {
-                    label: "Team Reports",
-                    desc: "Season performance reports",
-                    format: "PDF",
-                  },
-                  {
-                    label: "Full Data Dump",
-                    desc: "Everything in one archive",
-                    format: "ZIP",
-                  },
-                ].map((item, i) => (
+                {EXPORT_ITEMS.map((item, i) => (
                   <div
                     key={i}
                     className="card-hover bg-[#111] border border-[var(--color-border)] rounded-lg py-4 px-4.5 cursor-pointer"
@@ -551,10 +512,7 @@ export default function SettingsPage() {
                 label="Auto-delete History After"
                 desc="Old match data cleanup"
               >
-                <Select
-                  options={["Never", "6 months", "1 year", "2 years"]}
-                  defaultValue="Never"
-                />
+                <Select options={DATA_RETENTION_OPTIONS} defaultValue="Never" />
               </SettingRow>
               <SettingRow
                 label="Cache Local Data"
