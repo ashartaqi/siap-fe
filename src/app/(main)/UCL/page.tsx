@@ -284,12 +284,12 @@ export default function UCLPage() {
   if (loading) {
     return (
       <div
+        className="h-full min-h-0"
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "600px",
           gap: 16,
         }}
       >
@@ -321,11 +321,11 @@ export default function UCLPage() {
   if (error) {
     return (
       <div
+        className="h-full min-h-0"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: "600px",
         }}
       >
         <p
@@ -343,19 +343,19 @@ export default function UCLPage() {
 
   return (
     <div
-      className="ucl-page"
+      className="ucl-page h-full min-h-0 flex flex-col overflow-hidden"
       style={{
         position: "relative",
         height: "100%",
-        padding: "16px",
-        overflowY: "scroll",
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
+        minHeight: 0,
+        padding: "12px",
+        overflow: "hidden",
+        overscrollBehavior: "none",
         backgroundImage: "url('/ucl_background.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        backgroundAttachment: "local",
+        backgroundAttachment: "scroll",
       }}
     >
       {/* ── Overlays ── */}
@@ -430,7 +430,8 @@ export default function UCLPage() {
         style={{
           position: "relative",
           zIndex: 10,
-          marginBottom: 24,
+          flexShrink: 0,
+          marginBottom: 12,
           display: "flex",
           flexWrap: "wrap",
           alignItems: "flex-end",
@@ -501,11 +502,11 @@ export default function UCLPage() {
             style={{
               color: "#5a80b0",
               fontSize: 13,
-              marginTop: 24,
+              marginTop: 12,
               maxWidth: 480,
               textTransform: "uppercase",
               letterSpacing: "0.1em",
-              lineHeight: 1.7,
+              lineHeight: 1.5,
             }}
           >
             Follow the elite journey of the stars. Real-time tournament
@@ -518,8 +519,8 @@ export default function UCLPage() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 20,
-            padding: 24,
+            gap: 16,
+            padding: 16,
             borderRadius: 16,
             background:
               "linear-gradient(135deg, rgba(10,25,70,0.75) 0%, rgba(5,15,45,0.85) 100%)",
@@ -568,162 +569,196 @@ export default function UCLPage() {
         style={{
           position: "relative",
           zIndex: 10,
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr",
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
           alignItems: "center",
-          gap: "12px",
-          maxWidth: 1280,
-          margin: "0 auto",
+          justifyContent: "center",
+          overflow: "hidden",
         }}
       >
-        {/* Col 1 — Left QF */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
-          {qfLeft.map((m, i) => (
-            <MatchNode key={m.id} match={m} round={`QF ${i + 1}`} />
-          ))}
-        </div>
-
-        {/* Col 2 — Left SF */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ width: "90%" }}>
-            {sfLeft && <MatchNode match={sfLeft} round="SEMIFINAL" />}
-          </div>
-        </div>
-
-        {/* Col 3 — Final */}
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
+            position: "relative",
+            zIndex: 10,
+            width: "100%",
+            maxWidth: 1280,
+            height: "100%",
+            maxHeight: "100%",
+            display: "grid",
+            gridTemplateColumns:
+              "minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)",
             alignItems: "center",
-            padding: "16px 0",
+            gap: "8px",
+            margin: "0 auto",
           }}
         >
-          <div className="animate-bounce" style={{ marginBottom: 24 }}>
-            <Star
-              style={{
-                width: 32,
-                height: 32,
-                color: "#60aaff",
-                fill: "#60aaff",
-              }}
-            />
-          </div>
+          {/* Col 1 — Left QF */}
           <div
-            style={{ width: "100%", position: "relative", padding: "0 8px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              minHeight: 0,
+              justifyContent: "center",
+            }}
           >
+            {qfLeft.map((m, i) => (
+              <MatchNode key={m.id} match={m} round={`QF ${i + 1}`} />
+            ))}
+          </div>
+
+          {/* Col 2 — Left SF */}
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ width: "90%" }}>
+              {sfLeft && <MatchNode match={sfLeft} round="SEMIFINAL" />}
+            </div>
+          </div>
+
+          {/* Col 3 — Final */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              padding: "8px 0",
+              minHeight: 0,
+            }}
+          >
+            <div className="animate-bounce" style={{ marginBottom: 12 }}>
+              <Star
+                style={{
+                  width: 32,
+                  height: 32,
+                  color: "#60aaff",
+                  fill: "#60aaff",
+                }}
+              />
+            </div>
             <div
-              style={{
-                position: "absolute",
-                left: 0,
-                right: 0,
-                top: "50%",
-                transform: "translateY(-50%)",
-                height: 128,
-                borderRadius: "50%",
-                background: "rgba(0,80,200,0.1)",
-                filter: "blur(40px)",
-              }}
-            />
-            {finalMatch ? (
-              <MatchNode match={finalMatch} round="THE FINAL" />
-            ) : (
+              style={{ width: "100%", position: "relative", padding: "0 8px" }}
+            >
               <div
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(10,25,60,0.85) 0%, rgba(5,15,40,0.92) 100%)",
-                  border: "1px solid rgba(100,160,255,0.25)",
-                  backdropFilter: "blur(12px)",
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  height: 128,
+                  borderRadius: "50%",
+                  background: "rgba(0,80,200,0.1)",
+                  filter: "blur(40px)",
                 }}
-              >
+              />
+              {finalMatch ? (
+                <MatchNode match={finalMatch} round="THE FINAL" />
+              ) : (
                 <div
                   style={{
                     background:
-                      "linear-gradient(90deg, rgba(0,80,200,0.5) 0%, rgba(0,40,120,0.3) 100%)",
-                    borderBottom: "1px solid rgba(100,160,255,0.15)",
-                    padding: "6px 12px",
+                      "linear-gradient(135deg, rgba(10,25,60,0.85) 0%, rgba(5,15,40,0.92) 100%)",
+                    border: "1px solid rgba(100,160,255,0.25)",
+                    backdropFilter: "blur(12px)",
+                    borderRadius: 12,
+                    overflow: "hidden",
+                    boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
                   }}
                 >
-                  <span
+                  <div
                     style={{
-                      color: "#7eb8ff",
-                      fontSize: 9,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.1em",
+                      background:
+                        "linear-gradient(90deg, rgba(0,80,200,0.5) 0%, rgba(0,40,120,0.3) 100%)",
+                      borderBottom: "1px solid rgba(100,160,255,0.15)",
+                      padding: "6px 12px",
                     }}
                   >
-                    THE FINAL
-                  </span>
-                </div>
-                <div
-                  style={{
-                    padding: 16,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                  }}
-                >
-                  {["TBD", "TBD"].map((label, i) => (
-                    <React.Fragment key={i}>
-                      {i === 1 && (
+                    <span
+                      style={{
+                        color: "#7eb8ff",
+                        fontSize: 9,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
+                      }}
+                    >
+                      THE FINAL
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      padding: 16,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                    }}
+                  >
+                    {["TBD", "TBD"].map((label, i) => (
+                      <React.Fragment key={i}>
+                        {i === 1 && (
+                          <div
+                            style={{
+                              height: 1,
+                              background: "rgba(100,160,255,0.08)",
+                            }}
+                          />
+                        )}
                         <div
                           style={{
-                            height: 1,
-                            background: "rgba(100,160,255,0.08)",
-                          }}
-                        />
-                      )}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: "50%",
-                            background: "rgba(100,160,255,0.2)",
-                          }}
-                        />
-                        <span
-                          style={{
-                            color: "#4a6a9a",
-                            fontSize: 13,
-                            fontWeight: 700,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
                           }}
                         >
-                          {label}
-                        </span>
-                      </div>
-                    </React.Fragment>
-                  ))}
+                          <div
+                            style={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: "50%",
+                              background: "rgba(100,160,255,0.2)",
+                            }}
+                          />
+                          <span
+                            style={{
+                              color: "#4a6a9a",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            {label}
+                          </span>
+                        </div>
+                      </React.Fragment>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Col 4 — Right SF */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ width: "90%" }}>
-            {sfRight && <MatchNode match={sfRight} round="SEMIFINAL" />}
+          {/* Col 4 — Right SF */}
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ width: "90%" }}>
+              {sfRight && <MatchNode match={sfRight} round="SEMIFINAL" />}
+            </div>
           </div>
-        </div>
 
-        {/* Col 5 — Right QF */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 48 }}>
-          {qfRight.map((m, i) => (
-            <MatchNode key={m.id} match={m} round={`QF ${i + 3}`} />
-          ))}
+          {/* Col 5 — Right QF */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              minHeight: 0,
+              justifyContent: "center",
+            }}
+          >
+            {qfRight.map((m, i) => (
+              <MatchNode key={m.id} match={m} round={`QF ${i + 3}`} />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -732,7 +767,8 @@ export default function UCLPage() {
         style={{
           position: "relative",
           zIndex: 10,
-          marginTop: 24,
+          flexShrink: 0,
+          marginTop: 12,
           padding: 12,
           borderTop: "1px solid rgba(100,160,255,0.1)",
           display: "flex",

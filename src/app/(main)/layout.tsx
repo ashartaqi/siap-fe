@@ -136,7 +136,7 @@ export default function MainLayout({
 
       <main
         className={`flex-1 p-8 bg-[var(--color-black)] text-[var(--color-text)] ${
-          isUCL ? "overflow-hidden" : "overflow-y-auto h-screen"
+          isUCL ? "min-h-0 overflow-hidden" : "overflow-y-auto h-screen"
         }`}
       >
         {children}
