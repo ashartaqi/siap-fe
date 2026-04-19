@@ -7,6 +7,10 @@ const useGetDreamPlayers = () => {
   return useQuery<IDreamPlayerResponse, TAxiosError>({
     queryKey: ["custom-player"],
     queryFn: () => getDreamPlayer(),
+    retry: (failureCount, error) => {
+      if (error.response?.status === 404) return false;
+      return failureCount < 3;
+    },
   });
 };
 

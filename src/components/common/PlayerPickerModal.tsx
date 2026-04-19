@@ -1,0 +1,279 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import {
+  useGetPlayers,
+  useGetGoalkeepers,
+  IPlayersPayload,
+  IPlayersResponse,
+  IGoalKeeperResponse,
+} from "@/features/main/dashboard";
+import { INPUT, LABEL } from "@/lib/constants";
+
+interface Props {
+  label: string;
+  isGK?: boolean;
+  usedPlayerIds: Set<number>;
+  onClose: () => void;
+  onSelect: (player: IPlayersResponse | IGoalKeeperResponse) => void;
+}
+
+export function PlayerPickerModal({
+  label,
+  isGK = false,
+  usedPlayerIds,
+  onClose,
+  onSelect,
+}: Props) {
+  const [name, setName] = useState("");
+  const [teamId, setTeamId] = useState<number | undefined>();
+  const [minOverall, setMinOverall] = useState<number | undefined>();
+  const [maxOverall, setMaxOverall] = useState<number | undefined>();
+  const [position, setPosition] = useState("");
+  const [nationalityName, setNationalityName] = useState("");
+  const [minAge, setMinAge] = useState<number | undefined>();
+  const [maxAge, setMaxAge] = useState<number | undefined>();
+  const [preferredFoot, setPreferredFoot] = useState("");
+
+  const payload: IPlayersPayload = {
+    limit: 10,
+    name: name || undefined,
+    teamId,
+    minOverall,
+    maxOverall,
+    position: position || undefined,
+    nationalityName: nationalityName || undefined,
+    minAge,
+    maxAge,
+    preferredFoot: preferredFoot || undefined,
+  };
+
+  const playersQuery = useGetPlayers(payload);
+  const goalkeepersQuery = useGetGoalkeepers(payload);
+  const {
+    data: players = [],
+    isLoading,
+    isError,
+    error,
+  } = isGK ? goalkeepersQuery : playersQuery;
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/70 backdrop-blur-[6px] z-[1000] flex items-center justify-center"
+      onClick={onClose}
+    >
+      <div
+        className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(71,72,69,0.2)] shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="font-[Bebas_Neue,sans-serif] text-[22px] text-[#fcfcf8] tracking-[0.04em]">
+              Select Player
+            </span>
+            <span className="text-[9px] font-bold tracking-[0.22em] uppercase text-[#00ff66] bg-[rgba(0,255,102,0.08)] border border-[rgba(0,255,102,0.2)] px-2.5 py-1 rounded-[4px]">
+              {label}
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white/40 text-xl leading-none p-1 transition-colors hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className="grid grid-cols-2 gap-2.5 px-5 py-4 border-b border-[rgba(71,72,69,0.2)] shrink-0">
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <span className={LABEL}>Player Name</span>
+            <input
+              className={INPUT}
+              placeholder="Search by name..."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="col-span-2 flex flex-col gap-1.5">
+            <span className={LABEL}>Team ID</span>
+            <input
+              className={INPUT}
+              type="number"
+              placeholder="Enter team ID..."
+              value={teamId ?? ""}
+              onChange={(e) =>
+                setTeamId(e.target.value ? +e.target.value : undefined)
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL}>Position</span>
+            <input
+              className={INPUT}
+              placeholder="e.g. ST, CM, GK"
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL}>Nationality</span>
+            <input
+              className={INPUT}
+              placeholder="e.g. Brazil"
+              value={nationalityName}
+              onChange={(e) => setNationalityName(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL}>Overall Rating</span>
+            <div className="flex gap-1.5 items-center">
+              <input
+                className={INPUT}
+                type="number"
+                placeholder="Min"
+                value={minOverall ?? ""}
+                onChange={(e) =>
+                  setMinOverall(e.target.value ? +e.target.value : undefined)
+                }
+              />
+              <span className="text-white/20 text-[11px] shrink-0">–</span>
+              <input
+                className={INPUT}
+                type="number"
+                placeholder="Max"
+                value={maxOverall ?? ""}
+                onChange={(e) =>
+                  setMaxOverall(e.target.value ? +e.target.value : undefined)
+                }
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL}>Age</span>
+            <div className="flex gap-1.5 items-center">
+              <input
+                className={INPUT}
+                type="number"
+                placeholder="Min"
+                value={minAge ?? ""}
+                onChange={(e) =>
+                  setMinAge(e.target.value ? +e.target.value : undefined)
+                }
+              />
+              <span className="text-white/20 text-[11px] shrink-0">–</span>
+              <input
+                className={INPUT}
+                type="number"
+                placeholder="Max"
+                value={maxAge ?? ""}
+                onChange={(e) =>
+                  setMaxAge(e.target.value ? +e.target.value : undefined)
+                }
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL}>Preferred Foot</span>
+            <select
+              className="w-full bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-[6px] px-2.5 py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none transition-colors appearance-none cursor-pointer focus:border-[rgba(0,255,102,0.4)]"
+              value={preferredFoot}
+              onChange={(e) => setPreferredFoot(e.target.value)}
+            >
+              <option value="">Any</option>
+              <option value="Left">Left</option>
+              <option value="Right">Right</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="overflow-y-auto flex-1 px-5 pt-4 pb-5">
+          <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-[#00ff66] mb-2.5">
+            Results
+          </div>
+          {isLoading && (
+            <div className="text-center py-10 text-[12px] text-white/25 tracking-[0.1em]">
+              Searching...
+            </div>
+          )}
+          {isError && (
+            <div className="text-center py-10 text-[12px] text-[rgba(255,80,80,0.7)] tracking-[0.1em]">
+              {error instanceof Error
+                ? error.message
+                : "Failed to fetch players"}
+            </div>
+          )}
+          {!isLoading && !isError && players.length === 0 && (
+            <div className="text-center py-10 text-[12px] text-white/25 tracking-[0.1em]">
+              No players found — adjust filters
+            </div>
+          )}
+          {!isLoading &&
+            !isError &&
+            players.map((p, idx) => {
+              const isUsed = usedPlayerIds.has(p.id);
+              return (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    if (!isUsed)
+                      onSelect(p as IPlayersResponse | IGoalKeeperResponse);
+                  }}
+                  className={[
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-2",
+                    "bg-[rgba(36,39,35,0.6)] border border-[rgba(71,72,69,0.15)]",
+                    "transition-[border-color,background,opacity] duration-200",
+                    isUsed
+                      ? "opacity-35 cursor-not-allowed"
+                      : "cursor-pointer hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.04)]",
+                  ].join(" ")}
+                >
+                  <div className="w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center">
+                    {p.player_face_url ? (
+                      <Image
+                        src={p.player_face_url}
+                        alt={p.short_name}
+                        referrerPolicy="no-referrer"
+                        width={44}
+                        height={44}
+                        className="w-full h-full object-cover object-top"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display =
+                            "none";
+                        }}
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined text-[18px] text-[rgba(0,255,102,0.3)]">
+                        person
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-semibold text-[#fcfcf8] truncate">
+                      {p.short_name}
+                    </div>
+                    <div className="text-[10px] text-white/35 mt-0.5 tracking-[0.05em]">
+                      {p.player_positions} · {p.club_name} · Age {p.age} ·{" "}
+                      {p.preferred_foot} foot
+                    </div>
+                  </div>
+                  {isUsed ? (
+                    <span className="text-[8px] font-bold tracking-[0.15em] uppercase text-[rgba(255,100,100,0.7)] bg-[rgba(255,100,100,0.08)] border border-[rgba(255,100,100,0.2)] px-1.5 py-0.5 rounded-[3px] shrink-0">
+                      In Squad
+                    </span>
+                  ) : (
+                    <div className="font-[Bebas_Neue,sans-serif] text-[26px] text-[#00ff66] leading-none shrink-0">
+                      {p.overall}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+        </div>
+      </div>
+    </div>
+  );
+}

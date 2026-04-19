@@ -1,54 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { BarChart } from "lucide-react";
-import { Match } from "@/types/football";
-import {
-  BASE,
-  FIXTURE_LEAGUES,
-  formatShortDate,
-  leagueName,
-} from "@/lib/footballUtils";
+import { formatShortDate, leagueName } from "@/lib/utils/footballUtils";
+import { useGetLatestResults } from "@/features/main/football";
 
 export function LatestResults() {
-  const [results, setResults] = useState<Match[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchAll() {
-      setLoading(true);
-      try {
-        const targetStatuses = ["FINISHED", "AWARDED"];
-        const now = new Date();
-        const fetched = await Promise.allSettled(
-          FIXTURE_LEAGUES.flatMap((lg) =>
-            targetStatuses.map(async (status) => {
-              const res = await fetch(
-                `${BASE}/fixtures?limit=50&league=${lg.key}&status_filter=${status}`,
-              );
-              if (!res.ok) return [];
-              const data: Match[] = await res.json();
-              return data
-                .filter((m) => new Date(m.date ?? "") <= now)
-                .map((m) => ({ ...m, league: lg.key }));
-            }),
-          ),
-        );
-        const merged: Match[] = [];
-        for (const r of fetched) {
-          if (r.status === "fulfilled") merged.push(...r.value);
-        }
-        merged.sort(
-          (a, b) =>
-            new Date(b.date ?? "").getTime() - new Date(a.date ?? "").getTime(),
-        );
-        setResults(merged.slice(0, 10));
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAll();
-  }, []);
+  const { data: results, isLoading: loading } = useGetLatestResults();
 
   if (loading) {
     return (
