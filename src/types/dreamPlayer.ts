@@ -1,7 +1,4 @@
-import type {
-  IPlayersResponse,
-  IGoalKeeperResponse,
-} from "@/features/main/dashboard/types";
+import type { IPlayersResponse } from "@/features/main/dashboard/types";
 
 export type StatKey =
   | "pace"
@@ -28,10 +25,7 @@ export interface PlayerStats {
   physic: number;
 }
 
-export type SlotPlayers = Record<
-  StatKey,
-  IPlayersResponse | IGoalKeeperResponse | undefined
->;
+export type SlotPlayers = Record<StatKey, IPlayersResponse | undefined>;
 
 export interface PageState {
   identity: PlayerIdentity;

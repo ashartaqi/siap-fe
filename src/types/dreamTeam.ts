@@ -1,7 +1,4 @@
-import type {
-  IPlayersResponse,
-  IGoalKeeperResponse,
-} from "@/features/main/dashboard/types";
+import type { IPlayersResponse } from "@/features/main/dashboard/types";
 
 export interface Formation {
   id: string;
@@ -11,7 +8,4 @@ export interface Formation {
   rows: string[][];
 }
 
-export type SelectedPlayers = Record<
-  string,
-  IPlayersResponse | IGoalKeeperResponse | undefined
->;
+export type SelectedPlayers = Record<string, IPlayersResponse | undefined>;

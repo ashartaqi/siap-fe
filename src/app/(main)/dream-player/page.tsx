@@ -7,10 +7,7 @@ import { useCreateDreamPlayer } from "@/features/main/dashboard/hooks/useCreateD
 import { useUpdateDreamPlayer } from "@/features/main/dashboard/hooks/useUpdateDreamPlayer";
 import { useGetDreamPlayers } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
 import { IDreamPlayerPayload } from "@/features/main/dashboard/types";
-import {
-  IPlayersResponse,
-  IGoalKeeperResponse,
-} from "@/features/main/dashboard";
+import { IPlayersResponse } from "@/features/main/dashboard";
 import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
 import { CountryPicker } from "@/components/ui/dream-player/CountryPicker";
 import { EditableText } from "@/components/ui/dream-player/EditableText";
@@ -72,10 +69,7 @@ export default function DreamPlayerPage() {
   const usedPlayerIds = useMemo<Set<number>>(() => {
     const ids = new Set<number>();
     (
-      Object.entries(slotPlayers) as [
-        StatKey,
-        (IPlayersResponse | IGoalKeeperResponse) | undefined,
-      ][]
+      Object.entries(slotPlayers) as [StatKey, IPlayersResponse | undefined][]
     ).forEach(([key, p]) => {
       if (p && key !== activeSlot) ids.add(p.id);
     });
@@ -96,7 +90,7 @@ export default function DreamPlayerPage() {
       identity: { ...pageState.identity, [key]: value },
     });
 
-  const handlePlayerSelect = (p: IPlayersResponse | IGoalKeeperResponse) => {
+  const handlePlayerSelect = (p: IPlayersResponse) => {
     if (!activeSlot) return;
     setSlotPlayers((prev) => ({ ...prev, [activeSlot]: p }));
     setEditState({
