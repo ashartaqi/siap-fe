@@ -55,8 +55,22 @@ export function StandingsTable({
                   />
                 </td>
                 <td className="px-2 py-[0.65rem] pl-3 text-left font-mono text-[0.8rem]">
-                  <span className="hidden sm:inline">{r.team_name}</span>
-                  <span className="sm:hidden">{abbrev(r.team_name)}</span>
+                  <div className="flex items-center gap-2">
+                    {r.logo_url ? (
+                      <img
+                        src={r.logo_url}
+                        alt={r.team_name}
+                        className="w-4 h-4 object-contain shrink-0"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-4 h-4 shrink-0" />
+                    )}
+                    <span className="hidden sm:inline">{r.team_name}</span>
+                    <span className="sm:hidden">{abbrev(r.team_name)}</span>
+                  </div>
                 </td>
                 <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
                   {r.played_games}

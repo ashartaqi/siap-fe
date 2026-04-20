@@ -4,7 +4,10 @@ import React, { useState } from "react";
 import { Carousel } from "@/components/common/Carousel";
 import { StandingsTable } from "@/components/ui/league-standings/StandingsTable";
 import { FixturesPanel } from "@/components/ui/league-standings/FixturesPanel";
-import { LEAGUES_WITH_ACCENT as LEAGUES } from "@/lib/constants";
+import {
+  LEAGUES_WITH_ACCENT as LEAGUES,
+  CURRENT_SEASON,
+} from "@/lib/constants";
 import { useGetStandings } from "@/features/main/football";
 
 export default function StandingsPage() {
@@ -26,7 +29,7 @@ export default function StandingsPage() {
           Standings
         </h1>
         <span className="text-[0.8rem] text-[#6b6b78] font-mono">
-          2024 / 25
+          {CURRENT_SEASON}
         </span>
       </div>
 
@@ -47,7 +50,7 @@ export default function StandingsPage() {
                 {league.label}
               </div>
               <div className="text-[0.72rem] text-[#6b6b78] font-mono mt-px">
-                Season 2024 / 25
+                Season {CURRENT_SEASON}
               </div>
             </div>
           </div>
