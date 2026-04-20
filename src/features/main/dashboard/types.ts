@@ -65,3 +65,19 @@ export interface IDreamPlayerResponse {
   defending: number;
   physic: number;
 }
+
+export interface IDreamTeamSlot {
+  slot_label: string;
+  player_id: number;
+}
+
+export interface IDreamTeamPayload {
+  formation: string;
+  slots: IDreamTeamSlot[];
+}
+
+export interface IDreamTeamResponse {
+  id: number;
+  formation: string;
+  slots: IDreamTeamSlot[];
+}

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { CreateDreamTeamButton } from "@/components/common/Button";
+import { useCreateDreamTeam } from "@/features/main/dashboard";
 import { IPlayersResponse } from "@/features/main/dashboard";
 import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
 import { FORMATIONS } from "@/lib/constants";
@@ -17,6 +18,8 @@ export default function DreamTeamPage() {
     pos: string;
   } | null>(null);
   const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayers>({});
+
+  const { mutate: createDreamTeam, isPending } = useCreateDreamTeam();
 
   const active = FORMATIONS.find((f) => f.id === activeId)!;
 
@@ -45,12 +48,18 @@ export default function DreamTeamPage() {
   };
 
   const handleCreateDreamTeam = () => {
-    const squad = Object.entries(selectedPlayers)
+    const slots = Object.entries(selectedPlayers)
       .filter(([, p]) => p)
-      .map(([slotId, player]) => ({ slotId, player }));
-    console.log("Dream Team:", squad);
-  };
+      .map(([slotId, player]) => ({
+        slot_label: slotId,
+        player_id: player!.id,
+      }));
 
+    createDreamTeam({
+      formation: activeId,
+      slots,
+    });
+  };
   return (
     <>
       <div className="flex flex-col lg:flex-row lg:items-start gap-5 w-full h-full font-[Oxanium,sans-serif] text-[#fcfcf8]">
@@ -82,7 +91,7 @@ export default function DreamTeamPage() {
 
           <CreateDreamTeamButton
             onClick={handleCreateDreamTeam}
-            disabled={!isComplete}
+            disabled={!isComplete || isPending}
             filledSlots={filledSlots}
             totalSlots={totalSlots}
           />
