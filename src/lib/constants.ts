@@ -20,6 +20,7 @@ import type { ComponentType } from "react";
 export const TOKEN_KEY = "token";
 
 // ─── Football Leagues ─────────────────────────────────────────────────────────
+export const CURRENT_SEASON = "2025 / 26";
 
 export const FIXTURE_LEAGUES = [
   { key: "FL1", label: "Ligue 1", badge: "L1" },
