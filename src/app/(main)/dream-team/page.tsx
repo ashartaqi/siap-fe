@@ -2,10 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { CreateDreamTeamButton } from "@/components/common/Button";
-import {
-  IPlayersResponse,
-  IGoalKeeperResponse,
-} from "@/features/main/dashboard";
+import { IPlayersResponse } from "@/features/main/dashboard";
 import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
 import { FORMATIONS } from "@/lib/constants";
 import { Pitch } from "@/components/ui/dream-team/Pitch";
@@ -41,9 +38,7 @@ export default function DreamTeamPage() {
   const handleSlotClick = (id: string, pos: string) =>
     setPickerSlot({ id, pos });
 
-  const handlePlayerSelect = (
-    player: IPlayersResponse | IGoalKeeperResponse,
-  ) => {
+  const handlePlayerSelect = (player: IPlayersResponse) => {
     if (!pickerSlot) return;
     setSelectedPlayers((prev) => ({ ...prev, [pickerSlot.id]: player }));
     setPickerSlot(null);

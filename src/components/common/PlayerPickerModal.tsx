@@ -4,10 +4,8 @@ import Image from "next/image";
 import { useState } from "react";
 import {
   useGetPlayers,
-  useGetGoalkeepers,
   IPlayersPayload,
   IPlayersResponse,
-  IGoalKeeperResponse,
 } from "@/features/main/dashboard";
 import { INPUT, LABEL } from "@/lib/constants";
 
@@ -16,7 +14,7 @@ interface Props {
   isGK?: boolean;
   usedPlayerIds: Set<number>;
   onClose: () => void;
-  onSelect: (player: IPlayersResponse | IGoalKeeperResponse) => void;
+  onSelect: (player: IPlayersResponse) => void;
 }
 
 export function PlayerPickerModal({
@@ -50,13 +48,7 @@ export function PlayerPickerModal({
   };
 
   const playersQuery = useGetPlayers(payload);
-  const goalkeepersQuery = useGetGoalkeepers(payload);
-  const {
-    data: players = [],
-    isLoading,
-    isError,
-    error,
-  } = isGK ? goalkeepersQuery : playersQuery;
+  const { data: players = [], isLoading, isError, error } = playersQuery;
 
   return (
     <div
@@ -218,8 +210,7 @@ export function PlayerPickerModal({
                 <div
                   key={idx}
                   onClick={() => {
-                    if (!isUsed)
-                      onSelect(p as IPlayersResponse | IGoalKeeperResponse);
+                    if (!isUsed) onSelect(p as IPlayersResponse);
                   }}
                   className={[
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-2",

@@ -1,15 +1,9 @@
-import type {
-  IPlayersResponse,
-  IGoalKeeperResponse,
-} from "@/features/main/dashboard/types";
+import type { IPlayersResponse } from "@/features/main/dashboard/types";
 import type { StatKey, PageState } from "@/types/dreamPlayer";
 import type { IDreamPlayerResponse } from "@/features/main/dashboard/types";
 import { STAT_FIELD_MAP, DEFAULT_IDENTITY } from "@/lib/constants";
 
-export function getStatValue(
-  player: IPlayersResponse | IGoalKeeperResponse,
-  stat: StatKey,
-): number {
+export function getStatValue(player: IPlayersResponse, stat: StatKey): number {
   const field = STAT_FIELD_MAP[stat];
   const raw = (player as unknown as Record<string, unknown>)[field];
   const coerced =
