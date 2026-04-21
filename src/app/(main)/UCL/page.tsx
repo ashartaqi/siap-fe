@@ -89,14 +89,14 @@ export default function UCLPage() {
               backgroundClip: "text",
             }}
           >
-            Roadmap{" "}
+            Road{" "}
             <span
               style={{
                 WebkitTextFillColor: "#60aaff",
                 filter: "drop-shadow(0 0 22px rgba(0,100,255,0.55))",
               }}
             >
-              to Munich
+              to Hungary
             </span>
           </h1>
           <p className="text-[#5a80b0] text-[13px] mt-3 max-w-[480px] uppercase tracking-[0.1em] leading-relaxed">
@@ -115,7 +115,7 @@ export default function UCLPage() {
               Final Destination
             </p>
             <p className="text-[#c8dcff] text-[17px] font-black uppercase">
-              Munich Football Arena • May 30
+              Puskás Aréna • May 30
             </p>
           </div>
         </div>

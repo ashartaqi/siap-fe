@@ -2,17 +2,27 @@
 
 import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
-import { POSITIONS } from "@/lib/constants";
+import { ALL_POSITIONS } from "@/lib/constants";
 
 interface Props {
   value: string;
   onChange: (v: string) => void;
   readOnly?: boolean;
+  /** Positions list from the backend (via useGetPlayerAttributes). Falls back to ALL_POSITIONS. */
+  positions?: string[];
 }
 
-export function PositionPicker({ value, onChange, readOnly = false }: Props) {
+export function PositionPicker({
+  value,
+  onChange,
+  readOnly = false,
+  positions,
+}: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  const positionList =
+    positions && positions.length > 0 ? positions : ALL_POSITIONS;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -38,7 +48,7 @@ export function PositionPicker({ value, onChange, readOnly = false }: Props) {
       {open && !readOnly && (
         <div className="absolute bottom-full mb-1 left-0 z-50 bg-[rgba(18,20,17,0.97)] border border-[rgba(0,255,102,0.2)] rounded-lg overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] w-28">
           <div className="grid grid-cols-3 gap-px p-1 max-h-40 overflow-y-auto">
-            {POSITIONS.map((pos) => (
+            {positionList.map((pos) => (
               <button
                 key={pos}
                 onClick={() => {

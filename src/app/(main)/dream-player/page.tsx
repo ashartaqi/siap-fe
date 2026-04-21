@@ -6,6 +6,7 @@ import { Flag, Hash, Star, Plus, RefreshCw } from "lucide-react";
 import { useCreateDreamPlayer } from "@/features/main/dashboard/hooks/useCreateDreamPlayer";
 import { useUpdateDreamPlayer } from "@/features/main/dashboard/hooks/useUpdateDreamPlayer";
 import { useGetDreamPlayers } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
+import { useGetPlayerAttributes } from "@/features/main/football";
 import { IDreamPlayerPayload } from "@/features/main/dashboard/types";
 import { IPlayersResponse } from "@/features/main/dashboard";
 import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
@@ -19,13 +20,7 @@ import {
   buildPageStateFromSaved,
 } from "@/lib/utils/dreamPlayerUtils";
 import { extractErrorMessage } from "@/lib/utils/errorUtils";
-import {
-  CENTER_IMAGE,
-  DEFAULT_PAGE_STATE,
-  DEFAULT_SLOT_PLAYERS,
-  LEFT_STATS,
-  RIGHT_STATS,
-} from "@/lib/constants";
+import { CENTER_IMAGE, LEFT_STATS, RIGHT_STATS } from "@/lib/constants";
 import type {
   StatKey,
   PlayerIdentity,
@@ -34,11 +29,44 @@ import type {
 } from "@/types/dreamPlayer";
 
 export default function DreamPlayerPage() {
+  const { data: playerAttributes } = useGetPlayerAttributes();
+
+  const defaultIdentity: PlayerIdentity = {
+    name: playerAttributes?.default_identity?.name ?? "Your Player",
+    position: playerAttributes?.default_identity?.position ?? "ST",
+    nationality: playerAttributes?.default_identity?.nationality ?? "---",
+    shirt_number: playerAttributes?.default_identity?.shirt_number ?? 7,
+    preferred_foot: (playerAttributes?.default_identity?.preferred_foot ??
+      "Right") as "Left" | "Right",
+  };
+  const defaultStats: Record<StatKey, number> = playerAttributes?.default_stats
+    ? (playerAttributes.default_stats as Record<StatKey, number>)
+    : {
+        pace: 0,
+        shooting: 0,
+        passing: 0,
+        dribbling: 0,
+        defending: 0,
+        physic: 0,
+      };
+  const defaultSlotPlayers: SlotPlayers = {
+    pace: undefined,
+    shooting: undefined,
+    passing: undefined,
+    dribbling: undefined,
+    defending: undefined,
+    physic: undefined,
+  };
+  const defaultPageState: PageState = {
+    identity: defaultIdentity,
+    stats: defaultStats,
+    mode: "edit" as const,
+  };
+
   // editState is null until the user makes a change — derived state reads from savedPlayer first
   const [editState, setEditState] = useState<PageState | null>(null);
-  const [slotPlayers, setSlotPlayers] = useState<SlotPlayers>(
-    DEFAULT_SLOT_PLAYERS as SlotPlayers,
-  );
+  const [slotPlayers, setSlotPlayers] =
+    useState<SlotPlayers>(defaultSlotPlayers);
   const [activeSlot, setActiveSlot] = useState<StatKey | null>(null);
   const [created, setCreated] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -54,7 +82,9 @@ export default function DreamPlayerPage() {
   // Derive displayed state: user edits take priority; fall back to saved server data
   const pageState: PageState =
     editState ??
-    (savedPlayer ? buildPageStateFromSaved(savedPlayer) : DEFAULT_PAGE_STATE);
+    (savedPlayer
+      ? buildPageStateFromSaved(savedPlayer, defaultIdentity)
+      : defaultPageState);
 
   const { identity, stats, mode } = pageState;
   const isReadOnly = mode === "view";
@@ -77,7 +107,7 @@ export default function DreamPlayerPage() {
   }, [slotPlayers, activeSlot]);
 
   const hasAnyPlayer = Object.values(slotPlayers).some(Boolean);
-  const allSlotsFilled = (Object.keys(DEFAULT_SLOT_PLAYERS) as StatKey[]).every(
+  const allSlotsFilled = (Object.keys(defaultSlotPlayers) as StatKey[]).every(
     (k) => slotPlayers[k],
   );
 
@@ -101,11 +131,14 @@ export default function DreamPlayerPage() {
   };
 
   const handleChangePlayer = () => {
-    setSlotPlayers(DEFAULT_SLOT_PLAYERS as SlotPlayers);
+    setSlotPlayers(defaultSlotPlayers);
     setEditState(
       savedPlayer
-        ? { ...buildPageStateFromSaved(savedPlayer), mode: "edit" }
-        : DEFAULT_PAGE_STATE,
+        ? {
+            ...buildPageStateFromSaved(savedPlayer, defaultIdentity),
+            mode: "edit",
+          }
+        : defaultPageState,
     );
   };
 
@@ -268,6 +301,7 @@ export default function DreamPlayerPage() {
                       value={identity.position}
                       onChange={(v) => patchIdentity("position", v)}
                       readOnly={isReadOnly}
+                      positions={playerAttributes?.all_positions}
                     />
                   </div>
                 </div>

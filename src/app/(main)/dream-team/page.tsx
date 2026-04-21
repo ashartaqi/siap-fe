@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { CreateDreamTeamButton } from "@/components/common/Button";
 import { IPlayersResponse } from "@/features/main/dashboard";
 import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
-import { FORMATIONS } from "@/lib/constants";
+import { useGetFormations } from "@/features/main/football";
 import { Pitch } from "@/components/ui/dream-team/Pitch";
 import { FormationPicker } from "@/components/ui/dream-team/FormationPicker";
 import { SquadAnalysis } from "@/components/ui/dream-team/SquadAnalysis";
@@ -18,14 +18,17 @@ export default function DreamTeamPage() {
   } | null>(null);
   const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayers>({});
 
-  const active = FORMATIONS.find((f) => f.id === activeId)!;
+  const { data: formations = [], isLoading: formationsLoading } =
+    useGetFormations();
+
+  const active = formations.find((f) => f.id === activeId) ?? formations[0];
 
   const totalSlots = useMemo(
-    () => active.rows.reduce((s, r) => s + r.length, 0) + 1,
+    () => (active ? active.rows.reduce((s, r) => s + r.length, 0) + 1 : 0),
     [active],
   );
   const filledSlots = Object.values(selectedPlayers).filter(Boolean).length;
-  const isComplete = filledSlots === totalSlots;
+  const isComplete = filledSlots === totalSlots && totalSlots > 0;
 
   const usedPlayerIds = useMemo(() => {
     const ids = new Set<number>();
@@ -51,6 +54,22 @@ export default function DreamTeamPage() {
     console.log("Dream Team:", squad);
   };
 
+  if (formationsLoading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[200px]">
+        <div className="flex items-center gap-2">
+          {[0, 150, 300].map((delay) => (
+            <div
+              key={delay}
+              className="w-2 h-2 rounded-full bg-[#00ff66] animate-bounce"
+              style={{ animationDelay: `${delay}ms` }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col lg:flex-row lg:items-start gap-5 w-full h-full font-[Oxanium,sans-serif] text-[#fcfcf8]">
@@ -66,19 +85,22 @@ export default function DreamTeamPage() {
 
           <FormationPicker
             activeId={activeId}
+            formations={formations}
             onSelect={(id) => {
               setActiveId(id);
               setSelectedPlayers({});
             }}
           />
 
-          <SquadAnalysis
-            selectedPlayers={selectedPlayers}
-            tacticalFit={active.tacticalFit}
-            filledSlots={filledSlots}
-            totalSlots={totalSlots}
-            isComplete={isComplete}
-          />
+          {active && (
+            <SquadAnalysis
+              selectedPlayers={selectedPlayers}
+              tacticalFit={active.tacticalFit}
+              filledSlots={filledSlots}
+              totalSlots={totalSlots}
+              isComplete={isComplete}
+            />
+          )}
 
           <CreateDreamTeamButton
             onClick={handleCreateDreamTeam}
@@ -88,12 +110,14 @@ export default function DreamTeamPage() {
           />
         </div>
 
-        <Pitch
-          key={activeId}
-          formation={active}
-          onSlotClick={handleSlotClick}
-          selectedPlayers={selectedPlayers}
-        />
+        {active && (
+          <Pitch
+            key={activeId}
+            formation={active}
+            onSlotClick={handleSlotClick}
+            selectedPlayers={selectedPlayers}
+          />
+        )}
       </div>
 
       {pickerSlot && (

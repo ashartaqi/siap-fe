@@ -20,25 +20,8 @@ import type { ComponentType } from "react";
 export const TOKEN_KEY = "token";
 
 // ─── Football Leagues ─────────────────────────────────────────────────────────
+
 export const CURRENT_SEASON = "2025 / 26";
-
-export const FIXTURE_LEAGUES = [
-  { key: "FL1", label: "Ligue 1", badge: "L1" },
-  { key: "SA", label: "Serie A", badge: "SA" },
-  { key: "PL", label: "Premier League", badge: "PL" },
-  { key: "PPL", label: "Primeira Liga", badge: "PPL" },
-  { key: "PD", label: "La Liga", badge: "LL" },
-  { key: "BL1", label: "Bundesliga", badge: "BL1" },
-  { key: "CL", label: "Champions League", badge: "CL" },
-];
-
-export const STANDING_LEAGUES = [
-  { key: "PL", label: "Premier League", badge: "PL" },
-  { key: "PD", label: "La Liga", badge: "LL" },
-  { key: "SA", label: "Serie A", badge: "SA" },
-  { key: "BL1", label: "Bundesliga", badge: "BL1" },
-  { key: "FL1", label: "Ligue 1", badge: "L1" },
-];
 
 export const LEAGUES_WITH_ACCENT = [
   { key: "PL", label: "Premier League", badge: "PL", accent: "#3b0764" },
@@ -49,9 +32,28 @@ export const LEAGUES_WITH_ACCENT = [
   { key: "PPL", label: "Primeira Liga", badge: "PPL", accent: "#3b1f00" },
 ];
 
+/** All leagues used for fixture queries (matches backend FIXTURE_LEAGUES) */
+export const FIXTURE_LEAGUES = [
+  { key: "FL1", label: "Ligue 1", badge: "L1" },
+  { key: "SA", label: "Serie A", badge: "SA" },
+  { key: "PL", label: "Premier League", badge: "PL" },
+  { key: "PPL", label: "Primeira Liga", badge: "PPL" },
+  { key: "PD", label: "La Liga", badge: "LL" },
+  { key: "BL1", label: "Bundesliga", badge: "BL1" },
+  { key: "CL", label: "Champions League", badge: "CL" },
+];
+
 // ─── Player Positions ─────────────────────────────────────────────────────────
 
-export const POSITIONS = [
+/** Attacking positions — mirrors backend VALID_PLAYER_POSITIONS.attacking */
+export const ATTACK_POSITIONS = ["LW", "ST", "RW", "CF", "LF", "RF", "SS"];
+/** Midfield positions — mirrors backend VALID_PLAYER_POSITIONS.midfield */
+export const MIDFIELD_POSITIONS = ["CM", "CAM", "CDM", "LM", "RM", "DM", "AM"];
+/** Defensive positions — mirrors backend VALID_PLAYER_POSITIONS.defense */
+export const DEFENSE_POSITIONS = ["CB", "LB", "RB", "LWB", "RWB", "SW", "GK"];
+
+/** All outfield positions (mirrors backend ALL_POSITIONS, used as fallback) */
+export const ALL_POSITIONS = [
   "ST",
   "CF",
   "LW",
@@ -74,207 +76,38 @@ export const POSITIONS = [
   "SW",
 ];
 
-export const ATTACK_POSITIONS = ["ST", "CF", "LW", "RW", "LF", "RF", "SS"];
-export const MIDFIELD_POSITIONS = ["CM", "CAM", "CDM", "LM", "RM", "DM", "AM"];
-export const DEFENSE_POSITIONS = ["CB", "LB", "RB", "LWB", "RWB", "SW"];
+// ─── Settings — Profile ───────────────────────────────────────────────────────
 
-// ─── Countries ────────────────────────────────────────────────────────────────
+export const FAVORITE_TEAMS = [
+  "Arsenal",
+  "Chelsea",
+  "Liverpool",
+  "Manchester City",
+  "Manchester United",
+  "Tottenham",
+  "Newcastle",
+  "Aston Villa",
+  "Real Madrid",
+  "Barcelona",
+  "Atletico Madrid",
+  "Bayern Munich",
+  "Borussia Dortmund",
+  "PSG",
+  "Juventus",
+  "AC Milan",
+  "Inter Milan",
+  "Napoli",
+  "Porto",
+  "Benfica",
+];
 
-export const COUNTRIES = [
-  "Afghanistan",
-  "Albania",
-  "Algeria",
-  "Andorra",
-  "Angola",
-  "Antigua and Barbuda",
-  "Argentina",
-  "Armenia",
-  "Australia",
-  "Austria",
-  "Azerbaijan",
-  "Bahamas",
-  "Bahrain",
-  "Bangladesh",
-  "Barbados",
-  "Belarus",
-  "Belgium",
-  "Belize",
-  "Benin",
-  "Bhutan",
-  "Bolivia",
-  "Bosnia and Herzegovina",
-  "Botswana",
-  "Brazil",
-  "Brunei",
-  "Bulgaria",
-  "Burkina Faso",
-  "Burundi",
-  "Cabo Verde",
-  "Cambodia",
-  "Cameroon",
-  "Canada",
-  "Central African Republic",
-  "Chad",
-  "Chile",
-  "China",
-  "Colombia",
-  "Comoros",
-  "Congo",
-  "Costa Rica",
-  "Croatia",
-  "Cuba",
-  "Cyprus",
-  "Czech Republic",
-  "Denmark",
-  "Djibouti",
-  "Dominica",
-  "Dominican Republic",
-  "Ecuador",
-  "Egypt",
-  "El Salvador",
-  "Equatorial Guinea",
-  "Eritrea",
-  "Estonia",
-  "Eswatini",
-  "Ethiopia",
-  "Fiji",
-  "Finland",
-  "France",
-  "Gabon",
-  "Gambia",
-  "Georgia",
-  "Germany",
-  "Ghana",
-  "Greece",
-  "Grenada",
-  "Guatemala",
-  "Guinea",
-  "Guinea-Bissau",
-  "Guyana",
-  "Haiti",
-  "Honduras",
-  "Hungary",
-  "Iceland",
-  "India",
-  "Indonesia",
-  "Iran",
-  "Iraq",
-  "Ireland",
-  "Israel",
-  "Italy",
-  "Jamaica",
-  "Japan",
-  "Jordan",
-  "Kazakhstan",
-  "Kenya",
-  "Kiribati",
-  "Kuwait",
-  "Kyrgyzstan",
-  "Laos",
-  "Latvia",
-  "Lebanon",
-  "Lesotho",
-  "Liberia",
-  "Libya",
-  "Liechtenstein",
-  "Lithuania",
-  "Luxembourg",
-  "Madagascar",
-  "Malawi",
-  "Malaysia",
-  "Maldives",
-  "Mali",
-  "Malta",
-  "Marshall Islands",
-  "Mauritania",
-  "Mauritius",
-  "Mexico",
-  "Micronesia",
-  "Moldova",
-  "Monaco",
-  "Mongolia",
-  "Montenegro",
-  "Morocco",
-  "Mozambique",
-  "Myanmar",
-  "Namibia",
-  "Nauru",
-  "Nepal",
-  "Netherlands",
-  "New Zealand",
-  "Nicaragua",
-  "Niger",
-  "Nigeria",
-  "North Korea",
-  "North Macedonia",
-  "Norway",
-  "Oman",
-  "Pakistan",
-  "Palau",
-  "Palestine",
-  "Panama",
-  "Papua New Guinea",
-  "Paraguay",
-  "Peru",
-  "Philippines",
-  "Poland",
-  "Portugal",
-  "Qatar",
-  "Romania",
-  "Russia",
-  "Rwanda",
-  "Saint Kitts and Nevis",
-  "Saint Lucia",
-  "Saint Vincent and the Grenadines",
-  "Samoa",
-  "San Marino",
-  "Sao Tome and Principe",
-  "Saudi Arabia",
-  "Senegal",
-  "Serbia",
-  "Seychelles",
-  "Sierra Leone",
-  "Singapore",
-  "Slovakia",
-  "Slovenia",
-  "Solomon Islands",
-  "Somalia",
-  "South Africa",
-  "South Korea",
-  "South Sudan",
-  "Spain",
-  "Sri Lanka",
-  "Sudan",
-  "Suriname",
-  "Sweden",
-  "Switzerland",
-  "Syria",
-  "Taiwan",
-  "Tajikistan",
-  "Tanzania",
-  "Thailand",
-  "Timor-Leste",
-  "Togo",
-  "Tonga",
-  "Trinidad and Tobago",
-  "Tunisia",
-  "Turkey",
-  "Turkmenistan",
-  "Tuvalu",
-  "Uganda",
-  "Ukraine",
-  "United Arab Emirates",
-  "United Kingdom",
-  "United States",
-  "Uruguay",
-  "Uzbekistan",
-  "Vanuatu",
-  "Vatican City",
-  "Venezuela",
-  "Vietnam",
-  "Yemen",
-  "Zambia",
-  "Zimbabwe",
+export const SETTINGS_LEAGUES = [
+  "Premier League",
+  "La Liga",
+  "Serie A",
+  "Bundesliga",
+  "Ligue 1",
+  "Primeira Liga",
 ];
 
 // ─── Shared Input Styling ─────────────────────────────────────────────────────
@@ -360,56 +193,6 @@ export const RIGHT_STATS: StatDefinition[] = [
   },
 ];
 
-// ─── Formations ───────────────────────────────────────────────────────────────
-
-export const FORMATIONS = [
-  {
-    id: "4-4-2",
-    label: "4-4-2",
-    description: "Classic Balance",
-    tacticalFit: "A+",
-    rows: [
-      ["ST", "ST"],
-      ["LM", "CM", "CM", "RM"],
-      ["LB", "CB", "CB", "RB"],
-    ],
-  },
-  {
-    id: "4-3-3",
-    label: "4-3-3",
-    description: "Offensive Width",
-    tacticalFit: "A",
-    rows: [
-      ["LW", "ST", "RW"],
-      ["CM", "CM", "CM"],
-      ["LB", "CB", "CB", "RB"],
-    ],
-  },
-  {
-    id: "3-4-3",
-    label: "3-4-3",
-    description: "Midfield Control",
-    tacticalFit: "B+",
-    rows: [
-      ["LW", "ST", "RW"],
-      ["LM", "CM", "CM", "RM"],
-      ["CB", "CB", "CB"],
-    ],
-  },
-  {
-    id: "4-2-2-2",
-    label: "4-2-2-2",
-    description: "Tactical Pivot",
-    tacticalFit: "A-",
-    rows: [
-      ["ST", "ST"],
-      ["AM", "AM"],
-      ["DM", "DM"],
-      ["LB", "CB", "CB", "RB"],
-    ],
-  },
-];
-
 // ─── Settings Sections ────────────────────────────────────────────────────────
 
 export const SETTINGS_SECTIONS = [
@@ -419,27 +202,6 @@ export const SETTINGS_SECTIONS = [
   { id: "analytics", label: "Analytics Prefs", icon: BarChart2 },
   { id: "privacy", label: "Privacy & Security", icon: Shield },
   { id: "data", label: "Data & Export", icon: Download },
-];
-
-export const FAVORITE_TEAMS = [
-  "Arsenal",
-  "Aston Villa",
-  "Chelsea",
-  "Everton",
-  "Liverpool",
-  "Man City",
-  "Man Utd",
-  "Newcastle",
-  "Tottenham",
-  "West Ham",
-];
-
-export const SETTINGS_LEAGUES = [
-  "Premier League",
-  "La Liga",
-  "Bundesliga",
-  "Serie A",
-  "Ligue 1",
 ];
 
 // ─── Settings Options ─────────────────────────────────────────────────────────
