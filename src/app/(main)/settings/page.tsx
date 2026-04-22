@@ -1,24 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Check, Download } from "lucide-react";
-import {
-  SETTINGS_SECTIONS,
-  FAVORITE_TEAMS,
-  SETTINGS_LEAGUES,
-  THEME_OPTIONS,
-  ACCENT_COLORS,
-  TIMEZONE_OPTIONS,
-  MATCH_CLOCK_OPTIONS,
-  LANGUAGE_OPTIONS,
-  NOTIFICATION_SOUNDS,
-  EXPORT_ITEMS,
-  DATA_RETENTION_OPTIONS,
-  PRIMARY_STAT_OPTIONS,
-  XG_MODEL_OPTIONS,
-  POSSESSION_METRICS,
-  DASHBOARD_WIDGETS,
-} from "@/lib/constants";
+import { useState } from "react";
+import { SETTINGS_SECTIONS, TIMEZONE_OPTIONS } from "@/lib/constants";
 import { SettingsSidebar } from "@/components/ui/settings/SettingsSidebar";
 import { Section } from "@/components/common/Section";
 import { SettingRow } from "@/components/common/SettingRow";
@@ -28,16 +11,6 @@ import { Select } from "@/components/common/Select";
 
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState("profile");
-  const [favoriteTeam, setFavoriteTeam] = useState("Liverpool");
-  const [followedLeagues, setFollowedLeagues] = useState(["Premier League"]);
-
-  const toggleLeague = (league: string) => {
-    setFollowedLeagues((prev) =>
-      prev.includes(league)
-        ? prev.filter((l) => l !== league)
-        : [...prev, league],
-    );
-  };
 
   return (
     <div className="flex gap-6 max-w-[1100px]">
