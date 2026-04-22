@@ -1,7 +1,6 @@
-// src/features/auth/hooks/useRegister.ts
 import { useMutation } from "@tanstack/react-query";
 import { TAxiosError } from "@/types/api";
-import { IRegisterResponse, IRegisterPayload } from "../types";
+import { IRegisterPayload, IRegisterResponse } from "../types";
 import { register } from "../apis/register";
 
 const useRegister = () => {

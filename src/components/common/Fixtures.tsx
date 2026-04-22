@@ -35,7 +35,7 @@ export function FixturesStrip() {
         const upcoming = isUpcoming(m.status);
         return (
           <div
-            key={`${m.league}-${m.id}`}
+            key={m.id}
             className="flex-none w-72 bg-surface-container-low border border-[#474845]/20 p-4 rounded-lg neon-glow transition-all duration-300"
           >
             <div className="flex justify-between items-center mb-4">

@@ -9,7 +9,6 @@ const axiosClient = axios.create({
   },
 });
 
-// REQUEST interceptor — attach JWT to every request
 axiosClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getToken();
@@ -21,7 +20,6 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// RESPONSE interceptor — handle 401 globally
 axiosClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
