@@ -2,9 +2,9 @@
 
 import React from "react";
 import Image from "next/image";
-import axiosClient from "@/lib/axiosClient";
 import { Carousel } from "@/components/common/Carousel";
 import { useGetTeamUpcomingFixtures } from "@/features/main/football";
+import { useGetFavoritePlayers } from "@/features/main/dashboard";
 import type { Player } from "@/types/football";
 
 function PlayerItem({ player }: { player: Player }) {
@@ -79,24 +79,9 @@ function PlayerItem({ player }: { player: Player }) {
 }
 
 export function FavoritePlayers() {
-  const [favoritePlayers, setFavoritePlayers] = React.useState<Player[]>([]);
   const [current, setCurrent] = React.useState(0);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      try {
-        const res = await axiosClient.get("/players/fav");
-        if (res.data?.length) setFavoritePlayers(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
+  const { data, isLoading: loading } = useGetFavoritePlayers();
+  const favoritePlayers = data ?? [];
 
   if (loading) {
     return (

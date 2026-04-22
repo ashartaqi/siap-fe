@@ -103,10 +103,10 @@ export default function RegisterPage() {
           onSuccess: (data) => {
             if (data.token) {
               setToken(data.token);
-              toast.success("Account created and logged in!");
+              toast.success("Account created! Welcome to SIAP.");
               router.push("/dashboard");
             } else {
-              toast.success("Account created");
+              toast.success("Account created!");
               router.push("/login");
             }
           },

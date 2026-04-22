@@ -68,7 +68,7 @@ export function LatestResults() {
 
         return (
           <div
-            key={`${m.league}-${m.id}`}
+            key={m.id}
             className={`bg-surface-container-low p-4 border-l-4 ${accentColor} flex items-center justify-between group cursor-pointer hover:bg-surface-container-high transition-colors`}
           >
             <div className="flex flex-col gap-1 min-w-0">

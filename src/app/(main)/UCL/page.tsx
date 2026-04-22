@@ -10,7 +10,7 @@ export default function UCLPage() {
     data: matches = [],
     isLoading: loading,
     isError: error,
-  } = useGetFixtures({ league: "CL", limit: 50 });
+  } = useGetFixtures({ league: "CL", limit: 8 });
 
   const rounds = groupMatchesByRound(matches);
   const qfMatches = rounds[0] ?? [];
