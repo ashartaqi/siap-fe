@@ -197,11 +197,7 @@ export const RIGHT_STATS: StatDefinition[] = [
 
 export const SETTINGS_SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "appearance", label: "Appearance", icon: Palette },
-  { id: "analytics", label: "Analytics Prefs", icon: BarChart2 },
   { id: "privacy", label: "Privacy & Security", icon: Shield },
-  { id: "data", label: "Data & Export", icon: Download },
 ];
 
 // ─── Settings Options ─────────────────────────────────────────────────────────
