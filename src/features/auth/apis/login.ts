@@ -1,4 +1,3 @@
-// src/features/auth/apis/login.ts
 import axiosClient from "@/lib/axiosClient";
 import { ILoginPayload, ILoginResponse } from "../types";
 

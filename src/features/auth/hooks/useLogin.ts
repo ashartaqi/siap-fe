@@ -1,7 +1,6 @@
-// src/features/auth/hooks/useLogin.ts
 import { useMutation } from "@tanstack/react-query";
 import { TAxiosError } from "@/types/api";
-import { ILoginResponse, ILoginPayload } from "../types";
+import { ILoginPayload, ILoginResponse } from "../types";
 import { login } from "../apis/login";
 
 const useLogin = () => {

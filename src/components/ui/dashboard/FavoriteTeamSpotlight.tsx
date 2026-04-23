@@ -3,26 +3,15 @@
 import React from "react";
 import Image from "next/image";
 import { Heart, ShieldCheck } from "lucide-react";
-import axiosClient from "@/lib/axiosClient";
 import {
   useGetTeamRecentMatches,
   useGetTeamUpcomingFixtures,
 } from "@/features/main/football";
-import type { Club } from "@/types/football";
+import { useGetFavoriteTeam } from "@/features/main/dashboard";
 
 export function FavoriteTeamSpotlight() {
-  const [favoriteTeam, setFavoriteTeam] = React.useState<Club | null>(null);
-  const [teamLoading, setTeamLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    axiosClient
-      .get("/teams/fav")
-      .then((res) => {
-        if (res.data?.length) setFavoriteTeam(res.data[0]);
-      })
-      .catch(console.error)
-      .finally(() => setTeamLoading(false));
-  }, []);
+  const { data: favTeams, isLoading: teamLoading } = useGetFavoriteTeam();
+  const favoriteTeam = favTeams?.[0] ?? null;
 
   const { data: recentMatches = [], isLoading: recentLoading } =
     useGetTeamRecentMatches(favoriteTeam?.name);

@@ -1,4 +1,3 @@
-// src/features/auth/apis/register.ts
 import axiosClient from "@/lib/axiosClient";
 import { IRegisterPayload, IRegisterResponse } from "../types";
 
