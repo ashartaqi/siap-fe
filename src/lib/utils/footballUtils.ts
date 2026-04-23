@@ -33,7 +33,7 @@ export function leagueName(key: string) {
     PL: "Premier League",
     PPL: "Primeira Liga",
     PD: "La Liga",
-    BL: "Bundesliga",
+    BL1: "Bundesliga",
     CL: "Champions League",
   };
   return leagues[key] ?? key;

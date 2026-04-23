@@ -106,18 +106,6 @@ export function FixturesStrip() {
           emptyText="No scheduled fixtures right now."
         />
       </div>
-
-      <div className="space-y-3">
-        <h3 className="font-headline font-semibold text-sm uppercase tracking-widest text-on-surface-variant">
-          Latest Fixtures
-        </h3>
-        <ScrollRow
-          matches={finishedMatches}
-          isLoading={finishedLoading}
-          variant="finished"
-          emptyText="No recent results available."
-        />
-      </div>
     </div>
   );
 }
