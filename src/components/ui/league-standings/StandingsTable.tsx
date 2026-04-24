@@ -6,6 +6,45 @@ import { getQualification } from "@/lib/utils/footballUtils";
 import { PositionBadge } from "./PositionBadge";
 import { abbrev } from "@/lib/utils/footballUtils";
 
+function parseForm(form?: string | string[]): string[] {
+  if (!form) return [];
+  const formArray = Array.isArray(form) ? form : form.split(",");
+  return formArray
+    .map((s) => {
+      const str = s.trim().toUpperCase();
+      if (str.startsWith("W")) return "W";
+      if (str.startsWith("D")) return "D";
+      if (str.startsWith("L")) return "L";
+      return str;
+    })
+    .filter((s) => s === "W" || s === "D" || s === "L")
+    .slice(0, 5);
+}
+
+function FormDot({ result }: { result: string }) {
+  const isWin = result === "W";
+  const isDraw = result === "D";
+  const isLoss = result === "L";
+
+  return (
+    <span
+      className={[
+        "inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold font-mono",
+        isWin
+          ? "bg-[#22c55e] text-white"
+          : isDraw
+            ? "bg-[#a1a1aa] text-white"
+            : isLoss
+              ? "bg-[#ef4444] text-white"
+              : "bg-[rgba(255,255,255,0.06)] text-[#9ca3af]",
+      ].join(" ")}
+      title={result}
+    >
+      {result === "W" ? "✓" : result === "D" ? "–" : "✕"}
+    </span>
+  );
+}
+
 export function StandingsTable({
   rows,
   leagueKey,
@@ -32,11 +71,15 @@ export function StandingsTable({
                 {h}
               </th>
             ))}
+            <th className="px-2 py-[0.6rem] text-center text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em]">
+              Last 5
+            </th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r, i) => {
             const gd = r.goal_difference ?? 0;
+            const form = parseForm(r.forms || r.form);
             return (
               <tr
                 key={r.id}
@@ -97,6 +140,19 @@ export function StandingsTable({
                 </td>
                 <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
                   {r.points}
+                </td>
+                <td className="px-2 py-[0.65rem] text-center">
+                  <div className="flex justify-center gap-1 min-w-[120px]">
+                    {form.length > 0 ? (
+                      form.map((result, idx) => (
+                        <FormDot key={`${r.id}-form-${idx}`} result={result} />
+                      ))
+                    ) : (
+                      <span className="text-[#6b6b78] text-[0.75rem] font-mono">
+                        —
+                      </span>
+                    )}
+                  </div>
                 </td>
               </tr>
             );

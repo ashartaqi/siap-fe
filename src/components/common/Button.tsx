@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { PlusIcon } from "lucide-react";
 
 export interface Formation {
@@ -104,15 +105,14 @@ export function PlayerSlotButton({
     >
       {/* ─── PLAYER IMAGE ─── */}
       {hasImage && (
-        <img
+        <Image
           src={playerFaceUrl}
           alt={playerName ?? position}
+          unoptimized
+          fill
+          style={{ objectFit: "cover", objectPosition: "top" }}
           referrerPolicy="no-referrer"
           onError={() => setImgError(true)}
-          className="
-            absolute inset-0 w-full h-full
-            object-cover object-top
-          "
         />
       )}
 
@@ -165,6 +165,7 @@ interface CreateDreamTeamButtonProps {
   disabled?: boolean;
   filledSlots: number;
   totalSlots: number;
+  isUpdate?: boolean;
 }
 
 export function CreateDreamTeamButton({
@@ -172,6 +173,7 @@ export function CreateDreamTeamButton({
   disabled = false,
   filledSlots,
   totalSlots,
+  isUpdate = false,
 }: CreateDreamTeamButtonProps) {
   const remaining = totalSlots - filledSlots;
 
@@ -253,9 +255,9 @@ export function CreateDreamTeamButton({
           aria-disabled={disabled}
         >
           <span className="kg-create-icon">
-            {disabled ? "lock" : "emoji_events"}
+            {disabled ? "lock" : isUpdate ? "update" : "SIAP"}
           </span>
-          Create Dream Team
+          {isUpdate ? "Update Dream Team" : "Create Dream Team"}
         </button>
 
         {disabled && remaining > 0 && (

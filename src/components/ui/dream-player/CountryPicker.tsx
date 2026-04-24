@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { COUNTRIES } from "@/lib/constants";
+import { useGetCountries } from "@/features/main/football";
 
 interface Props {
   value: string;
@@ -14,12 +14,12 @@ export function CountryPicker({ value, onChange }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { data: countries = [] } = useGetCountries();
+
   const filtered = useMemo(
     () =>
-      COUNTRIES.filter((c) =>
-        c.toLowerCase().includes(search.toLowerCase()),
-      ).slice(0, 30),
-    [search],
+      countries.filter((c) => c.toLowerCase().includes(search.toLowerCase())),
+    [search, countries],
   );
 
   useEffect(() => {
