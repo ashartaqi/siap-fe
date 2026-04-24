@@ -6,11 +6,17 @@ import { getQualification } from "@/lib/utils/footballUtils";
 import { PositionBadge } from "./PositionBadge";
 import { abbrev } from "@/lib/utils/footballUtils";
 
-function parseForm(form?: string): string[] {
+function parseForm(form?: string | string[]): string[] {
   if (!form) return [];
-  return form
-    .split(",")
-    .map((s) => s.trim().toUpperCase())
+  const formArray = Array.isArray(form) ? form : form.split(",");
+  return formArray
+    .map((s) => {
+      const str = s.trim().toUpperCase();
+      if (str.startsWith("W")) return "W";
+      if (str.startsWith("D")) return "D";
+      if (str.startsWith("L")) return "L";
+      return str;
+    })
     .filter((s) => s === "W" || s === "D" || s === "L")
     .slice(0, 5);
 }
@@ -23,14 +29,14 @@ function FormDot({ result }: { result: string }) {
   return (
     <span
       className={[
-        "inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold font-mono border",
+        "inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold font-mono",
         isWin
-          ? "bg-[rgba(34,197,94,0.15)] text-[#22c55e] border-[#22c55e]"
+          ? "bg-[#22c55e] text-white"
           : isDraw
-            ? "bg-[rgba(161,161,170,0.2)] text-[#d4d4d8] border-[#a1a1aa]"
+            ? "bg-[#a1a1aa] text-white"
             : isLoss
-              ? "bg-[rgba(239,68,68,0.15)] text-[#ef4444] border-[#ef4444]"
-              : "bg-[rgba(255,255,255,0.06)] text-[#9ca3af] border-[rgba(255,255,255,0.15)]",
+              ? "bg-[#ef4444] text-white"
+              : "bg-[rgba(255,255,255,0.06)] text-[#9ca3af]",
       ].join(" ")}
       title={result}
     >
@@ -73,7 +79,7 @@ export function StandingsTable({
         <tbody>
           {rows.map((r, i) => {
             const gd = r.goal_difference ?? 0;
-            const form = parseForm(r.form).reverse();
+            const form = parseForm(r.forms || r.form);
             return (
               <tr
                 key={r.id}
