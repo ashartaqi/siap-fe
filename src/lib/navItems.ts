@@ -1,9 +1,4 @@
-import {
-  LayoutDashboard,
-  Users,
-  UserStar,
-  Table2 /*, Settings */,
-} from "lucide-react";
+import { LayoutDashboard, Users, User, UserStar, Table2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { UCLIcon } from "@/components/icons/UCLIcon";
 
@@ -45,10 +40,10 @@ export const NAV_ITEMS: NavItem[] = [
     Icon: UCLIcon,
     iconHoverClass: "group-hover:fill-[var(--color-neon)]",
   },
-  // {
-  //   href: "/settings",
-  //   label: "SETTINGS",
-  //   Icon: Settings,
-  //   iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
-  // },
+  {
+    href: "/Players",
+    label: "Players",
+    Icon: User,
+    iconHoverClass: "group-hover:fill-[var(--color-neon)]",
+  },
 ];

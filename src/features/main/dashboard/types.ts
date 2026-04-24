@@ -11,11 +11,29 @@ export interface IPlayersPayload {
   preferredFoot?: string;
 }
 
+export interface IPlayerStats {
+  pace: number;
+  shooting: number;
+  passing: number;
+  dribbling: number;
+  defending: number;
+  physic: number;
+}
+
+export interface IGoalkeeperStats {
+  diving: number;
+  handling: number;
+  kicking: number;
+  positioning: number;
+  reflexes: number;
+  speed: number;
+}
+
 export interface IPlayersResponse {
   id: number;
   short_name: string;
   long_name: string;
-  player_positions: string;
+  positions: string[];
   overall: number;
   age: number;
   dob: string;
@@ -29,12 +47,8 @@ export interface IPlayersResponse {
   weak_foot: number;
   skill_moves: number;
   work_rate: string;
-  pace: number;
-  shooting: number;
-  passing: number;
-  dribbling: number;
-  defending: number;
-  physic: number;
+  player_stats: IPlayerStats | null;
+  goalkeeper_stats: IGoalkeeperStats | null;
   player_face_url: string;
 }
 

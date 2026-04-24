@@ -247,7 +247,7 @@ export function PlayerPickerModal({
                       {p.short_name}
                     </div>
                     <div className="text-[10px] text-white/35 mt-0.5 tracking-[0.05em]">
-                      {p.player_positions} · {p.club_name} · Age {p.age} ·{" "}
+                      {p.positions?.join(" · ")} · {p.club_name} · Age {p.age} ·{" "}
                       {p.preferred_foot} foot
                     </div>
                   </div>
