@@ -1,5 +1,6 @@
 export interface IPlayersPayload {
   limit?: number;
+  offset?: number;
   teamId?: number;
   name?: string;
   nationalityName?: string;

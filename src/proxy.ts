@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/players",
   "/dream-player",
   "/dream-team",
   "/league-standings",

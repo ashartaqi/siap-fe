@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Users,
   UserStar,
+  ContactRound,
   Table2 /*, Settings */,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -19,6 +20,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard",
     label: "DASHBOARD",
     Icon: LayoutDashboard,
+    iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
+  },
+  {
+    href: "/players",
+    label: "PLAYERS",
+    Icon: ContactRound,
     iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
   },
   {

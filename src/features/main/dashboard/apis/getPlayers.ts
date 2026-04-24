@@ -6,6 +6,7 @@ export const getPlayers = async (
 ): Promise<IPlayersResponse[]> => {
   const params = {
     limit: payload.limit,
+    offset: payload.offset,
     name: payload.name,
     team_id: payload.teamId,
     min_overall: payload.minOverall,
