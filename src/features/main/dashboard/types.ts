@@ -65,3 +65,35 @@ export interface IDreamPlayerResponse {
   defending: number;
   physic: number;
 }
+
+// What you SEND to backend — no id
+export interface IDreamTeamSlot {
+  position: string;
+  row: number | null;
+  col: number | null;
+  player_id: number;
+}
+
+// What you GET BACK from backend — has id and player
+export interface IDreamTeamSlotResponse {
+  id: number;
+  position: string;
+  row: number | null;
+  col: number | null;
+  player_id: number;
+  player?: IPlayersResponse;
+}
+
+// Payload uses send type
+export interface IDreamTeamPayload {
+  formation: string;
+  slots: IDreamTeamSlot[];
+}
+
+// Response uses receive type
+export interface IDreamTeamResponse {
+  id: number;
+  formation: string;
+  total_score: number;
+  slots: IDreamTeamSlotResponse[]; // ← changed
+}

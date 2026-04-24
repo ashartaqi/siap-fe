@@ -1,10 +1,6 @@
 import {
   User,
-  Bell,
   Shield,
-  Palette,
-  BarChart2,
-  Download,
   Monitor,
   Moon,
   Share2,
