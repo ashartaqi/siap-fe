@@ -91,8 +91,8 @@ export function PlayerSlotButton({
       type="button"
       className={`
         relative flex items-center justify-center
-        w-[64px] h-[64px] md:w-[72px] md:h-[72px]
-        rounded-xl overflow-hidden
+        w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] md:w-[72px] md:h-[72px]
+        rounded-lg md:rounded-xl overflow-hidden
         border transition-all duration-200
         ${
           hasImage
@@ -143,7 +143,7 @@ export function PlayerSlotButton({
       <div
         className={`
           absolute bottom-0 left-0 right-0
-          text-[7px] font-bold tracking-[0.18em] uppercase text-center py-[2px]
+          text-[6px] md:text-[7px] font-bold tracking-[0.18em] uppercase text-center py-[1px] md:py-[2px]
           backdrop-blur-[2px]
           ${
             isGK

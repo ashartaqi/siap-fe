@@ -53,25 +53,25 @@ export function StandingsTable({
   leagueKey: string;
 }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-[0.82rem]">
+    <div className="overflow-x-auto custom-scrollbar-thin">
+      <table className="w-full border-collapse text-[0.75rem] md:text-[0.82rem] min-w-[600px] md:min-w-0">
         <thead>
           <tr className="border-b border-[rgba(255,255,255,0.07)]">
-            <th className="px-2 py-[0.6rem] text-center text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em]">
+            <th className="px-2 py-[0.6rem] text-center text-[0.6rem] md:text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em]">
               #
             </th>
-            <th className="px-2 py-[0.6rem] text-left pl-3 text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em]">
+            <th className="px-2 py-[0.6rem] text-left pl-3 text-[0.6rem] md:text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em]">
               Club
             </th>
             {["P", "W", "D", "L", "GF", "GA", "GD", "Pts"].map((h) => (
               <th
                 key={h}
-                className="px-2 py-[0.6rem] text-center text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em]"
+                className={`px-2 py-[0.6rem] text-center text-[0.6rem] md:text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em] ${["GF", "GA"].includes(h) ? "hidden sm:table-cell" : ""}`}
               >
                 {h}
               </th>
             ))}
-            <th className="px-2 py-[0.6rem] text-center text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em]">
+            <th className="px-2 py-[0.6rem] text-center text-[0.6rem] md:text-[0.68rem] font-semibold text-[#6b6b78] font-mono uppercase tracking-[0.06em] hidden md:table-cell">
               Last 5
             </th>
           </tr>
@@ -91,13 +91,13 @@ export function StandingsTable({
                   } as React.CSSProperties
                 }
               >
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem]">
                   <PositionBadge
                     pos={r.position}
                     qual={getQualification(r.position, leagueKey, rows.length)}
                   />
                 </td>
-                <td className="px-2 py-[0.65rem] pl-3 text-left font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] pl-3 text-left font-mono text-[0.75rem] md:text-[0.8rem]">
                   <div className="flex items-center gap-2">
                     {r.logo_url ? (
                       <img
@@ -111,37 +111,39 @@ export function StandingsTable({
                     ) : (
                       <div className="w-4 h-4 shrink-0" />
                     )}
-                    <span className="hidden sm:inline">{r.team_name}</span>
+                    <span className="hidden sm:inline truncate max-w-[120px] md:max-w-none">
+                      {r.team_name}
+                    </span>
                     <span className="sm:hidden">{abbrev(r.team_name)}</span>
                   </div>
                 </td>
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem]">
                   {r.played_games}
                 </td>
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem]">
                   {r.won}
                 </td>
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem]">
                   {r.draw}
                 </td>
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem]">
                   {r.lost}
                 </td>
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem] hidden sm:table-cell">
                   {r.goals_for}
                 </td>
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem] hidden sm:table-cell">
                   {r.goals_against}
                 </td>
                 <td
-                  className={`px-2 py-[0.65rem] text-center font-mono text-[0.8rem] ${gd > 0 ? "text-[#4ade80]" : gd < 0 ? "text-[#f87171]" : ""}`}
+                  className={`px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem] ${gd > 0 ? "text-[#4ade80]" : gd < 0 ? "text-[#f87171]" : ""}`}
                 >
                   {gd > 0 ? `+${gd}` : gd}
                 </td>
-                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.8rem]">
+                <td className="px-2 py-[0.65rem] text-center font-mono text-[0.75rem] md:text-[0.8rem] font-bold text-[#fcfcf8]">
                   {r.points}
                 </td>
-                <td className="px-2 py-[0.65rem] text-center">
+                <td className="px-2 py-[0.65rem] text-center hidden md:table-cell">
                   <div className="flex justify-center gap-1 min-w-[120px]">
                     {form.length > 0 ? (
                       form.map((result, idx) => (

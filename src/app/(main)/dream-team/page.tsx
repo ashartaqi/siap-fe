@@ -124,13 +124,13 @@ export default function DreamTeamPage() {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row lg:items-start gap-5 w-full h-full font-[Oxanium,sans-serif] text-[#fcfcf8]">
-        <div className="flex flex-col gap-3 lg:w-1/3 lg:shrink-0">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-5 w-full h-full font-[Oxanium,sans-serif] text-[#fcfcf8] pb-10 lg:pb-0">
+        <div className="flex flex-col gap-5 lg:w-1/3 lg:shrink-0">
           <div>
-            <h1 className="font-[Bebas_Neue,sans-serif] text-[42px] leading-[0.92] tracking-[-0.01em] uppercase">
+            <h1 className="font-[Bebas_Neue,sans-serif] text-[36px] md:text-[42px] leading-[0.92] tracking-[-0.01em] uppercase">
               {existingTeam ? "YOUR DREAM TEAM" : "DREAM TEAM"}
             </h1>
-            <p className="text-[12px] text-[#aaaba7] leading-[1.4] mt-[5px] max-w-[280px]">
+            <p className="text-[11px] md:text-[12px] text-[#aaaba7] leading-[1.4] mt-[5px] max-w-[280px]">
               {existingTeam
                 ? "Update your formation and players below."
                 : "Assemble your ideal team and rise to the top."}

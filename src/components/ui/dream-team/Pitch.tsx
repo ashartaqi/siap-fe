@@ -18,7 +18,7 @@ function PitchRow({
 }: PitchRowProps) {
   if (positions.length <= 3) {
     return (
-      <div className="flex items-center justify-center gap-8 md:gap-[56px]">
+      <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-[56px]">
         {positions.map((pos, i) => {
           const slotId = `r${rowIndex}-c${i}-${pos}`;
           const player = selectedPlayers[slotId];
@@ -50,7 +50,7 @@ function PitchRow({
         playerName={selectedPlayers[leftId]?.short_name}
         onClick={() => onSlotClick(leftId, left)}
       />
-      <div className="flex gap-6 md:gap-10">
+      <div className="flex gap-2 sm:gap-4 md:gap-10">
         {inner.map((pos, i) => {
           const slotId = `r${rowIndex}-c${i + 1}-${pos}`;
           const player = selectedPlayers[slotId];

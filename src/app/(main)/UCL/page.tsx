@@ -71,16 +71,16 @@ export default function UCLPage() {
       />
 
       {/* Header */}
-      <div className="relative z-10 shrink-0 mb-3 flex flex-wrap items-end justify-between gap-3">
+      <div className="relative z-10 shrink-0 mb-6 lg:mb-3 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-[#7eb8ff] bg-[rgba(0,80,200,0.2)] border border-[rgba(100,160,255,0.35)] shadow-[0_0_15px_rgba(0,80,200,0.15)]">
+          <div className="flex items-center gap-3 mb-2 md:mb-3">
+            <span className="px-3 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-[#7eb8ff] bg-[rgba(0,80,200,0.2)] border border-[rgba(100,160,255,0.35)] shadow-[0_0_15px_rgba(0,80,200,0.15)]">
               UEFA Champions League
             </span>
-            <div className="h-px w-16 bg-[linear-gradient(to_right,rgba(100,160,255,0.5),transparent)]" />
+            <div className="hidden sm:block h-px w-16 bg-[linear-gradient(to_right,rgba(100,160,255,0.5),transparent)]" />
           </div>
           <h1
-            className="font-headline italic text-[clamp(2.5rem,8vw,6rem)] font-black uppercase tracking-[-0.03em] leading-none"
+            className="font-headline italic text-[clamp(2rem,10vw,6rem)] font-black uppercase tracking-[-0.03em] leading-[0.9]"
             style={{
               background:
                 "linear-gradient(to bottom, #e8f0ff 0%, #7eb8ff 55%, rgba(100,160,255,0.25) 100%)",
@@ -99,22 +99,22 @@ export default function UCLPage() {
               to Hungary
             </span>
           </h1>
-          <p className="text-[#5a80b0] text-[13px] mt-3 max-w-[480px] uppercase tracking-[0.1em] leading-relaxed">
+          <p className="text-[#5a80b0] text-[11px] md:text-[13px] mt-3 max-w-[480px] uppercase tracking-[0.1em] leading-relaxed hidden sm:block">
             Follow the elite journey of the stars. Real-time tournament
             progression and team roadmap visualization.
           </p>
         </div>
 
-        <div className="flex items-center gap-4 p-4 rounded-2xl border border-[rgba(100,160,255,0.2)] backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.4)] bg-[linear-gradient(135deg,rgba(10,25,70,0.75)_0%,rgba(5,15,45,0.85)_100%)]">
+        <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-2xl border border-[rgba(100,160,255,0.2)] backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.4)] bg-[linear-gradient(135deg,rgba(10,25,70,0.75)_0%,rgba(5,15,45,0.85)_100%)]">
           <Trophy
-            className="w-10 h-10 text-[#60aaff]"
+            className="w-8 h-8 md:w-10 md:h-10 text-[#60aaff]"
             style={{ filter: "drop-shadow(0 0 12px rgba(0,100,255,0.5))" }}
           />
           <div>
-            <p className="text-[#5a80b0] text-[10px] font-bold uppercase tracking-[0.2em] mb-1">
+            <p className="text-[#5a80b0] text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5 md:mb-1">
               Final Destination
             </p>
-            <p className="text-[#c8dcff] text-[17px] font-black uppercase">
+            <p className="text-[#c8dcff] text-[14px] md:text-[17px] font-black uppercase">
               Puskás Aréna • May 30
             </p>
           </div>
@@ -122,8 +122,8 @@ export default function UCLPage() {
       </div>
 
       {/* Bracket */}
-      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-center overflow-hidden">
-        <div className="w-full max-w-[1280px] h-full max-h-full grid grid-cols-5 items-center gap-2 mx-auto">
+      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-start lg:justify-center overflow-x-auto lg:overflow-hidden px-4 py-8 custom-scrollbar-thin">
+        <div className="w-full min-w-[1000px] lg:min-w-0 max-w-[1280px] h-full max-h-full grid grid-cols-5 items-center gap-2 mx-auto">
           {/* Col 1 — Left QF */}
           <div className="flex flex-col gap-4 min-h-0 justify-center">
             {qfLeft.map((m, i) => (

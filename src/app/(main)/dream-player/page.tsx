@@ -203,11 +203,11 @@ export default function DreamPlayerPage() {
           </div>
         )}
 
-        <div className="absolute top-8 left-8 pointer-events-none select-none z-0">
+        <div className="absolute top-4 left-4 md:top-8 md:left-8 pointer-events-none select-none z-0">
           <h1
             className="font-[Bebas_Neue,sans-serif] leading-[0.95] tracking-[-0.01em]"
             style={{
-              fontSize: "clamp(48px,10vw,80px)",
+              fontSize: "clamp(32px, 8vw, 80px)",
               color: "rgba(252,252,248,0.06)",
             }}
           >
@@ -218,17 +218,17 @@ export default function DreamPlayerPage() {
         </div>
 
         {isReadOnly && (
-          <div className="absolute top-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(0,254,102,0.08)] border border-[rgba(0,254,102,0.2)] backdrop-blur-md">
+          <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[rgba(0,254,102,0.08)] border border-[rgba(0,254,102,0.2)] backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-pulse" />
-            <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-[#00fe66] font-[Oxanium,sans-serif]">
+            <span className="text-[8px] md:text-[9px] font-bold tracking-[0.2em] uppercase text-[#00fe66] font-[Oxanium,sans-serif]">
               Your Dream Player
             </span>
           </div>
         )}
 
-        <main className="relative w-full max-w-7xl flex flex-col md:flex-row items-center justify-center gap-8 px-6 py-8 pt-16 z-10">
+        <main className="relative w-full max-w-7xl flex flex-col lg:flex-row items-center justify-center gap-6 md:gap-8 px-4 md:px-6 py-6 md:py-8 pt-20 md:pt-16 z-10">
           {/* Left stats */}
-          <div className="flex flex-col gap-6 z-20 w-full md:w-auto order-2 md:order-1">
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-4 md:gap-6 z-20 w-full lg:w-auto order-2 lg:order-1 items-center">
             {LEFT_STATS.map(({ key, label, Icon, connectorWidth }) => (
               <StatCard
                 key={key}
@@ -250,35 +250,36 @@ export default function DreamPlayerPage() {
           </div>
 
           {/* Center */}
-          <div
-            className="relative flex-1 flex flex-col items-center justify-center order-1 md:order-2"
-            style={{ height: "520px" }}
-          >
-            <div className="absolute w-[380px] h-[380px] rounded-full border border-[rgba(0,254,102,0.05)] animate-spin-slow" />
-            <div className="absolute w-[480px] h-[480px] rounded-full border border-[rgba(0,254,102,0.08)] animate-spin-slow-reverse" />
-            <div className="relative z-10 h-full flex items-end justify-center pb-24 pointer-events-none">
+          <div className="relative flex-1 flex flex-col items-center justify-center order-1 lg:order-2 h-[400px] md:h-[520px] w-full">
+            <div className="absolute w-[280px] h-[280px] md:w-[380px] md:h-[380px] rounded-full border border-[rgba(0,254,102,0.05)] animate-spin-slow" />
+            <div className="absolute w-[360px] h-[360px] md:w-[480px] md:h-[480px] rounded-full border border-[rgba(0,254,102,0.08)] animate-spin-slow-reverse" />
+            <div className="relative z-10 h-full flex items-end justify-center pb-20 md:pb-24 pointer-events-none w-full">
               <Image
                 src={CENTER_IMAGE}
                 alt="Player"
                 width={320}
                 height={320}
-                className="player-glow mix-blend-screen brightness-125 saturate-50 select-none"
-                style={{ height: 320, objectFit: "contain" }}
+                className="player-glow mix-blend-screen brightness-125 saturate-50 select-none scale-75 md:scale-100"
+                style={{
+                  height: "auto",
+                  maxWidth: "100%",
+                  objectFit: "contain",
+                }}
                 unoptimized
               />
             </div>
-            <div className="absolute top-1/4    left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
-            <div className="absolute top-1/2    left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse animate-delay-700 shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
-            <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border border-[#00fe66] animate-pulse animate-delay-1000 shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
+            <div className="absolute top-1/4    left-1/2 -translate-x-1/2 w-2 md:w-3 h-2 md:h-3 rounded-full border border-[#00fe66] animate-pulse shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
+            <div className="absolute top-1/2    left-1/2 -translate-x-1/2 w-2 md:w-3 h-2 md:h-3 rounded-full border border-[#00fe66] animate-pulse animate-delay-700 shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
+            <div className="absolute bottom-1/4 left-1/2 -translate-x-1/2 w-2 md:w-3 h-2 md:h-3 rounded-full border border-[#00fe66] animate-pulse animate-delay-1000 shadow-[0_0_10px_rgba(0,255,102,0.8)]" />
 
             {/* Player card */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 w-[min(340px,90vw)]">
-              <div className="rounded-2xl px-5 py-4 flex flex-col gap-3 bg-[rgba(18,20,17,0.85)] backdrop-blur-xl border border-[rgba(169,255,172,0.15)]">
+            <div className="absolute bottom-0 md:bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-[340px] px-4 md:px-0">
+              <div className="rounded-2xl px-4 py-3 md:px-5 md:py-4 flex flex-col gap-2 md:gap-3 bg-[rgba(18,20,17,0.85)] backdrop-blur-xl border border-[rgba(169,255,172,0.15)] shadow-2xl">
                 <div className="flex items-center gap-3">
-                  <div className="px-3 py-1 rounded-2xl bg-gradient-to-br from-[rgba(0,254,102,0.18)] to-[rgba(0,254,102,0.04)] border border-[rgba(0,254,102,0.3)] shrink-0">
+                  <div className="px-2 md:px-3 py-0.5 md:py-1 rounded-2xl bg-gradient-to-br from-[rgba(0,254,102,0.18)] to-[rgba(0,254,102,0.04)] border border-[rgba(0,254,102,0.3)] shrink-0">
                     <span
                       className={[
-                        "text-[26px] leading-none font-[Bebas_Neue,sans-serif]",
+                        "text-[20px] md:text-[26px] leading-none font-[Bebas_Neue,sans-serif]",
                         overall > 0
                           ? "text-[#00fe66]"
                           : "text-[rgba(0,254,102,0.3)]",
@@ -293,8 +294,8 @@ export default function DreamPlayerPage() {
                       onChange={(v) => patchIdentity("name", v)}
                       placeholder="Player Name"
                       maxLength={22}
-                      className="text-[20px] leading-none uppercase tracking-wide text-[#fcfcf8] font-[Bebas_Neue,sans-serif] block w-full"
-                      inputClassName="text-[20px] leading-none uppercase tracking-wide w-full font-[Bebas_Neue,sans-serif]"
+                      className="text-[18px] md:text-[20px] leading-none uppercase tracking-wide text-[#fcfcf8] font-[Bebas_Neue,sans-serif] block w-full truncate"
+                      inputClassName="text-[18px] md:text-[20px] leading-none uppercase tracking-wide w-full font-[Bebas_Neue,sans-serif]"
                       readOnly={isReadOnly}
                     />
                     <PositionPicker
@@ -308,16 +309,16 @@ export default function DreamPlayerPage() {
 
                 <div className="w-full h-px bg-[rgba(0,254,102,0.1)]" />
 
-                <div className="grid grid-cols-3 gap-x-3">
+                <div className="grid grid-cols-3 gap-x-2 md:gap-x-3">
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
-                      <Flag className="w-3 h-3 text-[#00fe66] opacity-70" />
-                      <span className="text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
+                      <Flag className="w-2.5 md:w-3 h-2.5 md:h-3 text-[#00fe66] opacity-70" />
+                      <span className="text-[7px] md:text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
                         Nat
                       </span>
                     </div>
                     {isReadOnly ? (
-                      <span className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] truncate max-w-[72px] block text-center">
+                      <span className="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-[#fcfcf8] truncate max-w-[60px] md:max-w-[72px] block text-center">
                         {identity.nationality}
                       </span>
                     ) : (
@@ -329,8 +330,8 @@ export default function DreamPlayerPage() {
                   </div>
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
-                      <Hash className="w-3 h-3 text-[#00fe66] opacity-70" />
-                      <span className="text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
+                      <Hash className="w-2.5 md:w-3 h-2.5 md:h-3 text-[#00fe66] opacity-70" />
+                      <span className="text-[7px] md:text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
                         Shirt
                       </span>
                     </div>
@@ -346,15 +347,15 @@ export default function DreamPlayerPage() {
                       min={1}
                       max={99}
                       type="number"
-                      className="font-[Bebas_Neue,sans-serif] text-[14px] text-[#fcfcf8] text-center block w-full"
-                      inputClassName="font-[Bebas_Neue,sans-serif] text-[14px] text-center w-[40px]"
+                      className="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-[#fcfcf8] text-center block w-full"
+                      inputClassName="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-center w-[30px] md:w-[40px]"
                       readOnly={isReadOnly}
                     />
                   </div>
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 text-[#00fe66] opacity-70" />
-                      <span className="text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
+                      <Star className="w-2.5 md:w-3 h-2.5 md:h-3 text-[#00fe66] opacity-70" />
+                      <span className="text-[7px] md:text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
                         Foot
                       </span>
                     </div>
@@ -367,8 +368,8 @@ export default function DreamPlayerPage() {
                 </div>
 
                 {!isReadOnly && (
-                  <p className="text-[8px] text-white/20 tracking-[0.12em] uppercase text-center -mb-1">
-                    Click any field to edit · Click foot to toggle
+                  <p className="text-[7px] md:text-[8px] text-white/20 tracking-[0.12em] uppercase text-center -mb-1">
+                    Click fields to edit
                   </p>
                 )}
               </div>
@@ -376,7 +377,7 @@ export default function DreamPlayerPage() {
           </div>
 
           {/* Right stats */}
-          <div className="flex flex-col gap-6 z-20 w-full md:w-auto order-3">
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-4 md:gap-6 z-20 w-full lg:w-auto order-3 items-center">
             {RIGHT_STATS.map(({ key, label, Icon, connectorWidth }) => (
               <StatCard
                 key={key}
@@ -398,11 +399,11 @@ export default function DreamPlayerPage() {
           </div>
         </main>
 
-        <div className="relative z-30 flex flex-col items-center gap-3 pb-10">
+        <div className="relative z-30 flex flex-col items-center gap-3 pb-8 md:pb-10 px-6">
           {isReadOnly ? (
             <button
               onClick={handleChangePlayer}
-              className="flex items-center gap-3 px-10 py-[13px] rounded-xl border border-[rgba(0,254,102,0.25)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.85rem] transition-[transform,box-shadow,border-color] duration-150 font-[Oxanium,sans-serif] text-[rgba(0,254,102,0.7)] bg-[rgba(0,254,102,0.05)] hover:border-[rgba(0,254,102,0.5)] hover:text-[#00fe66] hover:-translate-y-0.5"
+              className="flex items-center gap-3 px-8 md:px-10 py-[11px] md:py-[13px] rounded-xl border border-[rgba(0,254,102,0.25)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.75rem] md:text-[0.85rem] transition-all duration-150 font-[Oxanium,sans-serif] text-[rgba(0,254,102,0.7)] bg-[rgba(0,254,102,0.05)] hover:border-[rgba(0,254,102,0.5)] hover:text-[#00fe66] hover:-translate-y-0.5"
             >
               <RefreshCw className="w-4 h-4" />
               Change Dream Player
@@ -424,7 +425,7 @@ export default function DreamPlayerPage() {
                 onClick={handleCreate}
                 disabled={(!isExisting && !hasAnyPlayer) || isPending}
                 className={[
-                  "relative overflow-hidden flex items-center gap-3 px-12 py-[14px] rounded-xl border-none cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.85rem] transition-[transform,box-shadow,opacity] duration-150 font-[Oxanium,sans-serif]",
+                  "relative overflow-hidden flex items-center gap-3 px-8 md:px-12 py-[12px] md:py-[14px] rounded-xl border-none cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.75rem] md:text-[0.85rem] transition-all duration-150 font-[Oxanium,sans-serif] w-full md:w-auto",
                   (isExisting || hasAnyPlayer) && !isPending
                     ? "text-[#0d0f0c] bg-gradient-to-br from-[#00fe66] to-[#00c44f] shadow-[0_0_24px_rgba(0,254,102,0.25),0_4px_16px_rgba(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(0,254,102,0.4),0_8px_24px_rgba(0,0,0,0.5)] hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.97]"
                     : "text-[rgba(0,254,102,0.3)] bg-[rgba(0,254,102,0.05)] border border-[rgba(0,254,102,0.12)] cursor-not-allowed",
@@ -442,7 +443,7 @@ export default function DreamPlayerPage() {
               </button>
             </>
           )}
-          <p className="text-[10px] font-bold tracking-widest uppercase text-white/30 font-[Oxanium,sans-serif]">
+          <p className="text-[9px] md:text-[10px] font-bold tracking-widest uppercase text-white/30 font-[Oxanium,sans-serif] text-center">
             {isReadOnly
               ? "Your dream player is saved"
               : allSlotsFilled

@@ -186,6 +186,7 @@ function PlayersPageContent() {
     null,
   );
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const searchParams = useSearchParams();
@@ -336,7 +337,21 @@ function PlayersPageContent() {
 
       <div className="flex flex-col lg:flex-row gap-0 max-w-[1600px] mx-auto">
         {/* ── Filters sidebar ── */}
-        <aside className="lg:w-[280px] shrink-0 border-b lg:border-b-0 lg:border-r border-[rgba(71,72,69,0.2)] p-5">
+        <div className="lg:hidden px-5 py-3 border-b border-[rgba(71,72,69,0.2)]">
+          <button
+            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+            className="w-full flex items-center justify-between py-2 px-4 rounded-lg bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] text-[12px] font-bold tracking-[0.1em] uppercase"
+          >
+            <span>{isFiltersOpen ? "Hide Filters" : "Show Filters"}</span>
+            <span className="text-[10px] opacity-60">
+              {isFiltersOpen ? "▲" : "▼"}
+            </span>
+          </button>
+        </div>
+
+        <aside
+          className={`${isFiltersOpen ? "block" : "hidden"} lg:block lg:w-[280px] shrink-0 border-b lg:border-b-0 lg:border-r border-[rgba(71,72,69,0.2)] p-5 animate-in fade-in slide-in-from-top-2 duration-300 lg:animate-none`}
+        >
           <div className="flex items-center justify-between mb-4">
             <span className="font-[Bebas_Neue,sans-serif] text-[16px] tracking-[0.08em] text-[rgba(255,255,255,0.5)]">
               Filters

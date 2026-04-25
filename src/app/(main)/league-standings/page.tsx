@@ -58,8 +58,8 @@ export default function StandingsPage() {
         headerClassName="mb-4"
         dotsContainerClassName="mt-4"
       >
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-5 items-start">
-          <div className="bg-[#111114] border border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 md:gap-8 items-start">
+          <div className="bg-[#111114] border border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-xl">
             <div
               className="flex items-center gap-3 px-5 py-4 border-b border-[rgba(255,255,255,0.07)]"
               style={{
