@@ -1,5 +1,6 @@
 export interface IPlayersPayload {
   limit?: number;
+  skip?: number;
   teamId?: number;
   name?: string;
   nationalityName?: string;
@@ -39,8 +40,8 @@ export interface IPlayersResponse {
   dob: string;
   height_cm: number;
   weight_kg: number;
-  club_team_id: number;
-  club_name: string;
+  club_team_id?: number | null;
+  club_name?: string | null;
   nationality_id: number;
   nationality_name: string;
   preferred_foot: string;

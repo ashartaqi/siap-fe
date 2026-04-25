@@ -1,14 +1,27 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import {
-  useGetPlayers,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+  Suspense,
+} from "react";
+import {
+  useInfinitePlayers,
+  useGetFavoritePlayers,
+  useAddFavoritePlayer,
+  useRemoveFavoritePlayer,
   IPlayersPayload,
   IPlayersResponse,
 } from "@/features/main/dashboard";
 import { INPUT, LABEL, ALL_POSITIONS } from "@/lib/constants";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { PlayerDetailModal } from "@/components/common/PlayerDetailModal";
+import { Toast } from "@/components/common/Toast";
+import { useSearchParams, useRouter } from "next/navigation";
 
 // ── StatBadge ─────────────────────────────────────────────────────────────────
 
@@ -37,13 +50,54 @@ function StatBadge({ label, value }: { label: string; value?: number }) {
 
 // ── PlayerCard ────────────────────────────────────────────────────────────────
 
-function PlayerCard({ player }: { player: IPlayersResponse }) {
+interface PlayerCardProps {
+  player: IPlayersResponse;
+  isFavorite: boolean;
+  onStarClick: (player: IPlayersResponse) => void;
+  onCardClick: (player: IPlayersResponse) => void;
+}
+
+function PlayerCard({
+  player,
+  isFavorite,
+  onStarClick,
+  onCardClick,
+}: PlayerCardProps) {
   const [imgErr, setImgErr] = useState(false);
 
   return (
-    <div className="bg-[rgba(18,20,17,0.92)] border border-[rgba(71,72,69,0.2)] hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.03)] rounded-xl overflow-hidden transition-all duration-200 flex flex-col">
+    <div
+      onClick={() => onCardClick(player)}
+      className="
+        relative bg-[rgba(18,20,17,0.92)] border border-[rgba(71,72,69,0.2)]
+        hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.03)]
+        rounded-xl overflow-hidden transition-all duration-200 flex flex-col
+        cursor-pointer group
+      "
+    >
+      {/* Star button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onStarClick(player);
+        }}
+        title={isFavorite ? "Remove from favourites" : "Add to favourites"}
+        className={`
+          absolute top-3 right-3 z-10
+          w-7 h-7 flex items-center justify-center rounded-full
+          border transition-all duration-200 text-[15px] leading-none
+          ${
+            isFavorite
+              ? "text-[#ffd700] border-[rgba(255,215,0,0.35)] bg-[rgba(255,215,0,0.08)] hover:bg-[rgba(255,80,80,0.1)] hover:border-[rgba(255,80,80,0.35)] hover:text-[rgba(255,80,80,0.9)]"
+              : "text-[rgba(255,255,255,0.5)] border-[rgba(71,72,69,0.4)] bg-transparent hover:text-[#ffd700] hover:border-[rgba(255,215,0,0.35)] hover:bg-[rgba(255,215,0,0.06)]"
+          }
+        `}
+      >
+        {isFavorite ? "★" : "☆"}
+      </button>
+
       {/* Top: avatar + identity */}
-      <div className="flex items-center gap-3 p-4 border-b border-[rgba(71,72,69,0.12)]">
+      <div className="flex items-center gap-3 p-4 border-b border-[rgba(71,72,69,0.12)] pr-14">
         <div className="w-[52px] h-[52px] rounded-lg overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center">
           {player.player_face_url && !imgErr ? (
             <Image
@@ -71,7 +125,8 @@ function PlayerCard({ player }: { player: IPlayersResponse }) {
             </span>
           </div>
           <div className="text-[10px] text-[rgba(255,255,255,0.35)] mt-1 tracking-[0.05em] truncate">
-            {player.club_name} · {player.nationality_name} · Age {player.age}
+            {player.club_name || "Free Agent"} · {player.nationality_name} · Age{" "}
+            {player.age}
           </div>
           <div className="text-[10px] text-[rgba(255,255,255,0.25)] mt-0.5 tracking-[0.05em]">
             {player.preferred_foot} foot · {player.work_rate}
@@ -112,7 +167,12 @@ function PlayerCard({ player }: { player: IPlayersResponse }) {
 const ALL_POSITIONS_WITH_GK = [...ALL_POSITIONS, "GK"];
 const FEET = ["Left", "Right"];
 
-export default function PlayersPage() {
+interface ToastState {
+  message: string;
+  type: "success" | "error" | "info";
+}
+
+function PlayersPageContent() {
   const [name, setName] = useState("");
   const [nationalityName, setNationalityName] = useState("");
   const [position, setPosition] = useState("");
@@ -121,6 +181,15 @@ export default function PlayersPage() {
   const [maxOverall, setMaxOverall] = useState<number | undefined>();
   const [minAge, setMinAge] = useState<number | undefined>();
   const [maxAge, setMaxAge] = useState<number | undefined>();
+
+  const [selectedPlayer, setSelectedPlayer] = useState<IPlayersResponse | null>(
+    null,
+  );
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Debounce free-text / number inputs so backend only fires after user stops typing
   const dName = useDebounce(name, 500);
@@ -142,7 +211,91 @@ export default function PlayersPage() {
     maxAge: dMaxAge,
   };
 
-  const { data: players = [], isLoading, isFetching } = useGetPlayers(payload);
+  const {
+    data,
+    isLoading,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfinitePlayers(payload);
+
+  const players = useMemo(() => data?.pages.flat() || [], [data?.pages]);
+  const { data: favPlayers = [] } = useGetFavoritePlayers();
+
+  const favIds = useMemo(
+    () => new Set(favPlayers.map((p) => p.id)),
+    [favPlayers],
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [observerTarget, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    const playerIdParam = searchParams.get("playerId");
+    if (playerIdParam) {
+      const pid = parseInt(playerIdParam, 10);
+      const playerFromFav = favPlayers.find((p) => p.id === pid);
+      const playerFromList = players.find((p) => p.id === pid);
+      const targetPlayer = playerFromFav || playerFromList;
+
+      if (targetPlayer && selectedPlayer?.id !== targetPlayer.id) {
+        // Wrap in setTimeout to avoid synchronous setState warning
+        const timer = setTimeout(() => {
+          setSelectedPlayer(targetPlayer);
+        }, 0);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [searchParams, favPlayers, players, selectedPlayer?.id]);
+
+  const addFav = useAddFavoritePlayer();
+  const removeFav = useRemoveFavoritePlayer();
+
+  const showToast = useCallback((message: string, type: ToastState["type"]) => {
+    setToast({ message, type });
+  }, []);
+
+  function handleStarClick(player: IPlayersResponse) {
+    const isFav = favIds.has(player.id);
+    if (isFav) {
+      removeFav.mutate(player.id, {
+        onSuccess: () =>
+          showToast(`${player.short_name} removed from favourites`, "error"),
+        onError: () => showToast("Failed to update favourites", "error"),
+      });
+    } else {
+      addFav.mutate(player.id, {
+        onSuccess: () =>
+          showToast(`${player.short_name} added to favourites`, "info"),
+        onError: () => showToast("Failed to update favourites", "error"),
+      });
+    }
+  }
+
+  function handleModalFavToggle() {
+    if (!selectedPlayer) return;
+    handleStarClick(selectedPlayer);
+  }
 
   const hasActiveFilters =
     !!name ||
@@ -179,11 +332,6 @@ export default function PlayersPage() {
             </span>
           )}
         </div>
-        {!isLoading && (
-          <span className={LABEL}>
-            {players.length} player{players.length !== 1 ? "s" : ""} found
-          </span>
-        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-0 max-w-[1600px] mx-auto">
@@ -358,14 +506,69 @@ export default function PlayersPage() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {players.map((player) => (
-                <PlayerCard key={player.id} player={player} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                {players.map((player) => (
+                  <PlayerCard
+                    key={player.id}
+                    player={player}
+                    isFavorite={favIds.has(player.id)}
+                    onStarClick={handleStarClick}
+                    onCardClick={setSelectedPlayer}
+                  />
+                ))}
+              </div>
+              {(hasNextPage || isFetchingNextPage) && (
+                <div
+                  ref={observerTarget}
+                  className="h-20 w-full mt-4 flex items-center justify-center"
+                >
+                  <div className="w-6 h-6 border-2 border-[#00ff66] border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>
+
+      {/* ── Player Detail Modal ── */}
+      {selectedPlayer && (
+        <PlayerDetailModal
+          player={selectedPlayer}
+          isFavorite={favIds.has(selectedPlayer.id)}
+          favLoading={addFav.isPending || removeFav.isPending}
+          onClose={() => {
+            setSelectedPlayer(null);
+            if (searchParams.has("playerId")) {
+              router.replace("/Players");
+            }
+          }}
+          onToggleFavorite={handleModalFavToggle}
+        />
+      )}
+
+      {/* ── Toast ── */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
+  );
+}
+
+export default function PlayersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0a0b09] flex items-center justify-center text-[#00ff66] font-[Bebas_Neue]">
+          Loading...
+        </div>
+      }
+    >
+      <PlayersPageContent />
+    </Suspense>
   );
 }
