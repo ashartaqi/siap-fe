@@ -123,3 +123,10 @@ export function fmtKickoff(m: Match) {
   const d = new Date(m.date ?? m.utc_date ?? "");
   return `${d.toLocaleDateString("en-GB", { month: "short", day: "numeric" })} · ${d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
 }
+
+export function calculateAge(dob: string): number {
+  const birthday = new Date(dob);
+  const ageDifMs = Date.now() - birthday.getTime();
+  const ageDate = new Date(ageDifMs);
+  return Math.abs(ageDate.getUTCFullYear() - 1970);
+}

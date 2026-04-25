@@ -2,54 +2,46 @@ import axiosClient from "@/lib/axiosClient";
 import { IPlayerAttributes } from "../types";
 
 export const getPlayerAttributes = async (): Promise<IPlayerAttributes> => {
-  const [
-    positionsRes,
-    feetRes,
-    statMinRes,
-    statMaxRes,
-    totalStatsRes,
-    allPositionsRes,
-    statFieldRes,
-    defaultIdentityRes,
-    defaultStatsRes,
-  ] = await Promise.all([
-    axiosClient.get<Record<string, string[]>>("/player-att/player-pos"),
-    axiosClient.get<string[]>("/player-att/preferred-feet"),
-    axiosClient.get<number>("/player-att/stat-min"),
-    axiosClient.get<number>("/player-att/stat-max"),
-    axiosClient.get<number>("/player-att/total-stats"),
-    axiosClient.get<string[]>("/player-att/all-positions"),
-    axiosClient.get<Record<string, string>>("/player-att/stat-field"),
-    axiosClient.get<IPlayerAttributes["default_identity"]>(
-      "/player-att/default-identity",
+  const [positionsRes, feetRes, statsLimitsRes] = await Promise.all([
+    axiosClient.get<Record<string, string[]>>("/players/positions"),
+    axiosClient.get<string[]>("/players/preferred-feet"),
+    axiosClient.get<{ total: number; min: number; max: number }>(
+      "/players/stats-limits",
     ),
-    axiosClient.get<Record<string, number>>("/player-att/default-stats"),
   ]);
 
+  const validPositions = positionsRes.data ?? {};
+  const allPositions = Object.values(validPositions).flat();
+
   return {
-    valid_player_positions: positionsRes.data ?? {},
+    valid_player_positions: validPositions,
     valid_preferred_feet: Array.isArray(feetRes.data) ? feetRes.data : [],
-    player_stat_min: Number(statMinRes.data ?? 1),
-    player_stat_max: Number(statMaxRes.data ?? 99),
-    player_total_stats_max: Number(totalStatsRes.data ?? 570),
-    all_positions: Array.isArray(allPositionsRes.data)
-      ? allPositionsRes.data
-      : [],
-    stat_field_map: statFieldRes.data ?? {},
-    default_identity: defaultIdentityRes.data ?? {
+    player_stat_min: Number(statsLimitsRes.data?.min ?? 1),
+    player_stat_max: Number(statsLimitsRes.data?.max ?? 99),
+    player_total_stats_max: Number(statsLimitsRes.data?.total ?? 570),
+    all_positions: allPositions,
+    stat_field_map: {
+      pace: "Pace",
+      shooting: "Shooting",
+      passing: "Passing",
+      dribbling: "Dribbling",
+      defending: "Defending",
+      physic: "Physical",
+    },
+    default_identity: {
       name: "Your Player",
       position: "ST",
       nationality: "---",
       shirt_number: 7,
       preferred_foot: "Right",
     },
-    default_stats: defaultStatsRes.data ?? {
-      pace: 0,
-      shooting: 0,
-      passing: 0,
-      dribbling: 0,
-      defending: 0,
-      physic: 0,
+    default_stats: {
+      pace: 50,
+      shooting: 50,
+      passing: 50,
+      dribbling: 50,
+      defending: 50,
+      physic: 50,
     },
   };
 };

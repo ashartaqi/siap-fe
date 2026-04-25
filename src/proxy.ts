@@ -5,8 +5,9 @@ const PROTECTED_PREFIXES = [
   "/dream-player",
   "/dream-team",
   "/league-standings",
-  "/settings",
   "/UCL",
+  "/players",
+  "/teams",
 ];
 
 const AUTH_PREFIXES = ["/login", "/register"];

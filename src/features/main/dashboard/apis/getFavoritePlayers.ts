@@ -1,7 +1,7 @@
 import axiosClient from "@/lib/axiosClient";
-import type { Player } from "@/types/football";
+import type { IPlayersResponse } from "@/features/main/dashboard/types";
 
-export const getFavoritePlayers = async (): Promise<Player[]> => {
-  const res = await axiosClient.get<Player[]>("/players/fav");
+export const getFavoritePlayers = async (): Promise<IPlayersResponse[]> => {
+  const res = await axiosClient.get<IPlayersResponse[]>("/players/fav");
   return res.data;
 };

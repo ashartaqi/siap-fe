@@ -4,6 +4,7 @@ import { Trophy, Activity } from "lucide-react";
 import { useGetFixtures } from "@/features/main/football";
 import { groupMatchesByRound } from "@/lib/utils/footballUtils";
 import { MatchNode } from "@/components/ui/ucl/MatchNode";
+import { UCL_FOOTER_STATS } from "@/lib/constants";
 
 export default function UCLPage() {
   const {
@@ -29,6 +30,12 @@ export default function UCLPage() {
       m.status === "SCHEDULED" ||
       m.status === "IN_PLAY",
   ).length;
+
+  const footerStats = [
+    { ...UCL_FOOTER_STATS[0], value: finished },
+    { ...UCL_FOOTER_STATS[1], value: remaining },
+    { ...UCL_FOOTER_STATS[2], value: matches.length },
+  ];
 
   if (loading) {
     return (
@@ -57,64 +64,38 @@ export default function UCLPage() {
       <div className="absolute inset-0 bg-[rgba(2,8,30,0.62)] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(2,8,30,0.92)_0%,transparent_28%,transparent_70%,rgba(2,8,30,0.92)_100%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(2,8,30,0.70)_0%,transparent_22%,transparent_78%,rgba(2,8,30,0.70)_100%)] pointer-events-none" />
-      <div
-        className="absolute -top-[10%] -right-[5%] w-[700px] h-[700px] rounded-full pointer-events-none"
-        style={{ background: "rgba(0,80,200,0.22)", filter: "blur(160px)" }}
-      />
-      <div
-        className="absolute -bottom-[10%] -left-[5%] w-[600px] h-[600px] rounded-full pointer-events-none"
-        style={{ background: "rgba(0,50,160,0.18)", filter: "blur(120px)" }}
-      />
-      <div
-        className="absolute top-[40%] left-[38%] w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: "rgba(20,60,180,0.12)", filter: "blur(200px)" }}
-      />
+      <div className="absolute -top-[10%] -right-[5%] w-[700px] h-[700px] rounded-full pointer-events-none bg-[rgba(0,80,200,0.22)] blur-[160px]" />
+      <div className="absolute -bottom-[10%] -left-[5%] w-[600px] h-[600px] rounded-full pointer-events-none bg-[rgba(0,50,160,0.18)] blur-[120px]" />
+      <div className="absolute top-[40%] left-[38%] w-[500px] h-[500px] rounded-full pointer-events-none bg-[rgba(20,60,180,0.12)] blur-[200px]" />
 
       {/* Header */}
-      <div className="relative z-10 shrink-0 mb-3 flex flex-wrap items-end justify-between gap-3">
+      <div className="relative z-10 shrink-0 mb-6 lg:mb-3 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] text-[#7eb8ff] bg-[rgba(0,80,200,0.2)] border border-[rgba(100,160,255,0.35)] shadow-[0_0_15px_rgba(0,80,200,0.15)]">
+          <div className="flex items-center gap-3 mb-2 md:mb-3">
+            <span className="px-3 py-1 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-[#7eb8ff] bg-[rgba(0,80,200,0.2)] border border-[rgba(100,160,255,0.35)] shadow-[0_0_15px_rgba(0,80,200,0.15)]">
               UEFA Champions League
             </span>
-            <div className="h-px w-16 bg-[linear-gradient(to_right,rgba(100,160,255,0.5),transparent)]" />
+            <div className="hidden sm:block h-px w-16 bg-[linear-gradient(to_right,rgba(100,160,255,0.5),transparent)]" />
           </div>
-          <h1
-            className="font-headline italic text-[clamp(2.5rem,8vw,6rem)] font-black uppercase tracking-[-0.03em] leading-none"
-            style={{
-              background:
-                "linear-gradient(to bottom, #e8f0ff 0%, #7eb8ff 55%, rgba(100,160,255,0.25) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-            }}
-          >
+          <h1 className="font-headline italic text-[clamp(2rem,10vw,6rem)] font-black uppercase tracking-[-0.03em] leading-[0.9] bg-[linear-gradient(to_bottom,#e8f0ff_0%,#7eb8ff_55%,rgba(100,160,255,0.25)_100%)] bg-clip-text text-transparent">
             Road{" "}
-            <span
-              style={{
-                WebkitTextFillColor: "#60aaff",
-                filter: "drop-shadow(0 0 22px rgba(0,100,255,0.55))",
-              }}
-            >
+            <span className="[-webkit-text-fill-color:#60aaff] drop-shadow-[0_0_22px_rgba(0,100,255,0.55)]">
               to Hungary
             </span>
           </h1>
-          <p className="text-[#5a80b0] text-[13px] mt-3 max-w-[480px] uppercase tracking-[0.1em] leading-relaxed">
+          <p className="text-[#5a80b0] text-[11px] md:text-[13px] mt-3 max-w-[480px] uppercase tracking-[0.1em] leading-relaxed hidden sm:block">
             Follow the elite journey of the stars. Real-time tournament
             progression and team roadmap visualization.
           </p>
         </div>
 
-        <div className="flex items-center gap-4 p-4 rounded-2xl border border-[rgba(100,160,255,0.2)] backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.4)] bg-[linear-gradient(135deg,rgba(10,25,70,0.75)_0%,rgba(5,15,45,0.85)_100%)]">
-          <Trophy
-            className="w-10 h-10 text-[#60aaff]"
-            style={{ filter: "drop-shadow(0 0 12px rgba(0,100,255,0.5))" }}
-          />
+        <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-2xl border border-[rgba(100,160,255,0.2)] backdrop-blur-xl shadow-[0_25px_50px_rgba(0,0,0,0.4)] bg-[linear-gradient(135deg,rgba(10,25,70,0.75)_0%,rgba(5,15,45,0.85)_100%)]">
+          <Trophy className="w-8 h-8 md:w-10 md:h-10 text-[#60aaff] drop-shadow-[0_0_12px_rgba(0,100,255,0.5)]" />
           <div>
-            <p className="text-[#5a80b0] text-[10px] font-bold uppercase tracking-[0.2em] mb-1">
+            <p className="text-[#5a80b0] text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] mb-0.5 md:mb-1">
               Final Destination
             </p>
-            <p className="text-[#c8dcff] text-[17px] font-black uppercase">
+            <p className="text-[#c8dcff] text-[14px] md:text-[17px] font-black uppercase">
               Puskás Aréna • May 30
             </p>
           </div>
@@ -122,8 +103,8 @@ export default function UCLPage() {
       </div>
 
       {/* Bracket */}
-      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-center overflow-hidden">
-        <div className="w-full max-w-[1280px] h-full max-h-full grid grid-cols-5 items-center gap-2 mx-auto">
+      <div className="relative z-10 flex-1 min-h-0 flex items-center justify-start lg:justify-center overflow-x-auto lg:overflow-hidden px-4 py-8 custom-scrollbar-thin">
+        <div className="w-full min-w-[1000px] lg:min-w-0 max-w-[1280px] h-full max-h-full grid grid-cols-5 items-center gap-2 mx-auto">
           {/* Col 1 — Left QF */}
           <div className="flex flex-col gap-4 min-h-0 justify-center">
             {qfLeft.map((m, i) => (
@@ -153,13 +134,7 @@ export default function UCLPage() {
               </svg>
             </div>
             <div className="w-full relative px-2">
-              <div
-                className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-32 rounded-full"
-                style={{
-                  background: "rgba(0,80,200,0.1)",
-                  filter: "blur(40px)",
-                }}
-              />
+              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-32 rounded-full bg-[rgba(0,80,200,0.1)] blur-[40px]" />
               {finalMatch ? (
                 <MatchNode match={finalMatch} round="THE FINAL" />
               ) : (
@@ -208,16 +183,12 @@ export default function UCLPage() {
       {/* Footer */}
       <div className="relative z-10 shrink-0 mt-3 px-3 py-3 border-t border-[rgba(100,160,255,0.1)] flex flex-wrap justify-between items-center gap-6">
         <div className="flex gap-8">
-          {[
-            { label: "Played", value: finished, color: "#c8dcff" },
-            { label: "Remaining", value: remaining, color: "#60aaff" },
-            { label: "Total", value: matches.length, color: "#7eb8ff" },
-          ].map(({ label, value, color }) => (
+          {footerStats.map(({ label, value, textClass }) => (
             <div key={label} className="flex flex-col">
               <span className="text-[#5a80b0] text-[9px] font-bold uppercase tracking-[0.1em] mb-1">
                 {label}
               </span>
-              <span className="text-[20px] font-black italic" style={{ color }}>
+              <span className={`text-[20px] font-black italic ${textClass}`}>
                 {String(value).padStart(2, "0")}
               </span>
             </div>
