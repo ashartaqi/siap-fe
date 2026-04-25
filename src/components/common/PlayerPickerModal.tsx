@@ -104,12 +104,11 @@ export function PlayerPickerModal({
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-[6px] z-[1000] flex items-center justify-center"
-      onClick={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div
-        className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(71,72,69,0.2)] shrink-0">
           <div className="flex items-center gap-2.5">

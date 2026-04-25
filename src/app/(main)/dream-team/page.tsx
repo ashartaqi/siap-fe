@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { CreateDreamTeamButton } from "@/components/common/Button";
+import { CreateDreamTeamButton } from "@/components/common/CreateDreamTeamButton";
 import {
   useCreateDreamTeam,
   useGetDreamTeam,

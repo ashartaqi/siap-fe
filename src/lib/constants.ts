@@ -15,6 +15,108 @@ import type { ComponentType } from "react";
 
 export const TOKEN_KEY = "token";
 
+// ─── League Standings ─────────────────────────────────────────────────────────
+
+export const LEAGUE_LOGOS: Record<string, string> = {
+  PL: "/premierleague.jpg",
+  PD: "/laliga.png",
+  SA: "/serieA.png",
+  BL1: "/bundesliga.png",
+  FL1: "/ligue1.png",
+  PPL: "/premieraliga.png",
+};
+
+export const STANDINGS_LEGEND = [
+  { dotClass: "bg-[#3b82f6]", label: "Champions League" },
+  { dotClass: "bg-[#f59e0b]", label: "Europa League" },
+  { dotClass: "bg-[#10b981]", label: "Conference League" },
+  { dotClass: "bg-[#ef4444]", label: "Relegation" },
+] as const;
+
+// ─── UCL ──────────────────────────────────────────────────────────────────────
+
+/** Static label + colour metadata for the UCL bracket footer. Pair with runtime values. */
+export const UCL_FOOTER_STATS = [
+  { label: "Played", textClass: "text-[#c8dcff]" },
+  { label: "Remaining", textClass: "text-[#60aaff]" },
+  { label: "Total", textClass: "text-[#7eb8ff]" },
+] as const;
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
+export const NEURAL_PREDICTIONS = [
+  {
+    home: "ARS",
+    away: "MCI",
+    homeLabel: "Arsenal Win",
+    awayLabel: "Man City Win",
+    winPct: 68,
+    drawPct: 12,
+  },
+  {
+    home: "LIV",
+    away: "CHE",
+    homeLabel: "Liverpool Win",
+    awayLabel: "Chelsea Win",
+    winPct: 54,
+    drawPct: 26,
+  },
+] as const;
+
+// ─── Auth / Register ──────────────────────────────────────────────────────────
+
+export const REGISTER_PERKS = [
+  {
+    title: "Live Match Data",
+    desc: "real-time scores, stats, and updates from global leagues.",
+  },
+  {
+    title: "AI Predictions",
+    desc: "machine-learning powered win probabilities for every match.",
+  },
+  {
+    title: "Dream Team Builder",
+    desc: "assemble your fantasy squad and track chemistry scores.",
+  },
+  {
+    title: "Leaderboard & Voting",
+    desc: "compete with fans, vote on outcomes, earn points.",
+  },
+] as const;
+
+export const PASSWORD_STRENGTH_LEVELS = [
+  {
+    widthClass: "w-1/5",
+    bgClass: "bg-[#ff4d4d]",
+    textClass: "text-[#ff4d4d]",
+    label: "Very Weak",
+  },
+  {
+    widthClass: "w-2/5",
+    bgClass: "bg-[#ff8c00]",
+    textClass: "text-[#ff8c00]",
+    label: "Weak",
+  },
+  {
+    widthClass: "w-3/5",
+    bgClass: "bg-[#ffd700]",
+    textClass: "text-[#ffd700]",
+    label: "Fair",
+  },
+  {
+    widthClass: "w-4/5",
+    bgClass: "bg-[#7fff00]",
+    textClass: "text-[#7fff00]",
+    label: "Good",
+  },
+  {
+    widthClass: "w-full",
+    bgClass: "bg-[#00e640]",
+    textClass: "text-[#00e640]",
+    label: "Strong",
+  },
+] as const;
+
 // ─── Football Leagues ─────────────────────────────────────────────────────────
 
 export const CURRENT_SEASON = "2025 / 26";
@@ -38,6 +140,10 @@ export const FIXTURE_LEAGUES = [
   { key: "BL1", label: "Bundesliga", badge: "BL1" },
   { key: "CL", label: "Champions League", badge: "CL" },
 ];
+
+// ─── Players ──────────────────────────────────────────────────────────────────
+
+export const PREFERRED_FEET = ["Left", "Right"] as const;
 
 // ─── Player Positions ─────────────────────────────────────────────────────────
 
@@ -71,6 +177,9 @@ export const ALL_POSITIONS = [
   "RWB",
   "SW",
 ];
+
+/** All outfield + GK — use when GK must be included (e.g. Players page filter) */
+export const ALL_POSITIONS_WITH_GK = [...ALL_POSITIONS, "GK"];
 
 // ─── Settings — Profile ───────────────────────────────────────────────────────
 

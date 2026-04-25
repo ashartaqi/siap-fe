@@ -1,6 +1,6 @@
 "use client";
 
-import { PlayerSlotButton } from "@/components/common/Button";
+import { PlayerSlotButton } from "@/components/common/PlayerSlotButton";
 import type { Formation, SelectedPlayers } from "@/types/dreamTeam";
 
 interface PitchRowProps {

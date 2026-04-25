@@ -8,17 +8,10 @@ import { FixturesPanel } from "@/components/ui/league-standings/FixturesPanel";
 import {
   LEAGUES_WITH_ACCENT as LEAGUES,
   CURRENT_SEASON,
+  LEAGUE_LOGOS,
+  STANDINGS_LEGEND,
 } from "@/lib/constants";
 import { useGetStandings } from "@/features/main/football";
-
-const LEAGUE_LOGOS: Record<string, string> = {
-  PL: "/premierleague.jpg",
-  PD: "/laliga.png",
-  SA: "/serieA.png",
-  BL1: "/bundesliga.png",
-  FL1: "/ligue1.png",
-  PPL: "/premieraliga.png",
-};
 
 export default function StandingsPage() {
   const [leagueIdx, setLeagueIdx] = useState(0);
@@ -105,19 +98,13 @@ export default function StandingsPage() {
               }}
             >
               <div className="flex gap-4 flex-wrap">
-                {[
-                  { color: "#3b82f6", label: "Champions League" },
-                  { color: "#f59e0b", label: "Europa League" },
-                  { color: "#10b981", label: "Conference League" },
-                  { color: "#ef4444", label: "Relegation" },
-                ].map(({ color, label }) => (
+                {STANDINGS_LEGEND.map(({ dotClass, label }) => (
                   <div
                     key={label}
                     className="flex items-center gap-1.5 text-[0.68rem] text-[#6b6b78] font-mono"
                   >
                     <span
-                      className="w-2 h-2 rounded-[2px] inline-block"
-                      style={{ background: color }}
+                      className={`w-2 h-2 rounded-[2px] inline-block ${dotClass}`}
                     />
                     {label}
                   </div>

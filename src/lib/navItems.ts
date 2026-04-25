@@ -48,14 +48,14 @@ export const NAV_ITEMS: NavItem[] = [
     iconHoverClass: "group-hover:fill-[var(--color-neon)]",
   },
   {
-    href: "/Players",
-    label: "Players",
+    href: "/players",
+    label: "PLAYERS",
     Icon: User,
     iconHoverClass: "group-hover:fill-[var(--color-neon)]",
   },
   {
-    href: "/Teams",
-    label: "Teams",
+    href: "/teams",
+    label: "TEAMS",
     Icon: Shield,
     iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
   },

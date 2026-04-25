@@ -172,11 +172,16 @@ export default function DreamPlayerPage() {
       <div className="min-h-screen w-full flex items-center justify-center bg-[#0d0f0c]">
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
-            {[0, 150, 300].map((delay) => (
+            {(
+              [
+                "[animation-delay:0ms]",
+                "[animation-delay:150ms]",
+                "[animation-delay:300ms]",
+              ] as const
+            ).map((delayClass) => (
               <div
-                key={delay}
-                className="w-2 h-2 rounded-full bg-[#00fe66] animate-bounce"
-                style={{ animationDelay: `${delay}ms` }}
+                key={delayClass}
+                className={`w-2 h-2 rounded-full bg-[#00fe66] animate-bounce ${delayClass}`}
               />
             ))}
           </div>
@@ -190,13 +195,7 @@ export default function DreamPlayerPage() {
 
   return (
     <>
-      <div
-        className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#0d0f0c] text-[#fcfcf8] font-[Oxanium,sans-serif]"
-        style={{
-          backgroundImage: `linear-gradient(to right, rgba(71,72,69,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(71,72,69,0.1) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      >
+      <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#0d0f0c] text-[#fcfcf8] font-[Oxanium,sans-serif] bg-[linear-gradient(to_right,rgba(71,72,69,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(71,72,69,0.1)_1px,transparent_1px)] [background-size:40px_40px]">
         {created && (
           <div className="animate-toast-success fixed top-8 left-1/2 z-50 px-7 py-3 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase text-[#00fe66] bg-[rgba(0,254,102,0.12)] border border-[rgba(0,254,102,0.4)] backdrop-blur-md font-[Oxanium,sans-serif]">
             {isExisting
@@ -211,13 +210,7 @@ export default function DreamPlayerPage() {
         )}
 
         <div className="absolute top-4 left-4 md:top-8 md:left-8 pointer-events-none select-none z-0">
-          <h1
-            className="font-[Bebas_Neue,sans-serif] leading-[0.95] tracking-[-0.01em]"
-            style={{
-              fontSize: "clamp(32px, 8vw, 80px)",
-              color: "rgba(252,252,248,0.06)",
-            }}
-          >
+          <h1 className="font-[Bebas_Neue,sans-serif] leading-[0.95] tracking-[-0.01em] text-[clamp(32px,8vw,80px)] text-[rgba(252,252,248,0.06)]">
             DREAM
             <br />
             PLAYER
@@ -266,12 +259,7 @@ export default function DreamPlayerPage() {
                 alt="Player"
                 width={320}
                 height={320}
-                className="player-glow mix-blend-screen brightness-125 saturate-50 select-none scale-75 md:scale-100"
-                style={{
-                  height: "auto",
-                  maxWidth: "100%",
-                  objectFit: "contain",
-                }}
+                className="player-glow mix-blend-screen brightness-125 saturate-50 select-none scale-75 md:scale-100 h-auto max-w-full object-contain"
                 unoptimized
               />
             </div>
@@ -419,11 +407,16 @@ export default function DreamPlayerPage() {
             <>
               {isPending && (
                 <div className="flex items-center gap-2 mb-1">
-                  {[0, 150, 300].map((delay) => (
+                  {(
+                    [
+                      "[animation-delay:0ms]",
+                      "[animation-delay:150ms]",
+                      "[animation-delay:300ms]",
+                    ] as const
+                  ).map((delayClass) => (
                     <div
-                      key={delay}
-                      className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-bounce"
-                      style={{ animationDelay: `${delay}ms` }}
+                      key={delayClass}
+                      className={`w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-bounce ${delayClass}`}
                     />
                   ))}
                 </div>

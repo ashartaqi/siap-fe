@@ -27,7 +27,17 @@ function StatRow({
 }) {
   const pct = Math.min((value / max) * 100, 100);
   const barColor =
-    value >= 80 ? "#00ff66" : value >= 65 ? "#ffd700" : "rgba(255,80,80,0.85)";
+    value >= 80
+      ? "bg-[#00ff66]"
+      : value >= 65
+        ? "bg-[#ffd700]"
+        : "bg-[rgba(255,80,80,0.85)]";
+  const textColor =
+    value >= 80
+      ? "text-[#00ff66]"
+      : value >= 65
+        ? "text-[#ffd700]"
+        : "text-[rgba(255,80,80,0.85)]";
 
   return (
     <div className="flex items-center gap-3">
@@ -36,13 +46,12 @@ function StatRow({
       </span>
       <div className="flex-1 h-[4px] rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, backgroundColor: barColor }}
+          className={`h-full rounded-full transition-all duration-500 ${barColor}`}
+          style={{ width: `${pct}%` }}
         />
       </div>
       <span
-        className="text-[13px] font-[Bebas_Neue,sans-serif] leading-none w-[26px] text-right"
-        style={{ color: barColor }}
+        className={`text-[13px] font-[Bebas_Neue,sans-serif] leading-none w-[26px] text-right ${textColor}`}
       >
         {value}
       </span>
@@ -84,7 +93,9 @@ export function PlayerDetailModal({
   return (
     <div
       className="fixed inset-0 bg-black/75 backdrop-blur-[8px] z-[1000] flex items-center justify-center p-4"
-      onClick={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         className="
@@ -93,7 +104,6 @@ export function PlayerDetailModal({
           shadow-[0_40px_100px_rgba(0,0,0,0.8)]
           flex flex-col
         "
-        onClick={(e) => e.stopPropagation()}
       >
         {/* ── Header ── */}
         <div className="relative flex items-start gap-4 p-6 border-b border-[rgba(71,72,69,0.15)]">

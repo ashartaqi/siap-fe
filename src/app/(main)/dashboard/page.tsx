@@ -4,6 +4,7 @@ import { FixturesStrip } from "@/components/common/Fixtures";
 import { LatestResults } from "@/components/common/LatestResults";
 import { FavoriteTeamSpotlight } from "@/components/ui/dashboard/FavoriteTeamSpotlight";
 import { FavoritePlayers } from "@/components/ui/dashboard/FavoritePlayers";
+import { NEURAL_PREDICTIONS } from "@/lib/constants";
 
 export default function DashboardPage() {
   return (
@@ -32,24 +33,7 @@ export default function DashboardPage() {
                 Neural Predictions
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
-                {[
-                  {
-                    home: "ARS",
-                    away: "MCI",
-                    homeLabel: "Arsenal Win",
-                    awayLabel: "Man City Win",
-                    winPct: 68,
-                    drawPct: 12,
-                  },
-                  {
-                    home: "LIV",
-                    away: "CHE",
-                    homeLabel: "Liverpool Win",
-                    awayLabel: "Chelsea Win",
-                    winPct: 54,
-                    drawPct: 26,
-                  },
-                ].map(
+                {NEURAL_PREDICTIONS.map(
                   ({ home, away, homeLabel, awayLabel, winPct, drawPct }) => (
                     <div
                       key={home + away}
