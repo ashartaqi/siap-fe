@@ -14,6 +14,7 @@ export const getTeams = async (
     min_attack: payload.minAttack,
     min_midfield: payload.minMidfield,
     min_defence: payload.minDefence,
+    team_type: payload.teamType,
     skip: payload.skip,
   };
 

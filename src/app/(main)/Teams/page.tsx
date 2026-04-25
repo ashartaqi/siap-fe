@@ -75,10 +75,13 @@ function TeamCard({ team }: { team: ITeamsResponse }) {
             </span>
           </div>
           <div className="text-[10px] text-[rgba(255,255,255,0.35)] mt-1 tracking-[0.05em] truncate">
-            {team.league_name} · {team.nationality_name}
+            {team.league_name !== "Friendly International"
+              ? team.league_name
+              : "National Team"}{" "}
+            · {team.nationality_name}
           </div>
           <div className="text-[10px] text-[rgba(255,255,255,0.25)] mt-0.5 tracking-[0.05em] truncate">
-            🏟️ {team.home_stadium}
+            🏟️ {team.home_stadium || "National Stadium"}
           </div>
         </div>
 
@@ -100,6 +103,7 @@ function TeamCard({ team }: { team: ITeamsResponse }) {
 // ── Teams Page Content ────────────────────────────────────────────────────────
 
 function TeamsPageContent() {
+  const [teamType, setTeamType] = useState<"club" | "national">("club");
   const [name, setName] = useState("");
   const [leagueName, setLeagueName] = useState("");
   const [nationalityName, setNationalityName] = useState("");
@@ -124,6 +128,7 @@ function TeamsPageContent() {
 
   const payload: ITeamsPayload = {
     limit: 50,
+    teamType,
     name: dName || undefined,
     leagueName: dLeague || undefined,
     nationalityName: dNationality || undefined,
@@ -191,7 +196,7 @@ function TeamsPageContent() {
   return (
     <div className="min-h-screen bg-[#0a0b09] text-[#fcfcf8] font-[Oxanium,sans-serif]">
       {/* ── Page Header ── */}
-      <div className="border-b border-[rgba(71,72,69,0.2)] px-6 py-5 flex items-center justify-between">
+      <div className="border-b border-[rgba(71,72,69,0.2)] px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h1 className="font-[Bebas_Neue,sans-serif] text-[28px] tracking-[0.06em] text-[#fcfcf8]">
             Teams Database
@@ -201,6 +206,36 @@ function TeamsPageContent() {
               Updating…
             </span>
           )}
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex p-1 bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-xl self-start md:self-auto">
+          <button
+            onClick={() => setTeamType("club")}
+            className={`
+              px-6 py-2 rounded-lg text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-200
+              ${
+                teamType === "club"
+                  ? "bg-[#00ff66] text-[#0a0b09] shadow-[0_0_15px_rgba(0,255,102,0.3)]"
+                  : "text-[rgba(255,255,255,0.4)] hover:text-white"
+              }
+            `}
+          >
+            Club Teams
+          </button>
+          <button
+            onClick={() => setTeamType("national")}
+            className={`
+              px-6 py-2 rounded-lg text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-200
+              ${
+                teamType === "national"
+                  ? "bg-[#00ff66] text-[#0a0b09] shadow-[0_0_15px_rgba(0,255,102,0.3)]"
+                  : "text-[rgba(255,255,255,0.4)] hover:text-white"
+              }
+            `}
+          >
+            National Teams
+          </button>
         </div>
       </div>
 
@@ -247,16 +282,18 @@ function TeamsPageContent() {
               />
             </div>
 
-            {/* League */}
-            <div className="flex flex-col gap-1.5">
-              <span className={LABEL}>League</span>
-              <input
-                className={INPUT}
-                placeholder="e.g. Premier League"
-                value={leagueName}
-                onChange={(e) => setLeagueName(e.target.value)}
-              />
-            </div>
+            {/* League - Only show for Clubs */}
+            {teamType === "club" && (
+              <div className="flex flex-col gap-1.5">
+                <span className={LABEL}>League</span>
+                <input
+                  className={INPUT}
+                  placeholder="e.g. Premier League"
+                  value={leagueName}
+                  onChange={(e) => setLeagueName(e.target.value)}
+                />
+              </div>
+            )}
 
             {/* Country */}
             <div className="flex flex-col gap-1.5">
@@ -368,7 +405,7 @@ function TeamsPageContent() {
                 🔍
               </div>
               <p className="font-[Bebas_Neue,sans-serif] text-[22px] tracking-[0.06em] text-[rgba(255,255,255,0.3)]">
-                No Teams Found
+                No {teamType === "club" ? "Clubs" : "National Teams"} Found
               </p>
               <p className="text-[11px] text-[rgba(255,255,255,0.2)] tracking-[0.08em] max-w-xs">
                 Try adjusting your filters to find teams.

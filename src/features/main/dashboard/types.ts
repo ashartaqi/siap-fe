@@ -124,6 +124,7 @@ export interface ITeamsPayload {
   minAttack?: number;
   minMidfield?: number;
   minDefence?: number;
+  teamType?: string;
 }
 
 export interface ITeamsResponse {
