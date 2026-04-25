@@ -19,6 +19,7 @@ import {
 } from "@/features/main/dashboard";
 import { INPUT, LABEL, ALL_POSITIONS } from "@/lib/constants";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { calculateAge } from "@/lib/utils/footballUtils";
 import { PlayerDetailModal } from "@/components/common/PlayerDetailModal";
 import { Toast } from "@/components/common/Toast";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -64,6 +65,7 @@ function PlayerCard({
   onCardClick,
 }: PlayerCardProps) {
   const [imgErr, setImgErr] = useState(false);
+  const age = calculateAge(player.dob);
 
   return (
     <div
@@ -126,7 +128,7 @@ function PlayerCard({
           </div>
           <div className="text-[10px] text-[rgba(255,255,255,0.35)] mt-1 tracking-[0.05em] truncate">
             {player.club_name || "Free Agent"} · {player.nationality_name} · Age{" "}
-            {player.age}
+            {age}
           </div>
           <div className="text-[10px] text-[rgba(255,255,255,0.25)] mt-0.5 tracking-[0.05em]">
             {player.preferred_foot} foot · {player.work_rate}

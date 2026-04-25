@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useState } from "react";
 import type { IPlayersResponse } from "@/features/main/dashboard";
 
+import { calculateAge } from "@/lib/utils/footballUtils";
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string) {
@@ -159,7 +161,7 @@ export function PlayerDetailModal({
         <div className="p-6 flex flex-col gap-6">
           {/* Quick info pills */}
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-            <InfoPill label="Age" value={player.age} />
+            <InfoPill label="Age" value={calculateAge(player.dob)} />
             <InfoPill
               label="DOB"
               value={player.dob ? formatDate(player.dob) : "—"}
