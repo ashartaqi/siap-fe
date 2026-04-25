@@ -61,4 +61,6 @@ export interface StandingRow {
   goal_difference?: number;
   league?: string;
   logo_url?: string;
+  form?: string[];
+  forms?: string[];
 }

@@ -15,6 +15,7 @@ export const getPlayers = async (
     min_age: payload.minAge,
     max_age: payload.maxAge,
     preferred_foot: payload.preferredFoot,
+    skip: payload.skip,
   };
 
   const res = await axiosClient.get<IPlayersResponse[]>("/players", { params });

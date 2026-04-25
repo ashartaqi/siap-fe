@@ -7,6 +7,7 @@ import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { useRegister } from "@/features/auth/hooks/useRegister";
+import { PASSWORD_STRENGTH_LEVELS, REGISTER_PERKS } from "@/lib/constants";
 import { setToken } from "@/lib/auth/token";
 import { toast } from "sonner";
 
@@ -29,7 +30,6 @@ export default function RegisterPage() {
   const [confirmErr, setConfirmErr] = useState("");
   const [genericErr, setGenericErr] = useState("");
 
-  // Password strength logic
   const getPasswordStrength = (v: string) => {
     if (!v) return null;
     let score = 0;
@@ -39,14 +39,10 @@ export default function RegisterPage() {
     if (/[0-9]/.test(v)) score++;
     if (/[^A-Za-z0-9]/.test(v)) score++;
 
-    const levels = [
-      { w: "20%", c: "#ff4d4d", l: "Very Weak" },
-      { w: "40%", c: "#ff8c00", l: "Weak" },
-      { w: "60%", c: "#ffd700", l: "Fair" },
-      { w: "80%", c: "#7fff00", l: "Good" },
-      { w: "100%", c: "#00e640", l: "Strong" },
-    ];
-    return levels[Math.min(score - 1, 4)] || levels[0];
+    return (
+      PASSWORD_STRENGTH_LEVELS[Math.min(score - 1, 4)] ||
+      PASSWORD_STRENGTH_LEVELS[0]
+    );
   };
 
   const strength = getPasswordStrength(password);
@@ -137,31 +133,14 @@ export default function RegisterPage() {
         }
       >
         <div className="flex flex-col gap-4 mt-2.5">
-          {[
-            {
-              t: "Live Match Data",
-              d: "real-time scores, stats, and updates from global leagues.",
-            },
-            {
-              t: "AI Predictions",
-              d: "machine-learning powered win probabilities for every match.",
-            },
-            {
-              t: "Dream Team Builder",
-              d: "assemble your fantasy squad and track chemistry scores.",
-            },
-            {
-              t: "Leaderboard & Voting",
-              d: "compete with fans, vote on outcomes, earn points.",
-            },
-          ].map((perk, i) => (
+          {REGISTER_PERKS.map((perk, i) => (
             <div key={i} className="flex items-start gap-3.5">
               <div className="w-2 h-2 rounded-[2px] bg-[var(--auth-green)] shrink-0 mt-1.5"></div>
               <div className="text-[14px] text-[var(--auth-muted)] leading-[1.5]">
                 <strong className="text-[var(--auth-text)] font-medium">
-                  {perk.t}
+                  {perk.title}
                 </strong>{" "}
-                — {perk.d}
+                — {perk.desc}
               </div>
             </div>
           ))}
@@ -280,15 +259,11 @@ export default function RegisterPage() {
             <div className="mb-5 -mt-3 animate-[fadeUp_0.3s_ease]">
               <div className="h-[3px] bg-[var(--auth-border)] rounded-[2px] overflow-hidden mb-1">
                 <div
-                  className="h-full rounded-[2px] transition-all duration-300"
-                  style={{ width: strength.w, backgroundColor: strength.c }}
-                ></div>
+                  className={`h-full rounded-[2px] transition-all duration-300 ${strength.widthClass} ${strength.bgClass}`}
+                />
               </div>
-              <div
-                className="text-[11px] text-[var(--auth-muted)]"
-                style={{ color: strength.c }}
-              >
-                {strength.l}
+              <div className={`text-[11px] ${strength.textClass}`}>
+                {strength.label}
               </div>
             </div>
           )}

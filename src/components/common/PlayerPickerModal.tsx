@@ -1,13 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import {
-  useGetPlayers,
+  useInfinitePlayers,
   IPlayersPayload,
   IPlayersResponse,
 } from "@/features/main/dashboard";
 import { INPUT, LABEL } from "@/lib/constants";
+import { useDebounce } from "@/lib/hooks/useDebounce";
+import { getStatValue } from "@/lib/utils/dreamPlayerUtils";
+import { StatKey } from "@/types/dreamPlayer";
 
 interface Props {
   label: string;
@@ -15,6 +18,9 @@ interface Props {
   usedPlayerIds: Set<number>;
   onClose: () => void;
   onSelect: (player: IPlayersResponse) => void;
+  ratingPosition?: string;
+  statKey?: string;
+  statFieldMap?: Record<string, string>;
 }
 
 export function PlayerPickerModal({
@@ -23,42 +29,86 @@ export function PlayerPickerModal({
   usedPlayerIds,
   onClose,
   onSelect,
+  ratingPosition,
+  statKey,
+  statFieldMap,
 }: Props) {
   const [name, setName] = useState("");
   const [teamId, setTeamId] = useState<number | undefined>();
   const [minOverall, setMinOverall] = useState<number | undefined>();
   const [maxOverall, setMaxOverall] = useState<number | undefined>();
-  const [position, setPosition] = useState("");
+  const [position, setPosition] = useState(isGK ? "GK" : "");
   const [nationalityName, setNationalityName] = useState("");
   const [minAge, setMinAge] = useState<number | undefined>();
   const [maxAge, setMaxAge] = useState<number | undefined>();
   const [preferredFoot, setPreferredFoot] = useState("");
 
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Debounce inputs to avoid hammering API
+  const dName = useDebounce(name, 500);
+  const dMinOverall = useDebounce(minOverall, 500);
+  const dMaxOverall = useDebounce(maxOverall, 500);
+  const dPosition = useDebounce(position, 500);
+  const dNationality = useDebounce(nationalityName, 500);
+  const dMinAge = useDebounce(minAge, 500);
+  const dMaxAge = useDebounce(maxAge, 500);
+
   const payload: IPlayersPayload = {
     limit: 10,
-    name: name || undefined,
+    name: dName || undefined,
     teamId,
-    minOverall,
-    maxOverall,
-    position: position || undefined,
-    nationalityName: nationalityName || undefined,
-    minAge,
-    maxAge,
+    minOverall: dMinOverall,
+    maxOverall: dMaxOverall,
+    position: dPosition || undefined,
+    nationalityName: dNationality || undefined,
+    minAge: dMinAge,
+    maxAge: dMaxAge,
     preferredFoot: preferredFoot || undefined,
   };
 
-  const playersQuery = useGetPlayers(payload);
-  const { data: players = [], isLoading, isError, error } = playersQuery;
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfinitePlayers(payload, 10);
+
+  const players = useMemo(() => data?.pages.flat() || [], [data?.pages]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-[6px] z-[1000] flex items-center justify-center"
-      onClick={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div
-        className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(71,72,69,0.2)] shrink-0">
           <div className="flex items-center gap-2.5">
@@ -247,7 +297,7 @@ export function PlayerPickerModal({
                       {p.short_name}
                     </div>
                     <div className="text-[10px] text-white/35 mt-0.5 tracking-[0.05em]">
-                      {p.player_positions} · {p.club_name} · Age {p.age} ·{" "}
+                      {p.positions?.join(" · ")} · {p.club_name} · Age {p.age} ·{" "}
                       {p.preferred_foot} foot
                     </div>
                   </div>
@@ -257,12 +307,27 @@ export function PlayerPickerModal({
                     </span>
                   ) : (
                     <div className="font-[Bebas_Neue,sans-serif] text-[26px] text-[#00ff66] leading-none shrink-0">
-                      {p.overall}
+                      {statKey
+                        ? getStatValue(p, statKey as StatKey, statFieldMap)
+                        : ratingPosition
+                          ? (p as unknown as Record<string, number>)[
+                              ratingPosition.toLowerCase()
+                            ] || p.overall
+                          : p.overall}
                     </div>
                   )}
                 </div>
               );
             })}
+
+          {(hasNextPage || isFetchingNextPage) && (
+            <div
+              ref={observerTarget}
+              className="h-10 w-full flex items-center justify-center mt-2"
+            >
+              <div className="w-5 h-5 border-2 border-[#00ff66] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -208,6 +208,22 @@
     background: var(--color-green);
     color: var(--color-black);
   }
+
+  /* UCL Theme Overrides */
+  .ucl-page ::selection {
+    background: #60aaff;
+    color: #02081e;
+  }
+
+  .ucl-page::-webkit-scrollbar-thumb,
+  .ucl-page *::-webkit-scrollbar-thumb {
+    background: #1f2d5c;
+  }
+
+  .ucl-page::-webkit-scrollbar-thumb:hover,
+  .ucl-page *::-webkit-scrollbar-thumb:hover {
+    background: #60aaff;
+  }
 }
 
 @layer utilities {
@@ -315,6 +331,17 @@
   100% { opacity: 0; transform: translateX(-50%) scale(0.98); }
 }
 
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer utilities {
   .animate-spin-slow         { animation: spin-slow          20s linear  infinite; }
   .animate-spin-slow-reverse { animation: spin-slow-reverse  30s linear  infinite; }
@@ -334,5 +361,29 @@
   .neon-glow:hover {
     box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
     border-color: rgba(0, 255, 102, 0.4) !important;
+  }
+
+  /* Sidebar Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideInFromLeft {
+    from { transform: translateX(-10px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .animate-in {
+    animation-duration: 300ms;
+    animation-fill-mode: both;
+  }
+
+  .fade-in {
+    animation-name: fadeIn;
+  }
+
+  .slide-in-from-left-2 {
+    animation-name: slideInFromLeft;
   }
 }

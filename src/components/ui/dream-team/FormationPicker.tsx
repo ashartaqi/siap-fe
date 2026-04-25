@@ -1,20 +1,21 @@
 "use client";
 
-import { FORMATIONS } from "@/lib/constants";
+import { IFormation } from "@/features/main/football";
 
 interface Props {
   activeId: string;
   onSelect: (id: string) => void;
+  formations: IFormation[];
 }
 
-export function FormationPicker({ activeId, onSelect }: Props) {
+export function FormationPicker({ activeId, onSelect, formations }: Props) {
   return (
     <div className="bg-[#121411] p-[14px] rounded-xl border border-[rgba(71,72,69,0.12)]">
       <h3 className="text-[10px] font-bold tracking-[0.24em] uppercase text-[#00ff66] mb-[10px]">
         Select Formation
       </h3>
       <div className="grid grid-cols-2 gap-2">
-        {FORMATIONS.map((f) => {
+        {formations.map((f) => {
           const isActive = f.id === activeId;
           return (
             <button

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { RatingBar } from "./RatingBar";
 import { categorizePosition } from "@/lib/utils/dreamTeamUtils";
+import { useGetPlayerAttributes } from "@/features/main/football";
 import type { SelectedPlayers } from "@/types/dreamTeam";
 
 interface Props {
@@ -20,6 +21,9 @@ export function SquadAnalysis({
   totalSlots,
   isComplete,
 }: Props) {
+  const { data: playerAttributes } = useGetPlayerAttributes();
+  const validPlayerPositions = playerAttributes?.valid_player_positions;
+
   const ratings = useMemo(() => {
     const buckets: Record<"attack" | "midfield" | "defense", number[]> = {
       attack: [],
@@ -33,7 +37,7 @@ export function SquadAnalysis({
     Object.entries(selectedPlayers).forEach(([slotId, player]) => {
       if (!player || slotId === "GK") return;
       const pos = slotId.split("-").pop() ?? "";
-      const cat = categorizePosition(pos);
+      const cat = categorizePosition(pos, validPlayerPositions);
       if (cat !== "gk") buckets[cat].push(player.overall);
     });
 
@@ -52,7 +56,7 @@ export function SquadAnalysis({
         ...(gkOverall !== null ? [gkOverall] : []),
       ]),
     };
-  }, [selectedPlayers]);
+  }, [selectedPlayers, validPlayerPositions]);
 
   return (
     <div className="bg-[#121411] p-[14px] rounded-xl border border-[rgba(71,72,69,0.12)]">

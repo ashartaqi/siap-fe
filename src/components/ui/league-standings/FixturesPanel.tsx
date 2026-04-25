@@ -6,7 +6,7 @@ import { FixtureCard } from "./FixtureCard";
 export function FixturesPanel({ leagueKey }: { leagueKey: string }) {
   const { data: fixtures = [], isLoading: loading } = useGetFixtures({
     league: leagueKey,
-    status_filter: "SCHEDULED",
+    status_filter: "TIMED",
     limit: 10,
   });
 

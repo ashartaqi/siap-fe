@@ -1,10 +1,6 @@
 import {
   User,
-  Bell,
   Shield,
-  Palette,
-  BarChart2,
-  Download,
   Monitor,
   Moon,
   Share2,
@@ -19,26 +15,111 @@ import type { ComponentType } from "react";
 
 export const TOKEN_KEY = "token";
 
+// ─── League Standings ─────────────────────────────────────────────────────────
+
+export const LEAGUE_LOGOS: Record<string, string> = {
+  PL: "/premierleague.jpg",
+  PD: "/laliga.png",
+  SA: "/serieA.png",
+  BL1: "/bundesliga.png",
+  FL1: "/ligue1.png",
+  PPL: "/premieraliga.png",
+};
+
+export const STANDINGS_LEGEND = [
+  { dotClass: "bg-[#3b82f6]", label: "Champions League" },
+  { dotClass: "bg-[#f59e0b]", label: "Europa League" },
+  { dotClass: "bg-[#10b981]", label: "Conference League" },
+  { dotClass: "bg-[#ef4444]", label: "Relegation" },
+] as const;
+
+// ─── UCL ──────────────────────────────────────────────────────────────────────
+
+/** Static label + colour metadata for the UCL bracket footer. Pair with runtime values. */
+export const UCL_FOOTER_STATS = [
+  { label: "Played", textClass: "text-[#c8dcff]" },
+  { label: "Remaining", textClass: "text-[#60aaff]" },
+  { label: "Total", textClass: "text-[#7eb8ff]" },
+] as const;
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
+export const NEURAL_PREDICTIONS = [
+  {
+    home: "ARS",
+    away: "MCI",
+    homeLabel: "Arsenal Win",
+    awayLabel: "Man City Win",
+    winPct: 68,
+    drawPct: 12,
+  },
+  {
+    home: "LIV",
+    away: "CHE",
+    homeLabel: "Liverpool Win",
+    awayLabel: "Chelsea Win",
+    winPct: 54,
+    drawPct: 26,
+  },
+] as const;
+
+// ─── Auth / Register ──────────────────────────────────────────────────────────
+
+export const REGISTER_PERKS = [
+  {
+    title: "Live Match Data",
+    desc: "real-time scores, stats, and updates from global leagues.",
+  },
+  {
+    title: "AI Predictions",
+    desc: "machine-learning powered win probabilities for every match.",
+  },
+  {
+    title: "Dream Team Builder",
+    desc: "assemble your fantasy squad and track chemistry scores.",
+  },
+  {
+    title: "Leaderboard & Voting",
+    desc: "compete with fans, vote on outcomes, earn points.",
+  },
+] as const;
+
+export const PASSWORD_STRENGTH_LEVELS = [
+  {
+    widthClass: "w-1/5",
+    bgClass: "bg-[#ff4d4d]",
+    textClass: "text-[#ff4d4d]",
+    label: "Very Weak",
+  },
+  {
+    widthClass: "w-2/5",
+    bgClass: "bg-[#ff8c00]",
+    textClass: "text-[#ff8c00]",
+    label: "Weak",
+  },
+  {
+    widthClass: "w-3/5",
+    bgClass: "bg-[#ffd700]",
+    textClass: "text-[#ffd700]",
+    label: "Fair",
+  },
+  {
+    widthClass: "w-4/5",
+    bgClass: "bg-[#7fff00]",
+    textClass: "text-[#7fff00]",
+    label: "Good",
+  },
+  {
+    widthClass: "w-full",
+    bgClass: "bg-[#00e640]",
+    textClass: "text-[#00e640]",
+    label: "Strong",
+  },
+] as const;
+
 // ─── Football Leagues ─────────────────────────────────────────────────────────
+
 export const CURRENT_SEASON = "2025 / 26";
-
-export const FIXTURE_LEAGUES = [
-  { key: "FL1", label: "Ligue 1", badge: "L1" },
-  { key: "SA", label: "Serie A", badge: "SA" },
-  { key: "PL", label: "Premier League", badge: "PL" },
-  { key: "PPL", label: "Primeira Liga", badge: "PPL" },
-  { key: "PD", label: "La Liga", badge: "LL" },
-  { key: "BL1", label: "Bundesliga", badge: "BL1" },
-  { key: "CL", label: "Champions League", badge: "CL" },
-];
-
-export const STANDING_LEAGUES = [
-  { key: "PL", label: "Premier League", badge: "PL" },
-  { key: "PD", label: "La Liga", badge: "LL" },
-  { key: "SA", label: "Serie A", badge: "SA" },
-  { key: "BL1", label: "Bundesliga", badge: "BL1" },
-  { key: "FL1", label: "Ligue 1", badge: "L1" },
-];
 
 export const LEAGUES_WITH_ACCENT = [
   { key: "PL", label: "Premier League", badge: "PL", accent: "#3b0764" },
@@ -49,9 +130,32 @@ export const LEAGUES_WITH_ACCENT = [
   { key: "PPL", label: "Primeira Liga", badge: "PPL", accent: "#3b1f00" },
 ];
 
+/** All leagues used for fixture queries (matches backend FIXTURE_LEAGUES) */
+export const FIXTURE_LEAGUES = [
+  { key: "FL1", label: "Ligue 1", badge: "L1" },
+  { key: "SA", label: "Serie A", badge: "SA" },
+  { key: "PL", label: "Premier League", badge: "PL" },
+  { key: "PPL", label: "Primeira Liga", badge: "PPL" },
+  { key: "PD", label: "La Liga", badge: "LL" },
+  { key: "BL1", label: "Bundesliga", badge: "BL1" },
+  { key: "CL", label: "Champions League", badge: "CL" },
+];
+
+// ─── Players ──────────────────────────────────────────────────────────────────
+
+export const PREFERRED_FEET = ["Left", "Right"] as const;
+
 // ─── Player Positions ─────────────────────────────────────────────────────────
 
-export const POSITIONS = [
+/** Attacking positions — mirrors backend VALID_PLAYER_POSITIONS.attacking */
+export const ATTACK_POSITIONS = ["LW", "ST", "RW", "CF", "LF", "RF", "SS"];
+/** Midfield positions — mirrors backend VALID_PLAYER_POSITIONS.midfield */
+export const MIDFIELD_POSITIONS = ["CM", "CAM", "CDM", "LM", "RM", "DM", "AM"];
+/** Defensive positions — mirrors backend VALID_PLAYER_POSITIONS.defense */
+export const DEFENSE_POSITIONS = ["CB", "LB", "RB", "LWB", "RWB", "SW", "GK"];
+
+/** All outfield positions (mirrors backend ALL_POSITIONS, used as fallback) */
+export const ALL_POSITIONS = [
   "ST",
   "CF",
   "LW",
@@ -74,207 +178,41 @@ export const POSITIONS = [
   "SW",
 ];
 
-export const ATTACK_POSITIONS = ["ST", "CF", "LW", "RW", "LF", "RF", "SS"];
-export const MIDFIELD_POSITIONS = ["CM", "CAM", "CDM", "LM", "RM", "DM", "AM"];
-export const DEFENSE_POSITIONS = ["CB", "LB", "RB", "LWB", "RWB", "SW"];
+/** All outfield + GK — use when GK must be included (e.g. Players page filter) */
+export const ALL_POSITIONS_WITH_GK = [...ALL_POSITIONS, "GK"];
 
-// ─── Countries ────────────────────────────────────────────────────────────────
+// ─── Settings — Profile ───────────────────────────────────────────────────────
 
-export const COUNTRIES = [
-  "Afghanistan",
-  "Albania",
-  "Algeria",
-  "Andorra",
-  "Angola",
-  "Antigua and Barbuda",
-  "Argentina",
-  "Armenia",
-  "Australia",
-  "Austria",
-  "Azerbaijan",
-  "Bahamas",
-  "Bahrain",
-  "Bangladesh",
-  "Barbados",
-  "Belarus",
-  "Belgium",
-  "Belize",
-  "Benin",
-  "Bhutan",
-  "Bolivia",
-  "Bosnia and Herzegovina",
-  "Botswana",
-  "Brazil",
-  "Brunei",
-  "Bulgaria",
-  "Burkina Faso",
-  "Burundi",
-  "Cabo Verde",
-  "Cambodia",
-  "Cameroon",
-  "Canada",
-  "Central African Republic",
-  "Chad",
-  "Chile",
-  "China",
-  "Colombia",
-  "Comoros",
-  "Congo",
-  "Costa Rica",
-  "Croatia",
-  "Cuba",
-  "Cyprus",
-  "Czech Republic",
-  "Denmark",
-  "Djibouti",
-  "Dominica",
-  "Dominican Republic",
-  "Ecuador",
-  "Egypt",
-  "El Salvador",
-  "Equatorial Guinea",
-  "Eritrea",
-  "Estonia",
-  "Eswatini",
-  "Ethiopia",
-  "Fiji",
-  "Finland",
-  "France",
-  "Gabon",
-  "Gambia",
-  "Georgia",
-  "Germany",
-  "Ghana",
-  "Greece",
-  "Grenada",
-  "Guatemala",
-  "Guinea",
-  "Guinea-Bissau",
-  "Guyana",
-  "Haiti",
-  "Honduras",
-  "Hungary",
-  "Iceland",
-  "India",
-  "Indonesia",
-  "Iran",
-  "Iraq",
-  "Ireland",
-  "Israel",
-  "Italy",
-  "Jamaica",
-  "Japan",
-  "Jordan",
-  "Kazakhstan",
-  "Kenya",
-  "Kiribati",
-  "Kuwait",
-  "Kyrgyzstan",
-  "Laos",
-  "Latvia",
-  "Lebanon",
-  "Lesotho",
-  "Liberia",
-  "Libya",
-  "Liechtenstein",
-  "Lithuania",
-  "Luxembourg",
-  "Madagascar",
-  "Malawi",
-  "Malaysia",
-  "Maldives",
-  "Mali",
-  "Malta",
-  "Marshall Islands",
-  "Mauritania",
-  "Mauritius",
-  "Mexico",
-  "Micronesia",
-  "Moldova",
-  "Monaco",
-  "Mongolia",
-  "Montenegro",
-  "Morocco",
-  "Mozambique",
-  "Myanmar",
-  "Namibia",
-  "Nauru",
-  "Nepal",
-  "Netherlands",
-  "New Zealand",
-  "Nicaragua",
-  "Niger",
-  "Nigeria",
-  "North Korea",
-  "North Macedonia",
-  "Norway",
-  "Oman",
-  "Pakistan",
-  "Palau",
-  "Palestine",
-  "Panama",
-  "Papua New Guinea",
-  "Paraguay",
-  "Peru",
-  "Philippines",
-  "Poland",
-  "Portugal",
-  "Qatar",
-  "Romania",
-  "Russia",
-  "Rwanda",
-  "Saint Kitts and Nevis",
-  "Saint Lucia",
-  "Saint Vincent and the Grenadines",
-  "Samoa",
-  "San Marino",
-  "Sao Tome and Principe",
-  "Saudi Arabia",
-  "Senegal",
-  "Serbia",
-  "Seychelles",
-  "Sierra Leone",
-  "Singapore",
-  "Slovakia",
-  "Slovenia",
-  "Solomon Islands",
-  "Somalia",
-  "South Africa",
-  "South Korea",
-  "South Sudan",
-  "Spain",
-  "Sri Lanka",
-  "Sudan",
-  "Suriname",
-  "Sweden",
-  "Switzerland",
-  "Syria",
-  "Taiwan",
-  "Tajikistan",
-  "Tanzania",
-  "Thailand",
-  "Timor-Leste",
-  "Togo",
-  "Tonga",
-  "Trinidad and Tobago",
-  "Tunisia",
-  "Turkey",
-  "Turkmenistan",
-  "Tuvalu",
-  "Uganda",
-  "Ukraine",
-  "United Arab Emirates",
-  "United Kingdom",
-  "United States",
-  "Uruguay",
-  "Uzbekistan",
-  "Vanuatu",
-  "Vatican City",
-  "Venezuela",
-  "Vietnam",
-  "Yemen",
-  "Zambia",
-  "Zimbabwe",
+export const FAVORITE_TEAMS = [
+  "Arsenal",
+  "Chelsea",
+  "Liverpool",
+  "Manchester City",
+  "Manchester United",
+  "Tottenham",
+  "Newcastle",
+  "Aston Villa",
+  "Real Madrid",
+  "Barcelona",
+  "Atletico Madrid",
+  "Bayern Munich",
+  "Borussia Dortmund",
+  "PSG",
+  "Juventus",
+  "AC Milan",
+  "Inter Milan",
+  "Napoli",
+  "Porto",
+  "Benfica",
+];
+
+export const SETTINGS_LEAGUES = [
+  "Premier League",
+  "La Liga",
+  "Serie A",
+  "Bundesliga",
+  "Ligue 1",
+  "Primeira Liga",
 ];
 
 // ─── Shared Input Styling ─────────────────────────────────────────────────────
@@ -360,86 +298,11 @@ export const RIGHT_STATS: StatDefinition[] = [
   },
 ];
 
-// ─── Formations ───────────────────────────────────────────────────────────────
-
-export const FORMATIONS = [
-  {
-    id: "4-4-2",
-    label: "4-4-2",
-    description: "Classic Balance",
-    tacticalFit: "A+",
-    rows: [
-      ["ST", "ST"],
-      ["LM", "CM", "CM", "RM"],
-      ["LB", "CB", "CB", "RB"],
-    ],
-  },
-  {
-    id: "4-3-3",
-    label: "4-3-3",
-    description: "Offensive Width",
-    tacticalFit: "A",
-    rows: [
-      ["LW", "ST", "RW"],
-      ["CM", "CM", "CM"],
-      ["LB", "CB", "CB", "RB"],
-    ],
-  },
-  {
-    id: "3-4-3",
-    label: "3-4-3",
-    description: "Midfield Control",
-    tacticalFit: "B+",
-    rows: [
-      ["LW", "ST", "RW"],
-      ["LM", "CM", "CM", "RM"],
-      ["CB", "CB", "CB"],
-    ],
-  },
-  {
-    id: "4-2-2-2",
-    label: "4-2-2-2",
-    description: "Tactical Pivot",
-    tacticalFit: "A-",
-    rows: [
-      ["ST", "ST"],
-      ["AM", "AM"],
-      ["DM", "DM"],
-      ["LB", "CB", "CB", "RB"],
-    ],
-  },
-];
-
 // ─── Settings Sections ────────────────────────────────────────────────────────
 
 export const SETTINGS_SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "appearance", label: "Appearance", icon: Palette },
-  { id: "analytics", label: "Analytics Prefs", icon: BarChart2 },
   { id: "privacy", label: "Privacy & Security", icon: Shield },
-  { id: "data", label: "Data & Export", icon: Download },
-];
-
-export const FAVORITE_TEAMS = [
-  "Arsenal",
-  "Aston Villa",
-  "Chelsea",
-  "Everton",
-  "Liverpool",
-  "Man City",
-  "Man Utd",
-  "Newcastle",
-  "Tottenham",
-  "West Ham",
-];
-
-export const SETTINGS_LEAGUES = [
-  "Premier League",
-  "La Liga",
-  "Bundesliga",
-  "Serie A",
-  "Ligue 1",
 ];
 
 // ─── Settings Options ─────────────────────────────────────────────────────────
@@ -543,184 +406,4 @@ export const DASHBOARD_WIDGETS = [
   "Goals Trend Chart",
   "Upcoming Fixtures",
   "Team Comparison Radar",
-];
-
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-export const MOCK_GOALS_TREND = [
-  { gw: "GW26", goals: 28, conceded: 19 },
-  { gw: "GW27", goals: 31, conceded: 22 },
-  { gw: "GW28", goals: 25, conceded: 18 },
-  { gw: "GW29", goals: 35, conceded: 24 },
-  { gw: "GW30", goals: 29, conceded: 20 },
-  { gw: "GW31", goals: 38, conceded: 27 },
-  { gw: "GW32", goals: 33, conceded: 21 },
-];
-
-export const MOCK_STANDINGS = [
-  {
-    pos: 1,
-    team: "Liverpool",
-    played: 31,
-    w: 23,
-    d: 5,
-    l: 3,
-    gd: "+47",
-    pts: 74,
-    form: ["W", "W", "D", "W", "W"],
-    trend: "up",
-  },
-  {
-    pos: 2,
-    team: "Arsenal",
-    played: 31,
-    w: 21,
-    d: 6,
-    l: 4,
-    gd: "+38",
-    pts: 69,
-    form: ["W", "W", "W", "D", "W"],
-    trend: "up",
-  },
-  {
-    pos: 3,
-    team: "Man City",
-    played: 31,
-    w: 19,
-    d: 7,
-    l: 5,
-    gd: "+29",
-    pts: 64,
-    form: ["L", "W", "W", "D", "W"],
-    trend: "same",
-  },
-  {
-    pos: 4,
-    team: "Chelsea",
-    played: 31,
-    w: 18,
-    d: 5,
-    l: 8,
-    gd: "+18",
-    pts: 59,
-    form: ["W", "L", "W", "W", "L"],
-    trend: "down",
-  },
-  {
-    pos: 5,
-    team: "Aston Villa",
-    played: 31,
-    w: 16,
-    d: 8,
-    l: 7,
-    gd: "+14",
-    pts: 56,
-    form: ["D", "W", "L", "W", "W"],
-    trend: "up",
-  },
-  {
-    pos: 6,
-    team: "Tottenham",
-    played: 31,
-    w: 15,
-    d: 6,
-    l: 10,
-    gd: "+8",
-    pts: 51,
-    form: ["L", "W", "W", "L", "D"],
-    trend: "down",
-  },
-  {
-    pos: 7,
-    team: "Newcastle",
-    played: 31,
-    w: 14,
-    d: 8,
-    l: 9,
-    gd: "+11",
-    pts: 50,
-    form: ["W", "D", "W", "W", "L"],
-    trend: "same",
-  },
-];
-
-export const MOCK_TOP_SCORERS = [
-  { name: "M. Salah", team: "Liverpool", goals: 24, assists: 14, img: "MS" },
-  { name: "E. Haaland", team: "Man City", goals: 21, assists: 6, img: "EH" },
-  { name: "A. Isak", team: "Newcastle", goals: 18, assists: 5, img: "AI" },
-  { name: "B. Saka", team: "Arsenal", goals: 16, assists: 11, img: "BS" },
-  { name: "C. Palmer", team: "Chelsea", goals: 15, assists: 13, img: "CP" },
-];
-
-export const MOCK_FIXTURES = [
-  {
-    home: "Arsenal",
-    away: "Liverpool",
-    time: "12:30",
-    date: "Sat 20 Apr",
-    status: "upcoming",
-  },
-  {
-    home: "Man City",
-    away: "Chelsea",
-    time: "15:00",
-    date: "Sat 20 Apr",
-    status: "upcoming",
-  },
-  {
-    home: "Tottenham",
-    away: "Newcastle",
-    time: "17:30",
-    date: "Sat 20 Apr",
-    status: "live",
-    score: "1-2",
-    min: "64'",
-  },
-  {
-    home: "Aston Villa",
-    away: "Man Utd",
-    time: "14:00",
-    date: "Sun 21 Apr",
-    status: "upcoming",
-  },
-];
-
-export const MOCK_RADAR_DATA = [
-  { stat: "Attack", lfc: 92, afc: 85 },
-  { stat: "Defence", lfc: 88, afc: 82 },
-  { stat: "Possession", lfc: 79, afc: 84 },
-  { stat: "Pressing", lfc: 91, afc: 78 },
-  { stat: "Set Pieces", lfc: 76, afc: 80 },
-  { stat: "Transition", lfc: 88, afc: 75 },
-];
-
-export const MOCK_STAT_CARDS = [
-  {
-    label: "Total Goals",
-    value: "892",
-    sub: "GW 1-32",
-    delta: "+12%",
-    up: true,
-  },
-  {
-    label: "Avg per Match",
-    value: "2.79",
-    sub: "This season",
-    delta: "+0.3",
-    up: true,
-  },
-  {
-    label: "Live Matches",
-    value: "3",
-    sub: "Right now",
-    delta: null,
-    live: true,
-  },
-  {
-    label: "Cards Issued",
-    value: "1,247",
-    sub: "Season total",
-    delta: "-8%",
-    up: false,
-  },
 ];

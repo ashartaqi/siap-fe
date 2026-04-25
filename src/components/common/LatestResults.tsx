@@ -85,7 +85,13 @@ export function LatestResults() {
                   {resultLabel}
                 </span>
                 <span className="font-headline font-bold text-sm truncate">
-                  {m.home_team}{" "}
+                  <span
+                    className={
+                      draw ? "" : homeWon ? "text-[#00fe66]" : "text-[#ff7351]"
+                    }
+                  >
+                    {m.home_team}
+                  </span>{" "}
                   {m.home_team_score !== null && m.home_team_score !== undefined
                     ? m.home_team_score
                     : "-"}{" "}
@@ -93,7 +99,9 @@ export function LatestResults() {
                   {m.away_team_score !== null && m.away_team_score !== undefined
                     ? m.away_team_score
                     : "-"}{" "}
-                  {m.away_team}
+                  <span className="text-on-surface-variant opacity-80 font-medium">
+                    {m.away_team}
+                  </span>
                 </span>
               </div>
             </div>
