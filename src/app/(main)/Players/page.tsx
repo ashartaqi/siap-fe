@@ -289,7 +289,7 @@ function PlayersPageContent() {
     } else {
       addFav.mutate(player.id, {
         onSuccess: () =>
-          showToast(`${player.short_name} added to favourites`, "info"),
+          showToast(`${player.short_name} added to favourites`, "success"),
         onError: () => showToast("Failed to update favourites", "error"),
       });
     }

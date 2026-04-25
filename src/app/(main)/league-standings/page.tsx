@@ -86,7 +86,7 @@ export default function StandingsPage() {
           <div className="relative bg-black border border-[rgba(255,255,255,0.07)] rounded-xl overflow-hidden shadow-xl">
             {/* Table Background Logo - Secondary Layer */}
             {logo && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] opacity-[0.06] pointer-events-none select-none z-0">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] opacity-[0.15] pointer-events-none select-none z-0">
                 <Image
                   src={`${logo}?v=3`}
                   alt=""
