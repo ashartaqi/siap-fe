@@ -29,17 +29,31 @@ export function getStatValue(
   stat: StatKey,
   statFieldMap?: Record<string, string>,
 ): number {
-  const map = statFieldMap ?? DEFAULT_STAT_FIELD_MAP;
-  const field = map[stat];
-  const raw = (player as unknown as Record<string, unknown>)[field];
-  const coerced =
-    typeof raw === "number"
-      ? raw
-      : typeof raw === "string"
-        ? parseFloat(raw)
-        : NaN;
-  if (!isNaN(coerced) && coerced > 0) return Math.round(coerced);
-  // Fallback: use overall when the specific stat is missing/null
+  // 1. Try to find the stat in player_stats (outfield players)
+  if (player.player_stats) {
+    const stats = player.player_stats as unknown as Record<string, unknown>;
+    // Map internal StatKey to IPlayerStats keys
+    const keyMap: Record<StatKey, string> = {
+      pace: "pace",
+      shooting: "shooting",
+      passing: "passing",
+      dribbling: "dribbling",
+      defending: "defending",
+      physic: "physic",
+    };
+    const val = stats[keyMap[stat]];
+    if (typeof val === "number" && val > 0) return val;
+  }
+
+  // 2. Try to find the stat in goalkeeper_stats (GK)
+  // For GK, we might want to map some stats if possible, but usually Dream Player uses outfield stats.
+  // If it's a GK, we can try to use their speed for pace, etc. but it's cleaner to fallback to overall if it's a mismatch.
+  if (player.goalkeeper_stats) {
+    const gk = player.goalkeeper_stats as unknown as Record<string, unknown>;
+    if (stat === "pace") return Number(gk.speed) || player.overall;
+  }
+
+  // 3. Fallback to Overall rating if specific stat is missing or 0
   return player.overall ?? 0;
 }
 

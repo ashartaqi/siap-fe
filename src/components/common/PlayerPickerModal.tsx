@@ -11,6 +11,7 @@ import { INPUT, LABEL } from "@/lib/constants";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { getStatValue } from "@/lib/utils/dreamPlayerUtils";
 import { StatKey } from "@/types/dreamPlayer";
+import { calculateAge } from "@/lib/utils/footballUtils";
 
 interface Props {
   label: string;
@@ -297,8 +298,8 @@ export function PlayerPickerModal({
                       {p.short_name}
                     </div>
                     <div className="text-[10px] text-white/35 mt-0.5 tracking-[0.05em]">
-                      {p.positions?.join(" · ")} · {p.club_name} · Age {p.age} ·{" "}
-                      {p.preferred_foot} foot
+                      {p.positions?.join(" · ")} · {p.club_name} · Age{" "}
+                      {calculateAge(p.dob)} · {p.preferred_foot} foot
                     </div>
                   </div>
                   {isUsed ? (
