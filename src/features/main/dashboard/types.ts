@@ -112,3 +112,30 @@ export interface IDreamTeamResponse {
   total_score: number;
   slots: IDreamTeamSlotResponse[]; // ← changed
 }
+
+export interface ITeamsPayload {
+  limit?: number;
+  skip?: number;
+  name?: string;
+  leagueName?: string;
+  nationalityName?: string;
+  minOverall?: number;
+  maxOverall?: number;
+  minAttack?: number;
+  minMidfield?: number;
+  minDefence?: number;
+}
+
+export interface ITeamsResponse {
+  id: number;
+  name: string;
+  league_name: string;
+  nationality_name: string;
+  overall: number;
+  attack: number;
+  midfield: number;
+  defence: number;
+  home_stadium: string;
+  captain: string;
+  logo_url: string;
+}
