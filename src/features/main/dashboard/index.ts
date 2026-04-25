@@ -22,3 +22,7 @@ export * from "./hooks/useAddFavoritePlayer";
 export * from "./hooks/useRemoveFavoritePlayer";
 export * from "./apis/getTeams";
 export * from "./hooks/useInfiniteTeams";
+export * from "./apis/addFavoriteTeam";
+export * from "./apis/removeFavoriteTeam";
+export * from "./hooks/useAddFavoriteTeam";
+export * from "./hooks/useRemoveFavoriteTeam";

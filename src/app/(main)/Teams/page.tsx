@@ -1,14 +1,25 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  Suspense,
+  useCallback,
+} from "react";
 import Image from "next/image";
 import {
   useInfiniteTeams,
   ITeamsResponse,
   ITeamsPayload,
+  useGetFavoriteTeam,
+  useAddFavoriteTeam,
+  useRemoveFavoriteTeam,
 } from "@/features/main/dashboard";
 import { INPUT, LABEL } from "@/lib/constants";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { Toast } from "@/components/common/Toast";
 
 // ── StatBadge ─────────────────────────────────────────────────────────────────
 
@@ -37,7 +48,13 @@ function StatBadge({ label, value }: { label: string; value?: number }) {
 
 // ── TeamCard ──────────────────────────────────────────────────────────────────
 
-function TeamCard({ team }: { team: ITeamsResponse }) {
+interface TeamCardProps {
+  team: ITeamsResponse;
+  isFavorite: boolean;
+  onStarClick: (team: ITeamsResponse) => void;
+}
+
+function TeamCard({ team, isFavorite, onStarClick }: TeamCardProps) {
   const [imgErr, setImgErr] = useState(false);
 
   return (
@@ -49,8 +66,29 @@ function TeamCard({ team }: { team: ITeamsResponse }) {
         cursor-pointer group
       "
     >
+      {/* Star button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onStarClick(team);
+        }}
+        title={isFavorite ? "Remove from favourites" : "Add to favourites"}
+        className={`
+          absolute top-3 right-3 z-10
+          w-7 h-7 flex items-center justify-center rounded-full
+          border transition-all duration-200 text-[15px] leading-none
+          ${
+            isFavorite
+              ? "text-[#ffd700] border-[rgba(255,215,0,0.35)] bg-[rgba(255,215,0,0.08)] hover:bg-[rgba(255,80,80,0.1)] hover:border-[rgba(255,80,80,0.35)] hover:text-[rgba(255,80,80,0.9)]"
+              : "text-[rgba(255,255,255,0.5)] border-[rgba(71,72,69,0.4)] bg-transparent hover:text-[#ffd700] hover:border-[rgba(255,215,0,0.35)] hover:bg-[rgba(255,215,0,0.06)]"
+          }
+        `}
+      >
+        {isFavorite ? "★" : "☆"}
+      </button>
+
       {/* Top: Logo + Identity */}
-      <div className="flex items-center gap-3 p-4 border-b border-[rgba(71,72,69,0.12)]">
+      <div className="flex items-center gap-3 p-4 border-b border-[rgba(71,72,69,0.12)] pr-12">
         <div className="w-[52px] h-[52px] rounded-lg overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center p-1">
           {team.logo_url && !imgErr ? (
             <Image
@@ -100,7 +138,59 @@ function TeamCard({ team }: { team: ITeamsResponse }) {
   );
 }
 
+// ── Confirm Modal ─────────────────────────────────────────────────────────────
+
+interface ConfirmModalProps {
+  currentFav: string;
+  newFav: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+function ConfirmModal({
+  currentFav,
+  newFav,
+  onConfirm,
+  onCancel,
+}: ConfirmModalProps) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-[#121411] border border-[rgba(71,72,69,0.3)] p-6 rounded-2xl max-w-sm w-full mx-4 shadow-2xl animate-in zoom-in-95 duration-200">
+        <h3 className="font-[Bebas_Neue] text-2xl text-[#fcfcf8] tracking-wider mb-2">
+          Change Favorite Team?
+        </h3>
+        <p className="text-[12px] text-[rgba(255,255,255,0.6)] leading-relaxed mb-6">
+          You already have{" "}
+          <span className="text-[#00ff66] font-bold">{currentFav}</span> as your
+          favorite. Do you want to remove it and set{" "}
+          <span className="text-[#00ff66] font-bold">{newFav}</span> as your new
+          favorite?
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-2.5 rounded-lg border border-[rgba(71,72,69,0.3)] text-[11px] font-bold tracking-widest uppercase hover:bg-white/5 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="flex-1 py-2.5 rounded-lg bg-[#00ff66] text-[#0a0b09] text-[11px] font-bold tracking-widest uppercase hover:bg-[#00e65c] transition-colors shadow-[0_0_20px_rgba(0,255,102,0.2)]"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Teams Page Content ────────────────────────────────────────────────────────
+
+interface ToastState {
+  message: string;
+  type: "success" | "error" | "info";
+}
 
 function TeamsPageContent() {
   const [teamType, setTeamType] = useState<"club" | "national">("club");
@@ -114,6 +204,9 @@ function TeamsPageContent() {
   const [minDefence, setMinDefence] = useState<number | undefined>();
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [pendingFav, setPendingFav] = useState<ITeamsResponse | null>(null);
+
   const observerTarget = useRef<HTMLDivElement>(null);
 
   // Debounce inputs
@@ -148,7 +241,53 @@ function TeamsPageContent() {
     isFetchingNextPage,
   } = useInfiniteTeams(payload);
 
+  const { data: favTeams = [] } = useGetFavoriteTeam();
+  const currentFav = favTeams.length > 0 ? favTeams[0] : null;
+
+  const addFav = useAddFavoriteTeam();
+  const removeFav = useRemoveFavoriteTeam();
+
   const teams = useMemo(() => data?.pages.flat() || [], [data?.pages]);
+
+  const showToast = useCallback((message: string, type: ToastState["type"]) => {
+    setToast({ message, type });
+  }, []);
+
+  function handleStarClick(team: ITeamsResponse) {
+    const isFav = currentFav?.id === team.id;
+
+    if (isFav) {
+      removeFav.mutate(team.id, {
+        onSuccess: () =>
+          showToast(`${team.name} removed from favourites`, "error"),
+        onError: () => showToast("Failed to remove favourite", "error"),
+      });
+    } else if (currentFav) {
+      // Already has a different favorite
+      setPendingFav(team);
+    } else {
+      // No favorite yet
+      addFav.mutate(team.id, {
+        onSuccess: () => showToast(`${team.name} set as favourite`, "success"),
+        onError: () => showToast("Failed to set favourite", "error"),
+      });
+    }
+  }
+
+  async function handleConfirmFavChange() {
+    if (!pendingFav || !currentFav) return;
+
+    try {
+      // Remove current and add new
+      await removeFav.mutateAsync(currentFav.id);
+      await addFav.mutateAsync(pendingFav.id);
+      showToast(`${pendingFav.name} set as new favourite`, "success");
+    } catch (err) {
+      showToast("Failed to update favourite", "error");
+    } finally {
+      setPendingFav(null);
+    }
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -423,7 +562,12 @@ function TeamsPageContent() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 {teams.map((team) => (
-                  <TeamCard key={team.id} team={team} />
+                  <TeamCard
+                    key={team.id}
+                    team={team}
+                    isFavorite={currentFav?.id === team.id}
+                    onStarClick={handleStarClick}
+                  />
                 ))}
               </div>
               {(hasNextPage || isFetchingNextPage) && (
@@ -438,6 +582,25 @@ function TeamsPageContent() {
           )}
         </main>
       </div>
+
+      {/* ── Confirmation Modal ── */}
+      {pendingFav && currentFav && (
+        <ConfirmModal
+          currentFav={currentFav.name}
+          newFav={pendingFav.name}
+          onConfirm={handleConfirmFavChange}
+          onCancel={() => setPendingFav(null)}
+        />
+      )}
+
+      {/* ── Toast ── */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }
