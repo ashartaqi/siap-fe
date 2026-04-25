@@ -13,7 +13,7 @@ import { useGetStandings } from "@/features/main/football";
 
 const LEAGUE_LOGOS: Record<string, string> = {
   PL: "/premierleague.jpg",
-  PD: "/laliga.jpg",
+  PD: "/laliga.png",
   SA: "/serieA.png",
   BL1: "/bundesliga.png",
   FL1: "/ligue1.png",
