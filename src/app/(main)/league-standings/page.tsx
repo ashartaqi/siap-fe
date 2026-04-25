@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Carousel } from "@/components/common/Carousel";
 import { StandingsTable } from "@/components/ui/league-standings/StandingsTable";
 import { FixturesPanel } from "@/components/ui/league-standings/FixturesPanel";
@@ -10,10 +11,20 @@ import {
 } from "@/lib/constants";
 import { useGetStandings } from "@/features/main/football";
 
+const LEAGUE_LOGOS: Record<string, string> = {
+  PL: "/premierleague.jpg",
+  PD: "/laliga.png",
+  SA: "/serieA.jpeg",
+  BL1: "/bundesliga.png",
+  FL1: "/ligue1.png",
+  PPL: "/premieraliga.png",
+};
+
 export default function StandingsPage() {
   const [leagueIdx, setLeagueIdx] = useState(0);
 
   const league = LEAGUES[leagueIdx];
+  const logo = LEAGUE_LOGOS[league.key];
 
   const { data: standings = [], isLoading: loading } = useGetStandings(
     league.key,
@@ -38,15 +49,27 @@ export default function StandingsPage() {
         totalItems={LEAGUES.length}
         onIndexChange={setLeagueIdx}
         title={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center text-[0.6rem] font-bold font-mono tracking-[0.05em] text-white shrink-0"
+              className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden shrink-0"
               style={{ background: league.accent }}
             >
-              {league.badge}
+              {logo ? (
+                <Image
+                  src={logo}
+                  alt={league.label}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain p-1"
+                />
+              ) : (
+                <div className="text-[0.6rem] font-bold font-mono tracking-[0.05em] text-white">
+                  {league.badge}
+                </div>
+              )}
             </div>
             <div>
-              <div className="text-[0.95rem] font-bold tracking-[-0.01em]">
+              <div className="text-[1.1rem] font-bold tracking-[-0.01em]">
                 {league.label}
               </div>
               <div className="text-[0.72rem] text-[#6b6b78] font-mono mt-px">
