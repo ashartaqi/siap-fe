@@ -31,7 +31,7 @@ function PlayerItem({ player }: { player: IPlayersResponse }) {
       </button>
 
       <div
-        onClick={() => router.push(`/Players?playerId=${player.id}`)}
+        onClick={() => router.push(`/player?playerId=${player.id}`)}
         className="p-6 cursor-pointer"
       >
         <div className="flex items-center justify-between gap-4 mb-6 pr-6">

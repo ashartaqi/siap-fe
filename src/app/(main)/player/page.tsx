@@ -413,7 +413,7 @@ function PlayersPageContent() {
           onClose={() => {
             setSelectedPlayer(null);
             if (searchParams.has("playerId")) {
-              router.replace("/players");
+              router.replace("/player");
             }
           }}
           onToggleFavorite={() => handleStarClick(selectedPlayer)}
