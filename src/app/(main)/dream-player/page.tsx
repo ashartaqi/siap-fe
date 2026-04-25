@@ -125,7 +125,14 @@ export default function DreamPlayerPage() {
     setSlotPlayers((prev) => ({ ...prev, [activeSlot]: p }));
     setEditState({
       ...pageState,
-      stats: { ...pageState.stats, [activeSlot]: getStatValue(p, activeSlot) },
+      stats: {
+        ...pageState.stats,
+        [activeSlot]: getStatValue(
+          p,
+          activeSlot,
+          playerAttributes?.stat_field_map,
+        ),
+      },
     });
     setActiveSlot(null);
   };
@@ -460,6 +467,9 @@ export default function DreamPlayerPage() {
           onClose={() => setActiveSlot(null)}
           onSelect={handlePlayerSelect}
           usedPlayerIds={usedPlayerIds}
+          ratingPosition={identity.position}
+          statKey={activeSlot}
+          statFieldMap={playerAttributes?.stat_field_map}
         />
       )}
     </>
