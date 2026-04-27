@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { CreateDreamTeamButton } from "@/components/common/CreateDreamTeamButton";
 import {
   useCreateDreamTeam,
   useGetDreamTeam,
@@ -14,7 +13,14 @@ import { useGetFormations } from "@/features/main/football";
 import { Pitch } from "@/components/ui/dream-team/Pitch";
 import { FormationPicker } from "@/components/ui/dream-team/FormationPicker";
 import { SquadAnalysis } from "@/components/ui/dream-team/SquadAnalysis";
+import { SquadActions } from "@/components/ui/dream-team/SquadActions";
+import { Toast } from "@/components/common/Toast";
 import type { SelectedPlayers } from "@/types/dreamTeam";
+
+interface ToastState {
+  message: string;
+  type: "success" | "error" | "info";
+}
 
 export default function DreamTeamPage() {
   const [activeId, setActiveId] = useState<string>("4-4-2");
@@ -24,9 +30,16 @@ export default function DreamTeamPage() {
   } | null>(null);
   const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayers>({});
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
 
   const { data: formations = [], isLoading: formationsLoading } =
     useGetFormations();
+
+  const showToast = (message: string, type: "success" | "error" | "info") => {
+    setToast({ message, type });
+  };
+
   const { mutate: createDreamTeam, isPending: isCreating } =
     useCreateDreamTeam();
   const { mutate: updateDreamTeam, isPending: isUpdating } =
@@ -36,6 +49,7 @@ export default function DreamTeamPage() {
     useDeleteDreamTeam();
 
   useEffect(() => {
+    // ── Initializing from Saved Team ───────────────────────────────────
     if (existingTeam && !isInitialized) {
       const timer = setTimeout(() => {
         setActiveId(existingTeam.formation);
@@ -51,10 +65,28 @@ export default function DreamTeamPage() {
         });
         setSelectedPlayers(players);
         setIsInitialized(true);
+        setIsEditing(false);
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [existingTeam, isInitialized]);
+
+    // ── Handle Team Deletion ───────────────────────────────────────────
+    if (!existingTeam && isInitialized) {
+      const timer = setTimeout(() => {
+        setIsInitialized(false);
+        setIsEditing(true);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+
+    // ── Default State for New Team ──────────────────────────────────────
+    if (!existingTeam && !isInitialized && formations.length > 0) {
+      const timer = setTimeout(() => {
+        setIsEditing(true);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [existingTeam, isInitialized, formations]);
 
   const active = formations.find((f) => f.id === activeId) ?? formations[0];
 
@@ -73,8 +105,40 @@ export default function DreamTeamPage() {
     return ids;
   }, [selectedPlayers, pickerSlot]);
 
-  const handleSlotClick = (id: string, pos: string) =>
+  const isDirty = useMemo(() => {
+    if (!existingTeam) return filledSlots > 0;
+    if (activeId !== existingTeam.formation) return true;
+
+    const currentSlotPlayers = new Map<string, number>();
+    Object.entries(selectedPlayers).forEach(([id, p]) => {
+      if (p) currentSlotPlayers.set(id, p.id);
+    });
+
+    const existingSlotPlayers = new Map<string, number>();
+    existingTeam.slots.forEach((slot) => {
+      if (slot.player) {
+        const slotId =
+          slot.position === "GK"
+            ? "GK"
+            : `r${slot.row}-c${slot.col}-${slot.position}`;
+        existingSlotPlayers.set(slotId, slot.player.id);
+      }
+    });
+
+    if (currentSlotPlayers.size !== existingSlotPlayers.size) return true;
+    for (const [id, playerId] of currentSlotPlayers) {
+      if (existingSlotPlayers.get(id) !== playerId) return true;
+    }
+    return false;
+  }, [selectedPlayers, activeId, existingTeam, filledSlots]);
+
+  const handleSlotClick = (id: string, pos: string) => {
+    if (!isEditing) {
+      showToast("Click 'Update Squad' to edit", "info");
+      return;
+    }
     setPickerSlot({ id, pos });
+  };
 
   const handlePlayerSelect = (player: IPlayersResponse) => {
     if (!pickerSlot) return;
@@ -82,8 +146,8 @@ export default function DreamTeamPage() {
     setPickerSlot(null);
   };
 
-  const handleCreateOrUpdate = () => {
-    const slots = Object.entries(selectedPlayers)
+  const getPayloadSlots = () => {
+    return Object.entries(selectedPlayers)
       .filter(([, p]) => p)
       .map(([slotId, player]) => {
         if (slotId === "GK") {
@@ -94,18 +158,55 @@ export default function DreamTeamPage() {
             player_id: player!.id,
           };
         }
-
         const parts = slotId.split("-");
         const row = parseInt(parts[0].replace("r", ""));
         const col = parseInt(parts[1].replace("c", ""));
         const position = parts[2];
         return { position, row, col, player_id: player!.id };
       });
+  };
 
-    if (existingTeam) {
-      updateDreamTeam({ formation: activeId, slots });
-    } else {
-      createDreamTeam({ formation: activeId, slots });
+  const handleCreate = () => {
+    createDreamTeam(
+      { formation: activeId, slots: getPayloadSlots() },
+      {
+        onSuccess: () => {
+          showToast("Dream Team created successfully!", "success");
+          setIsEditing(false);
+        },
+        onError: () => showToast("Failed to create Dream Team", "error"),
+      },
+    );
+  };
+
+  const handleUpdate = () => {
+    updateDreamTeam(
+      { formation: activeId, slots: getPayloadSlots() },
+      {
+        onSuccess: () => {
+          showToast("Dream Team updated successfully!", "success");
+          setIsEditing(false);
+        },
+        onError: () => showToast("Failed to update Dream Team", "error"),
+      },
+    );
+  };
+
+  const handleEnterEditMode = () => {
+    setIsEditing(true);
+    showToast("Editing Enabled", "info");
+  };
+
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete your Dream Team?")) {
+      deleteDreamTeam(undefined, {
+        onSuccess: () => {
+          showToast("Dream Team deleted", "success");
+          setSelectedPlayers({});
+          setIsInitialized(false);
+        },
+        onError: () => showToast("Failed to delete team", "error"),
+      });
     }
   };
 
@@ -162,6 +263,10 @@ export default function DreamTeamPage() {
             activeId={activeId}
             formations={formations}
             onSelect={(id) => {
+              if (!isEditing) {
+                showToast("Click 'Update Squad' to change formation", "info");
+                return;
+              }
               setActiveId(id);
               setSelectedPlayers({});
             }}
@@ -177,30 +282,21 @@ export default function DreamTeamPage() {
             />
           )}
 
-          <CreateDreamTeamButton
-            onClick={handleCreateOrUpdate}
-            disabled={!isComplete || isCreating || isUpdating}
+          <SquadActions
+            onCreate={handleCreate}
+            onUpdate={handleUpdate}
+            onDelete={handleDelete}
+            isCreatePending={isCreating}
+            isUpdatePending={isUpdating}
+            isDeletePending={isDeleting}
+            isComplete={isComplete}
+            hasExistingTeam={!!existingTeam}
+            isDirty={isDirty}
+            isEditing={isEditing}
+            onEnterEditMode={handleEnterEditMode}
             filledSlots={filledSlots}
             totalSlots={totalSlots}
-            isUpdate={!!existingTeam}
           />
-
-          {existingTeam && (
-            <button
-              type="button"
-              onClick={() => deleteDreamTeam()}
-              disabled={isDeleting}
-              className={[
-                "mt-2 relative w-full py-3 px-5 rounded-lg border text-[14px] font-bold tracking-[0.1em] uppercase",
-                "font-[Bebas_Neue,sans-serif] transition-all duration-200 overflow-hidden",
-                isDeleting
-                  ? "border-[rgba(71,72,69,0.2)] bg-[rgba(36,39,35,0.4)] text-white/20 cursor-not-allowed"
-                  : "border-[rgba(255,60,60,0.35)] bg-[rgba(255,60,60,0.06)] text-[#ff3c3c] hover:bg-[rgba(255,60,60,0.12)] hover:border-[rgba(255,60,60,0.6)] hover:shadow-[0_0_20px_rgba(255,60,60,0.12)] active:scale-[0.98] cursor-pointer",
-              ].join(" ")}
-            >
-              {isDeleting ? "Deleting…" : "Delete Dream Team"}
-            </button>
-          )}
         </div>
 
         {active && (
@@ -220,6 +316,14 @@ export default function DreamTeamPage() {
           onClose={() => setPickerSlot(null)}
           onSelect={handlePlayerSelect}
           usedPlayerIds={usedPlayerIds}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
         />
       )}
     </>
