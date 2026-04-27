@@ -21,12 +21,12 @@ export const getPlayerAttributes = async (): Promise<IPlayerAttributes> => {
     player_total_stats_max: Number(statsLimitsRes.data?.total ?? 570),
     all_positions: allPositions,
     stat_field_map: {
-      pace: "Pace",
-      shooting: "Shooting",
-      passing: "Passing",
-      dribbling: "Dribbling",
-      defending: "Defending",
-      physic: "Physical",
+      pace: "pace",
+      shooting: "shooting",
+      passing: "passing",
+      dribbling: "dribbling",
+      defending: "defending",
+      physic: "physic",
     },
     default_identity: {
       name: "Your Player",

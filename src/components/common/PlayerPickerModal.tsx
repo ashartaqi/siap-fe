@@ -65,6 +65,7 @@ export function PlayerPickerModal({
     minAge: dMinAge,
     maxAge: dMaxAge,
     preferredFoot: preferredFoot || undefined,
+    orderByStat: statKey,
   };
 
   const {
