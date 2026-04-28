@@ -11,7 +11,6 @@ import { INPUT, LABEL } from "@/lib/constants";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { getStatValue } from "@/lib/utils/dreamPlayerUtils";
 import { StatKey } from "@/types/dreamPlayer";
-import { calculateAge } from "@/lib/utils/footballUtils";
 
 interface Props {
   label: string;
@@ -66,6 +65,7 @@ export function PlayerPickerModal({
     minAge: dMinAge,
     maxAge: dMaxAge,
     preferredFoot: preferredFoot || undefined,
+    orderByStat: statKey,
   };
 
   const {
@@ -105,11 +105,12 @@ export function PlayerPickerModal({
   return (
     <div
       className="fixed inset-0 bg-black/70 backdrop-blur-[6px] z-[1000] flex items-center justify-center"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      onClick={onClose}
     >
-      <div className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]">
+      <div
+        className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(71,72,69,0.2)] shrink-0">
           <div className="flex items-center gap-2.5">
@@ -298,8 +299,8 @@ export function PlayerPickerModal({
                       {p.short_name}
                     </div>
                     <div className="text-[10px] text-white/35 mt-0.5 tracking-[0.05em]">
-                      {p.positions?.join(" · ")} · {p.club_name} · Age{" "}
-                      {calculateAge(p.dob)} · {p.preferred_foot} foot
+                      {p.positions?.join(" · ")} · {p.club_name} · Age {p.age} ·{" "}
+                      {p.preferred_foot} foot
                     </div>
                   </div>
                   {isUsed ? (

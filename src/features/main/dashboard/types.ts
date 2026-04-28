@@ -10,6 +10,7 @@ export interface IPlayersPayload {
   minAge?: number;
   maxAge?: number;
   preferredFoot?: string;
+  orderByStat?: string;
 }
 
 export interface IPlayerStats {

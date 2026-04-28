@@ -42,7 +42,7 @@ export const NAV_ITEMS: NavItem[] = [
     iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
   },
   {
-    href: "/UCL",
+    href: "/ucl",
     label: "UCL",
     Icon: UCLIcon,
     iconHoverClass: "group-hover:fill-[var(--color-neon)]",

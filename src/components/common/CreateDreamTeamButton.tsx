@@ -1,8 +1,10 @@
 "use client";
 
+import { Plus, RefreshCw } from "lucide-react";
+
 interface CreateDreamTeamButtonProps {
   onClick: () => void;
-  disabled?: boolean;
+  disabled: boolean;
   filledSlots: number;
   totalSlots: number;
   isUpdate?: boolean;
@@ -10,43 +12,68 @@ interface CreateDreamTeamButtonProps {
 
 export function CreateDreamTeamButton({
   onClick,
-  disabled = false,
+  disabled,
   filledSlots,
   totalSlots,
   isUpdate = false,
 }: CreateDreamTeamButtonProps) {
-  const remaining = totalSlots - filledSlots;
+  const isComplete = filledSlots === totalSlots && totalSlots > 0;
 
   return (
-    <div>
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        aria-disabled={disabled}
-        className={`
-          relative w-full px-5 py-[14px] rounded-lg border
-          font-[Bebas_Neue,sans-serif] text-[18px] tracking-[0.1em] uppercase
-          overflow-hidden flex items-center justify-center gap-2.5
-          transition-[background,border-color,transform,box-shadow] duration-200
-          ${
-            disabled
-              ? "cursor-not-allowed border-[rgba(71,72,69,0.2)] bg-[rgba(36,39,35,0.4)] text-white/20"
-              : "cursor-pointer border-[rgba(0,255,102,0.4)] bg-[rgba(0,255,102,0.06)] text-[#00ff66] hover:bg-[rgba(0,255,102,0.12)] hover:border-[rgba(0,255,102,0.7)] hover:shadow-[0_0_24px_rgba(0,255,102,0.15),0_0_0_1px_rgba(0,255,102,0.1)] hover:-translate-y-px active:scale-[0.98]"
-          }
-        `}
-      >
-        <span className="font-['Material_Symbols_Outlined'] text-[18px] leading-none">
-          {disabled ? "lock" : isUpdate ? "update" : "SIAP"}
-        </span>
-        {isUpdate ? "Update Dream Team" : "Create Dream Team"}
-      </button>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        relative w-full py-4 px-6 rounded-xl border-none cursor-pointer overflow-hidden
+        transition-all duration-300 group
+        ${
+          disabled
+            ? "bg-[rgba(36,39,35,0.6)] text-[rgba(252,252,248,0.2)] cursor-not-allowed"
+            : "bg-gradient-to-br from-[#00ff66] to-[#00cc52] text-[#0a0b09] shadow-[0_0_20px_rgba(0,255,102,0.2)] hover:shadow-[0_0_30px_rgba(0,255,102,0.4)] hover:-translate-y-0.5 active:scale-[0.98]"
+        }
+      `}
+    >
+      {/* Shine effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine" />
 
-      {disabled && remaining > 0 && (
-        <p className="font-[Oxanium,sans-serif] text-[9px] font-bold tracking-[0.18em] uppercase text-white/25 text-center mt-1.5">
-          {remaining} more player{remaining !== 1 ? "s" : ""} needed
-        </p>
-      )}
-    </div>
+      <div className="relative flex items-center justify-between z-10">
+        <div className="flex items-center gap-3">
+          <div
+            className={`
+            w-8 h-8 rounded-lg flex items-center justify-center
+            ${disabled ? "bg-white/5" : "bg-black/10"}
+          `}
+          >
+            {isUpdate ? (
+              <RefreshCw
+                className={`w-4 h-4 ${disabled ? "opacity-20" : "animate-spin-slow"}`}
+              />
+            ) : (
+              <Plus className={`w-5 h-5 ${disabled ? "opacity-20" : ""}`} />
+            )}
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="font-[Bebas_Neue,sans-serif] text-[18px] tracking-[0.02em] leading-none uppercase">
+              {isUpdate ? "Update Squad" : "Finalize Dream Team"}
+            </span>
+            <span
+              className={`text-[9px] font-bold tracking-[0.1em] uppercase ${disabled ? "text-white/20" : "text-black/50"}`}
+            >
+              {isComplete
+                ? "Squad is Ready"
+                : `Assigned: ${filledSlots} / ${totalSlots}`}
+            </span>
+          </div>
+        </div>
+
+        {!disabled && (
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-black/20 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-black/20 animate-pulse [animation-delay:200ms]" />
+            <div className="w-1.5 h-1.5 rounded-full bg-black/20 animate-pulse [animation-delay:400ms]" />
+          </div>
+        )}
+      </div>
+    </button>
   );
 }
