@@ -12,7 +12,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const isUCL = pathname === "/UCL";
+  const isUCL = pathname === "/ucl" || pathname === "/settings";
 
   const handleLogout = async () => {
     await clearToken();
