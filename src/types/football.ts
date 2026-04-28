@@ -43,7 +43,6 @@ export interface Club {
   midfield: number;
   defence: number;
   home_stadium: string;
-  captain: string;
   logo_url: string;
 }
 

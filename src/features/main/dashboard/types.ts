@@ -144,6 +144,5 @@ export interface ITeamsResponse {
   midfield: number;
   defence: number;
   home_stadium: string;
-  captain: string;
   logo_url: string;
 }
