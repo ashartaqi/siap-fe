@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useState, useMemo } from "react";
-import { Flag, Hash, Star, Plus, RefreshCw } from "lucide-react";
+import { Flag, Hash, Star, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useCreateDreamPlayer } from "@/features/main/dashboard/hooks/useCreateDreamPlayer";
 import { useUpdateDreamPlayer } from "@/features/main/dashboard/hooks/useUpdateDreamPlayer";
+import { useDeleteDreamPlayer } from "@/features/main/dashboard/hooks/useDeleteDreamPlayer";
 import { useGetDreamPlayers } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
 import { useGetPlayerAttributes } from "@/features/main/football";
 import { IDreamPlayerPayload } from "@/features/main/dashboard/types";
@@ -70,12 +71,15 @@ export default function DreamPlayerPage() {
   const [activeSlot, setActiveSlot] = useState<StatKey | null>(null);
   const [created, setCreated] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { data: savedPlayer, isLoading: isFetching } = useGetDreamPlayers();
   const { mutate: createDreamPlayer, isPending: isCreating } =
     useCreateDreamPlayer();
   const { mutate: updateDreamPlayer, isPending: isUpdating } =
     useUpdateDreamPlayer();
+  const { mutate: deleteDreamPlayer, isPending: isDeleting } =
+    useDeleteDreamPlayer();
   const isPending = isCreating || isUpdating;
   const isExisting = !!savedPlayer;
 
@@ -90,11 +94,12 @@ export default function DreamPlayerPage() {
   const isReadOnly = mode === "view";
 
   const overall = useMemo(() => {
+    if (isReadOnly && savedPlayer?.overall != null) return savedPlayer.overall;
     const values = Object.values(stats).filter((v) => v > 0);
     return values.length === 0
       ? 0
       : Math.round(values.reduce((a, b) => a + b, 0) / values.length);
-  }, [stats]);
+  }, [isReadOnly, savedPlayer?.overall, stats]);
 
   const usedPlayerIds = useMemo<Set<number>>(() => {
     const ids = new Set<number>();
@@ -149,10 +154,30 @@ export default function DreamPlayerPage() {
     );
   };
 
+  const handleDelete = () => {
+    setErrorMsg(null);
+    deleteDreamPlayer(undefined, {
+      onSuccess: () => {
+        setConfirmDelete(false);
+        setEditState(null);
+        setSlotPlayers(defaultSlotPlayers);
+      },
+      onError: (err) => {
+        setConfirmDelete(false);
+        setErrorMsg(extractErrorMessage(err));
+        setTimeout(() => setErrorMsg(null), 4000);
+      },
+    });
+  };
+
   const handleCreate = () => {
     setCreated(false);
     setErrorMsg(null);
-    const payload: IDreamPlayerPayload = { ...identity, ...stats };
+    const { position: _p, ...identityWithoutPosition } = identity;
+    const payload: IDreamPlayerPayload = {
+      ...identityWithoutPosition,
+      ...stats,
+    };
     const mutate = isExisting ? updateDreamPlayer : createDreamPlayer;
     mutate(payload, {
       onSuccess: () => {
@@ -293,12 +318,14 @@ export default function DreamPlayerPage() {
                       inputClassName="text-[18px] md:text-[20px] leading-none uppercase tracking-wide w-full font-[Bebas_Neue,sans-serif]"
                       readOnly={isReadOnly}
                     />
-                    <PositionPicker
-                      value={identity.position}
-                      onChange={(v) => patchIdentity("position", v)}
-                      readOnly={isReadOnly}
-                      positions={playerAttributes?.all_positions}
-                    />
+                    {isReadOnly && (
+                      <PositionPicker
+                        value={identity.position}
+                        onChange={(v) => patchIdentity("position", v)}
+                        readOnly
+                        positions={playerAttributes?.all_positions}
+                      />
+                    )}
                   </div>
                 </div>
 
@@ -396,13 +423,41 @@ export default function DreamPlayerPage() {
 
         <div className="relative z-30 flex flex-col items-center gap-3 pb-8 md:pb-10 px-6">
           {isReadOnly ? (
-            <button
-              onClick={handleChangePlayer}
-              className="flex items-center gap-3 px-8 md:px-10 py-[11px] md:py-[13px] rounded-xl border border-[rgba(0,254,102,0.25)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.75rem] md:text-[0.85rem] transition-all duration-150 font-[Oxanium,sans-serif] text-[rgba(0,254,102,0.7)] bg-[rgba(0,254,102,0.05)] hover:border-[rgba(0,254,102,0.5)] hover:text-[#00fe66] hover:-translate-y-0.5"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Change Dream Player
-            </button>
+            <div className="flex flex-col items-center gap-2 w-full max-w-xs">
+              <button
+                onClick={handleChangePlayer}
+                className="w-full flex items-center justify-center gap-3 px-8 md:px-10 py-[11px] md:py-[13px] rounded-xl border border-[rgba(0,254,102,0.25)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.75rem] md:text-[0.85rem] transition-all duration-150 font-[Oxanium,sans-serif] text-[rgba(0,254,102,0.7)] bg-[rgba(0,254,102,0.05)] hover:border-[rgba(0,254,102,0.5)] hover:text-[#00fe66] hover:-translate-y-0.5"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Change Dream Player
+              </button>
+              {confirmDelete ? (
+                <div className="flex items-center gap-2 w-full">
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-[10px] rounded-xl border border-[rgba(255,60,60,0.5)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.7rem] transition-all duration-150 font-[Oxanium,sans-serif] text-[rgba(255,90,90,0.9)] bg-[rgba(255,50,50,0.1)] hover:bg-[rgba(255,50,50,0.18)] disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {isDeleting ? "Deleting..." : "Confirm Delete"}
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={isDeleting}
+                    className="px-4 py-[10px] rounded-xl border border-[rgba(71,72,69,0.3)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.7rem] transition-all duration-150 font-[Oxanium,sans-serif] text-white/40 hover:text-white/70 hover:border-[rgba(71,72,69,0.6)] disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-[10px] rounded-xl border border-[rgba(255,60,60,0.2)] cursor-pointer uppercase font-bold tracking-[0.1em] text-[0.7rem] transition-all duration-150 font-[Oxanium,sans-serif] text-[rgba(255,90,90,0.5)] bg-transparent hover:border-[rgba(255,60,60,0.45)] hover:text-[rgba(255,90,90,0.85)]"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete Dream Player
+                </button>
+              )}
+            </div>
           ) : (
             <>
               {isPending && (

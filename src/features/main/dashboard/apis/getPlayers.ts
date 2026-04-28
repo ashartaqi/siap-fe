@@ -17,6 +17,12 @@ export const getPlayers = async (
     preferred_foot: payload.preferredFoot,
     skip: payload.skip,
     order_by_stat: payload.orderByStat,
+    pace: payload.pace,
+    shooting: payload.shooting,
+    passing: payload.passing,
+    dribbling: payload.dribbling,
+    defending: payload.defending,
+    physic: payload.physic,
   };
 
   const res = await axiosClient.get<IPlayersResponse[]>("/players", { params });
