@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { GetOptimizedTeamButton } from "@/components/common/GetOptimizedTeamButton";
 import {
   useCreateDreamTeam,
   useGetDreamTeam,
   useDeleteDreamTeam,
   useUpdateDreamTeam,
+  useGetOptimizedDreamTeam,
 } from "@/features/main/dashboard";
 import { IPlayersResponse } from "@/features/main/dashboard";
 import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
@@ -47,6 +49,8 @@ export default function DreamTeamPage() {
   const { data: existingTeam, isLoading: teamLoading } = useGetDreamTeam();
   const { mutate: deleteDreamTeam, isPending: isDeleting } =
     useDeleteDreamTeam();
+  const { mutate: getOptimizedTeam, isPending: isOptimizing } =
+    useGetOptimizedDreamTeam();
 
   useEffect(() => {
     // ── Initializing from Saved Team ───────────────────────────────────
@@ -144,6 +148,24 @@ export default function DreamTeamPage() {
     if (!pickerSlot) return;
     setSelectedPlayers((prev) => ({ ...prev, [pickerSlot.id]: player }));
     setPickerSlot(null);
+  };
+
+  const handleGetOptimizedTeam = () => {
+    getOptimizedTeam(activeId, {
+      onSuccess: (data) => {
+        const players: SelectedPlayers = {};
+        data.slots.forEach((slot) => {
+          if (slot.player) {
+            const slotId =
+              slot.position === "GK"
+                ? "GK"
+                : `r${slot.row}-c${slot.col}-${slot.position}`;
+            players[slotId] = slot.player;
+          }
+        });
+        setSelectedPlayers(players);
+      },
+    });
   };
 
   const getPayloadSlots = () => {
@@ -270,6 +292,11 @@ export default function DreamTeamPage() {
               setActiveId(id);
               setSelectedPlayers({});
             }}
+          />
+
+          <GetOptimizedTeamButton
+            onClick={handleGetOptimizedTeam}
+            isLoading={isOptimizing}
           />
 
           {active && (

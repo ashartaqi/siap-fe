@@ -16,6 +16,8 @@ export * from "./apis/updateDreamTeam";
 export * from "./hooks/useUpdateDreamTeam";
 export * from "./apis/updateDreamTeamSlot";
 export * from "./hooks/useUpdateDreamTeamSlot";
+export * from "./apis/getOptimizedDreamTeam";
+export * from "./hooks/useGetOptimizedDreamTeam";
 export * from "./hooks/useGetFavoritePlayers";
 export * from "./hooks/useGetFavoriteTeam";
 export * from "./hooks/useAddFavoritePlayer";
