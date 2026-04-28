@@ -42,6 +42,7 @@ export function PlayerPickerModal({
   const [minAge, setMinAge] = useState<number | undefined>();
   const [maxAge, setMaxAge] = useState<number | undefined>();
   const [preferredFoot, setPreferredFoot] = useState("");
+  const [statFilter, setStatFilter] = useState<number | undefined>();
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -53,6 +54,7 @@ export function PlayerPickerModal({
   const dNationality = useDebounce(nationalityName, 500);
   const dMinAge = useDebounce(minAge, 500);
   const dMaxAge = useDebounce(maxAge, 500);
+  const dStatFilter = useDebounce(statFilter, 500);
 
   const payload: IPlayersPayload = {
     limit: 10,
@@ -66,6 +68,7 @@ export function PlayerPickerModal({
     maxAge: dMaxAge,
     preferredFoot: preferredFoot || undefined,
     orderByStat: statKey,
+    ...(statKey && dStatFilter !== undefined ? { [statKey]: dStatFilter } : {}),
   };
 
   const {
@@ -140,6 +143,22 @@ export function PlayerPickerModal({
               onChange={(e) => setName(e.target.value)}
             />
           </div>
+          {statKey && (
+            <div className="col-span-2 flex flex-col gap-1.5">
+              <span className={LABEL}>
+                {statKey.charAt(0).toUpperCase() + statKey.slice(1)} (exact)
+              </span>
+              <input
+                className={INPUT}
+                type="number"
+                placeholder={`Filter by ${statKey} value...`}
+                value={statFilter ?? ""}
+                onChange={(e) =>
+                  setStatFilter(e.target.value ? +e.target.value : undefined)
+                }
+              />
+            </div>
+          )}
           <div className="col-span-2 flex flex-col gap-1.5">
             <span className={LABEL}>Team ID</span>
             <input

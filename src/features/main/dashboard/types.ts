@@ -11,6 +11,12 @@ export interface IPlayersPayload {
   maxAge?: number;
   preferredFoot?: string;
   orderByStat?: string;
+  pace?: number;
+  shooting?: number;
+  passing?: number;
+  dribbling?: number;
+  defending?: number;
+  physic?: number;
 }
 
 export interface IPlayerStats {
@@ -56,7 +62,6 @@ export interface IPlayersResponse {
 
 export interface IDreamPlayerPayload {
   name: string;
-  position: string;
   nationality: string;
   shirt_number: number;
   preferred_foot: string;
@@ -80,6 +85,7 @@ export interface IDreamPlayerResponse {
   dribbling: number;
   defending: number;
   physic: number;
+  overall?: number;
 }
 
 // What you SEND to backend — no id
