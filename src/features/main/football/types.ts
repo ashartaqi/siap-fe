@@ -31,3 +31,27 @@ export interface IPlayerAttributes {
   };
   default_stats: Record<string, number>;
 }
+
+export interface IVotePayload {
+  fixture_id: number;
+  prediction_home_score: number;
+  prediction_away_score: number;
+}
+
+export interface IVoteResponse {
+  id: number;
+  user_id: number;
+  fixture_id: number;
+  prediction_home_score: number;
+  prediction_away_score: number;
+}
+
+export interface IVoteWithUser {
+  id: number;
+  user_id: number;
+  username: string;
+  first_name: string;
+  fixture_id: number;
+  prediction_home_score: number;
+  prediction_away_score: number;
+}
