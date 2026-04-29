@@ -8,7 +8,6 @@ import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { useRegister } from "@/features/auth/hooks/useRegister";
 import { PASSWORD_STRENGTH_LEVELS, REGISTER_PERKS } from "@/lib/constants";
-import { setToken } from "@/lib/auth/token";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
@@ -96,15 +95,9 @@ export default function RegisterPage() {
           confirm_password: confirmPw,
         },
         {
-          onSuccess: (data) => {
-            if (data.token) {
-              setToken(data.token);
-              toast.success("Account created! Welcome to SIAP.");
-              router.push("/dashboard");
-            } else {
-              toast.success("Account created!");
-              router.push("/login");
-            }
+          onSuccess: () => {
+            toast.success("Account created! Please sign in.");
+            router.push("/login");
           },
           onError: (err) => {
             console.error("Registration failed:", err);

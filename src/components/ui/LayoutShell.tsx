@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { clearToken } from "@/lib/auth/token";
+import { logout } from "@/features/auth/apis/logout";
 import { NAV_ITEMS } from "@/lib/navItems";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
@@ -15,7 +16,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   const isUCL = pathname === "/ucl" || pathname === "/settings";
 
   const handleLogout = async () => {
-    await clearToken();
+    await logout().catch(() => {});
+    clearToken();
     router.push("/login");
   };
 

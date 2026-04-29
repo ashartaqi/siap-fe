@@ -42,7 +42,7 @@ export default function LoginPage() {
         { email, password },
         {
           onSuccess: (data) => {
-            setToken(data.token);
+            setToken(data.access_token);
             toast.success("Successfully signed in!");
             router.push("/dashboard");
           },
