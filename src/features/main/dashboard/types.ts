@@ -49,7 +49,6 @@ export interface IPlayersResponse {
   weight_kg: number;
   club_team_id?: number | null;
   club_name?: string | null;
-  nationality_id: number;
   nationality_name: string;
   preferred_foot: string;
   weak_foot: number;

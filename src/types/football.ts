@@ -22,7 +22,7 @@ export interface Player {
   player_positions: string;
   overall: number;
   age: number;
-  club_name: string;
+  club_name?: string | null;
   nationality_name: string;
   pace?: number;
   shooting?: number;
