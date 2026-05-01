@@ -20,3 +20,5 @@ export * from "./hooks/useCreateVote";
 export * from "./hooks/useUpdateVote";
 export * from "./hooks/useGetFixtureVotes";
 export * from "./hooks/useDeleteVote";
+export * from "./hooks/useMatchComments";
+export * from "./apis/matchComments";

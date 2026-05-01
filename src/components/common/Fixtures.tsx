@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Star, Vote, Users, CheckCircle } from "lucide-react";
+import { Star, Vote, Users, CheckCircle, MessageSquare } from "lucide-react";
 import { formatMatchTime, formatShortDate } from "@/lib/utils/footballUtils";
 import {
   useGetUpcomingFixtures,
@@ -9,6 +9,7 @@ import {
 } from "@/features/main/football";
 import { VoteModal } from "./VoteModal";
 import { ViewVotesModal } from "./ViewVotesModal";
+import { MatchCommentsModal } from "./MatchCommentsModal";
 
 function MatchCard({
   m,
@@ -21,6 +22,7 @@ function MatchCard({
 }) {
   const [showVoteModal, setShowVoteModal] = useState(false);
   const [showViewVotes, setShowViewVotes] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   const isVotedOn = userVoteFixtureId === Number(m.id);
 
@@ -72,27 +74,37 @@ function MatchCard({
           </div>
         </div>
 
-        {/* Vote / View Votes buttons */}
-        <div className="flex gap-2 mt-4 pt-3 border-t border-outline-variant/10">
-          {variant === "scheduled" && (
+        {/* Action buttons */}
+        <div className="flex flex-col gap-2 mt-4 pt-3 border-t border-outline-variant/10">
+          <div className="flex gap-2">
+            {variant === "scheduled" && (
+              <button
+                onClick={() => setShowVoteModal(true)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[10px] font-label font-bold uppercase tracking-widest transition-all ${
+                  isVotedOn
+                    ? "bg-primary-container/15 text-primary-container border border-primary-container/30 hover:bg-primary-container/25"
+                    : "bg-surface-container-highest text-on-surface-variant hover:bg-primary-container/10 hover:text-primary-container border border-outline-variant/10"
+                }`}
+              >
+                <Vote className="w-3.5 h-3.5" />
+                {isVotedOn ? "Change" : "Vote"}
+              </button>
+            )}
             <button
-              onClick={() => setShowVoteModal(true)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[10px] font-label font-bold uppercase tracking-widest transition-all ${
-                isVotedOn
-                  ? "bg-primary-container/15 text-primary-container border border-primary-container/30 hover:bg-primary-container/25"
-                  : "bg-surface-container-highest text-on-surface-variant hover:bg-primary-container/10 hover:text-primary-container border border-outline-variant/10"
-              }`}
+              onClick={() => setShowViewVotes(true)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-surface-container-highest text-on-surface-variant text-[10px] font-label font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors border border-outline-variant/10"
             >
-              <Vote className="w-3.5 h-3.5" />
-              {isVotedOn ? "Change Vote" : "Vote"}
+              <Users className="w-3.5 h-3.5" />
+              View Votes
             </button>
-          )}
+          </div>
+
           <button
-            onClick={() => setShowViewVotes(true)}
-            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-surface-container-highest text-on-surface-variant text-[10px] font-label font-bold uppercase tracking-widest hover:bg-surface-container-high transition-colors border border-outline-variant/10"
+            onClick={() => setShowComments(true)}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-[rgba(255,255,255,0.03)] text-[#aaaba7] text-[10px] font-label font-bold uppercase tracking-widest hover:bg-[rgba(0,255,102,0.1)] hover:text-[#00ff66] transition-all border border-[rgba(255,255,255,0.05)] hover:border-[#00ff66]/20"
           >
-            <Users className="w-3.5 h-3.5" />
-            View Votes
+            <MessageSquare className="w-3.5 h-3.5" />
+            Match Chat
           </button>
         </div>
       </div>
@@ -102,6 +114,9 @@ function MatchCard({
       )}
       {showViewVotes && (
         <ViewVotesModal match={m} onClose={() => setShowViewVotes(false)} />
+      )}
+      {showComments && (
+        <MatchCommentsModal match={m} onClose={() => setShowComments(false)} />
       )}
     </>
   );
