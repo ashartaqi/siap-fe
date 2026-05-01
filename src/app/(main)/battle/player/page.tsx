@@ -28,8 +28,11 @@ export default function PlayerBattlePage() {
 
   const { data: users = [] } = useGetBattleUsers();
   const { data: myPlayer } = useGetDreamPlayer();
-  const { data: opponentPlayer, isLoading: loadingOpponent } =
-    useGetUserCustomPlayer(opponentId);
+  const {
+    data: opponentPlayer,
+    isLoading: loadingOpponent,
+    isError: errorOpponent,
+  } = useGetUserCustomPlayer(opponentId);
 
   const battleUsers = users.filter((u) => u.has_player);
 
@@ -178,6 +181,11 @@ export default function PlayerBattlePage() {
                 <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-[#555] group-hover:text-[#888]">
                   <Zap size={20} />
                 </div>
+                {errorOpponent && (
+                  <p className="absolute -bottom-6 left-0 text-[10px] text-[#ff4444] font-bold uppercase tracking-widest">
+                    Failed to fetch opponent data
+                  </p>
+                )}
               </div>
 
               <button
@@ -222,13 +230,13 @@ export default function PlayerBattlePage() {
                 <div className="flex items-center gap-8 mb-12 w-full max-w-4xl justify-center">
                   <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#333]" />
                   <div
-                    className={`text-6xl font-[Bebas_Neue] uppercase tracking-tighter ${battleResult.winner === "me" ? "text-[#00ff66]" : battleResult.winner === "opponent" ? "text-[#ff4444]" : "text-[#aaaba7]"}`}
+                    className={`text-6xl font-[Bebas_Neue] uppercase tracking-tighter ${battleResult.winner === "me" ? "text-[#00ff66]" : battleResult.winner === "opponent" ? "text-[#ff4444]" : "text-[#ffcc00]"}`}
                   >
                     {battleResult.winner === "me"
                       ? "VICTORY"
                       : battleResult.winner === "opponent"
                         ? "DEFEAT"
-                        : "STALEMATE"}
+                        : "DRAW"}
                   </div>
                   <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#333]" />
                 </div>
