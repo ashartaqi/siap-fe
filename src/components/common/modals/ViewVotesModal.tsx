@@ -2,7 +2,7 @@
 
 import React from "react";
 import { X, Users, Trophy } from "lucide-react";
-import { Match } from "@/types/football";
+import { Match } from "@/features/main/football/types";
 import { useGetFixtureVotes } from "@/features/main/football";
 
 interface ViewVotesModalProps {

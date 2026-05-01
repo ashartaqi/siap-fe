@@ -9,7 +9,7 @@ const useCreateVote = () => {
   return useMutation<IVoteResponse, TAxiosError, IVotePayload>({
     mutationFn: (payload) => createVote(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-vote"] });
+      queryClient.invalidateQueries({ queryKey: ["user-votes"] });
       queryClient.invalidateQueries({ queryKey: ["fixture-votes"] });
     },
   });

@@ -7,6 +7,7 @@ export const useGetMatchComments = (matchId: number | string) => {
     queryFn: () => getMatchComments(matchId),
     enabled: !!matchId,
     refetchInterval: 5000,
+    refetchIntervalInBackground: false,
   });
 };
 

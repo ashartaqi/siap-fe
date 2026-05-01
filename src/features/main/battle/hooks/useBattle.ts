@@ -3,7 +3,7 @@ import {
   getBattleUsers,
   getUserDreamTeam,
   getUserCustomPlayer,
-  claimBattleReward,
+  simulateBattle,
 } from "../apis/battle";
 
 export const useGetBattleUsers = () => {
@@ -28,18 +28,6 @@ export const useGetUserCustomPlayer = (userId: number | null) => {
     enabled: !!userId,
   });
 };
-
-export const useClaimBattleReward = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (result: "win" | "loss" | "draw") => claimBattleReward(result),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-me"] });
-    },
-  });
-};
-
-import { simulateBattle } from "../apis/battle";
 
 export const useSimulateBattle = () => {
   const queryClient = useQueryClient();

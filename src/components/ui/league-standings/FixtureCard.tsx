@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { MessageSquare } from "lucide-react";
-import { Match } from "@/types/football";
+import { Match } from "@/features/main/football/types";
 import { fmtDate, fmtTime } from "@/lib/utils/footballUtils";
-import { MatchCommentsModal } from "@/components/common/MatchCommentsModal";
+import { MatchCommentsModal } from "@/components/common/modals/MatchCommentsModal";
 
 export function FixtureCard({ fx }: { fx: Match }) {
   const [showComments, setShowComments] = useState(false);

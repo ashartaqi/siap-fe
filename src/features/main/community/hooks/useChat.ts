@@ -6,7 +6,8 @@ export const useGetChatMessages = () => {
   return useQuery({
     queryKey: ["chat-messages"],
     queryFn: getChatMessages,
-    refetchInterval: 3000, // Poll every 3 seconds for simplicity
+    refetchInterval: 3000,
+    refetchIntervalInBackground: false,
   });
 };
 

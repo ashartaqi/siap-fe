@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import { StandingRow } from "@/types/football";
+import { StandingRow } from "@/features/main/football/types";
 
 export const getStandings = async (
   league: string,

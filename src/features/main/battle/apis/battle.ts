@@ -11,30 +11,6 @@ export interface BattleUser {
   has_player: boolean;
 }
 
-export async function getBattleUsers(): Promise<BattleUser[]> {
-  const response = await axiosClient.get("/battle/users");
-  return response.data;
-}
-
-export async function getUserDreamTeam(
-  userId: number,
-): Promise<IDreamTeamResponse> {
-  const response = await axiosClient.get(`/battle/team/${userId}`);
-  return response.data;
-}
-
-export async function getUserCustomPlayer(
-  userId: number,
-): Promise<IDreamPlayerResponse> {
-  const response = await axiosClient.get(`/battle/player/${userId}`);
-  return response.data;
-}
-
-export async function claimBattleReward(result: "win" | "loss" | "draw") {
-  const response = await axiosClient.post(`/battle/reward?result=${result}`);
-  return response.data;
-}
-
 export interface IMatchSimulationStats {
   shots1: number;
   shots2: number;
@@ -52,6 +28,25 @@ export interface IMatchSimulationResult {
   winner: "me" | "opponent" | "draw";
   reward: number;
   new_balance: number;
+}
+
+export async function getBattleUsers(): Promise<BattleUser[]> {
+  const response = await axiosClient.get("/battle/users");
+  return response.data;
+}
+
+export async function getUserDreamTeam(
+  userId: number,
+): Promise<IDreamTeamResponse> {
+  const response = await axiosClient.get(`/battle/team/${userId}`);
+  return response.data;
+}
+
+export async function getUserCustomPlayer(
+  userId: number,
+): Promise<IDreamPlayerResponse> {
+  const response = await axiosClient.get(`/battle/player/${userId}`);
+  return response.data;
 }
 
 export async function simulateBattle(

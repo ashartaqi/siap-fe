@@ -1,30 +1,30 @@
 "use client";
 
 import React, { useState } from "react";
-import { Star, Vote, Users, CheckCircle, MessageSquare } from "lucide-react";
+import { Star, Vote, Users, MessageSquare } from "lucide-react";
 import { formatMatchTime, formatShortDate } from "@/lib/utils/footballUtils";
 import {
   useGetUpcomingFixtures,
-  useGetUserVote,
+  useGetUserVotes,
 } from "@/features/main/football";
-import { VoteModal } from "./VoteModal";
-import { ViewVotesModal } from "./ViewVotesModal";
-import { MatchCommentsModal } from "./MatchCommentsModal";
+import { VoteModal } from "./modals/VoteModal";
+import { ViewVotesModal } from "./modals/ViewVotesModal";
+import { MatchCommentsModal } from "./modals/MatchCommentsModal";
 
 function MatchCard({
   m,
   variant,
-  userVoteFixtureId,
+  votedFixtureIds,
 }: {
-  m: import("@/types/football").Match;
+  m: import("@/features/main/football/types").Match;
   variant: "scheduled" | "finished";
-  userVoteFixtureId?: number | null;
+  votedFixtureIds: Set<number>;
 }) {
   const [showVoteModal, setShowVoteModal] = useState(false);
   const [showViewVotes, setShowViewVotes] = useState(false);
   const [showComments, setShowComments] = useState(false);
 
-  const isVotedOn = userVoteFixtureId === Number(m.id);
+  const isVotedOn = votedFixtureIds.has(Number(m.id));
 
   return (
     <>
@@ -41,15 +41,7 @@ function MatchCard({
               ? formatMatchTime(m.date ?? "")
               : formatShortDate(m.date ?? "")}
           </span>
-          <div className="flex items-center gap-1.5">
-            {isVotedOn && (
-              <span className="flex items-center gap-1 text-[9px] font-label font-bold text-primary-container uppercase tracking-wider bg-primary-container/10 px-1.5 py-0.5 rounded">
-                <CheckCircle className="w-3 h-3" />
-                Your Pick
-              </span>
-            )}
-            <Star className="w-4 h-4 text-on-surface-variant" />
-          </div>
+          <Star className="w-4 h-4 text-on-surface-variant" />
         </div>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
@@ -127,13 +119,13 @@ function ScrollRow({
   isLoading,
   variant,
   emptyText,
-  userVoteFixtureId,
+  votedFixtureIds,
 }: {
-  matches: import("@/types/football").Match[];
+  matches: import("@/features/main/football/types").Match[];
   isLoading: boolean;
   variant: "scheduled" | "finished";
   emptyText: string;
-  userVoteFixtureId?: number | null;
+  votedFixtureIds: Set<number>;
 }) {
   if (isLoading) {
     return (
@@ -159,7 +151,7 @@ function ScrollRow({
           key={m.id}
           m={m}
           variant={variant}
-          userVoteFixtureId={userVoteFixtureId}
+          votedFixtureIds={votedFixtureIds}
         />
       ))}
     </div>
@@ -169,7 +161,9 @@ function ScrollRow({
 export function FixturesStrip() {
   const { data: scheduledMatches, isLoading: scheduledLoading } =
     useGetUpcomingFixtures();
-  const { data: userVote } = useGetUserVote();
+  const { data: userVotes = [] } = useGetUserVotes();
+
+  const votedFixtureIds = new Set(userVotes.map((v) => v.fixture_id));
 
   return (
     <div className="space-y-6">
@@ -182,7 +176,7 @@ export function FixturesStrip() {
           isLoading={scheduledLoading}
           variant="scheduled"
           emptyText="No scheduled fixtures right now."
-          userVoteFixtureId={userVote?.fixture_id ?? null}
+          votedFixtureIds={votedFixtureIds}
         />
       </div>
     </div>
