@@ -6,6 +6,7 @@ import {
   Table2,
   Shield,
   MessageSquare,
+  Swords,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { UCLIcon } from "@/components/icons/UCLIcon";
@@ -15,6 +16,7 @@ export interface NavItem {
   label: string;
   Icon: LucideIcon | React.FC<{ size?: number; className?: string }>;
   iconHoverClass: string;
+  subItems?: { href: string; label: string }[];
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -23,6 +25,16 @@ export const NAV_ITEMS: NavItem[] = [
     label: "DASHBOARD",
     Icon: LayoutDashboard,
     iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
+  },
+  {
+    href: "/battle",
+    label: "ULTIMATE BATTLE",
+    Icon: Swords,
+    iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
+    subItems: [
+      { href: "/battle/team", label: "DREAM TEAM" },
+      { href: "/battle/player", label: "DREAM PLAYER" },
+    ],
   },
   {
     href: "/community",

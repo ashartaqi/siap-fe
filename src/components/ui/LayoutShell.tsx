@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, ChevronDown, ChevronRight } from "lucide-react";
 import { clearToken } from "@/lib/auth/token";
 import { logout } from "@/features/auth/apis/logout";
 import { NAV_ITEMS } from "@/lib/navItems";
@@ -13,6 +13,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const isUCL = pathname === "/ucl" || pathname === "/settings";
 
   const handleLogout = async () => {
@@ -108,30 +109,83 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         </button>
 
         <ul className="space-y-1.5 flex-1">
-          {NAV_ITEMS.map(({ href, label, Icon, iconHoverClass }) => {
-            const active = pathname === href;
+          {NAV_ITEMS.map(({ href, label, Icon, iconHoverClass, subItems }) => {
+            const active =
+              pathname === href ||
+              (subItems && subItems.some((sub) => pathname === sub.href));
+            const isExpanded = expandedItem === label;
+
             return (
-              <li key={href}>
-                <Link
-                  href={href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  title={isCollapsed ? label : undefined}
-                  className={`group flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} py-3 text-[13px] font-condensed font-semibold rounded-lg transition-all ${
-                    active
-                      ? "text-[var(--color-neon)] bg-[rgba(59,130,246,0.08)] border-l-2 border-[var(--color-neon)]"
-                      : "text-[var(--color-text-muted)] hover:text-[var(--color-neon)] hover:bg-[rgba(59,130,246,0.08)]"
-                  }`}
-                >
-                  <Icon
-                    size={18}
-                    className={`transition-colors shrink-0 ${active ? "stroke-[var(--color-neon)]" : iconHoverClass}`}
-                  />
-                  {(!isCollapsed || isMobileMenuOpen) && (
-                    <span className="animate-in fade-in lg:slide-in-from-left-2 duration-300">
-                      {label}
-                    </span>
-                  )}
-                </Link>
+              <li key={href} className="relative">
+                {subItems ? (
+                  <>
+                    <button
+                      onClick={() => setExpandedItem(isExpanded ? null : label)}
+                      className={`group w-full flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} py-3 text-[13px] font-condensed font-semibold rounded-lg transition-all ${
+                        active
+                          ? "text-[var(--color-neon)] bg-[rgba(59,130,246,0.08)] border-l-2 border-[var(--color-neon)]"
+                          : "text-[var(--color-text-muted)] hover:text-[var(--color-neon)] hover:bg-[rgba(59,130,246,0.08)]"
+                      }`}
+                    >
+                      <Icon
+                        size={18}
+                        className={`transition-colors shrink-0 ${active ? "stroke-[var(--color-neon)]" : iconHoverClass}`}
+                      />
+                      {(!isCollapsed || isMobileMenuOpen) && (
+                        <>
+                          <span className="flex-1 text-left animate-in fade-in lg:slide-in-from-left-2 duration-300">
+                            {label}
+                          </span>
+                          {isExpanded ? (
+                            <ChevronDown size={14} />
+                          ) : (
+                            <ChevronRight size={14} />
+                          )}
+                        </>
+                      )}
+                    </button>
+                    {isExpanded && (!isCollapsed || isMobileMenuOpen) && (
+                      <ul className="mt-1 ml-9 space-y-1 animate-in slide-in-from-top-2 duration-200">
+                        {subItems.map((sub) => (
+                          <li key={sub.href}>
+                            <Link
+                              href={sub.href}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className={`block py-2 text-[11px] font-bold uppercase tracking-widest transition-colors ${
+                                pathname === sub.href
+                                  ? "text-[var(--color-neon)]"
+                                  : "text-[var(--color-text-muted)] hover:text-[var(--color-neon)]"
+                              }`}
+                            >
+                              {sub.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    href={href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    title={isCollapsed ? label : undefined}
+                    className={`group flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} py-3 text-[13px] font-condensed font-semibold rounded-lg transition-all ${
+                      active
+                        ? "text-[var(--color-neon)] bg-[rgba(59,130,246,0.08)] border-l-2 border-[var(--color-neon)]"
+                        : "text-[var(--color-text-muted)] hover:text-[var(--color-neon)] hover:bg-[rgba(59,130,246,0.08)]"
+                    }`}
+                  >
+                    <Icon
+                      size={18}
+                      className={`transition-colors shrink-0 ${active ? "stroke-[var(--color-neon)]" : iconHoverClass}`}
+                    />
+                    {(!isCollapsed || isMobileMenuOpen) && (
+                      <span className="animate-in fade-in lg:slide-in-from-left-2 duration-300">
+                        {label}
+                      </span>
+                    )}
+                  </Link>
+                )}
               </li>
             );
           })}
