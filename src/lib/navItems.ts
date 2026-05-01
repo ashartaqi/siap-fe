@@ -5,6 +5,7 @@ import {
   UserStar,
   Table2,
   Shield,
+  MessageSquare,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { UCLIcon } from "@/components/icons/UCLIcon";
@@ -21,6 +22,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard",
     label: "DASHBOARD",
     Icon: LayoutDashboard,
+    iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
+  },
+  {
+    href: "/community",
+    label: "COMMUNITY",
+    Icon: MessageSquare,
     iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
   },
   {
