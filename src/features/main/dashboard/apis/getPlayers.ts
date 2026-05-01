@@ -23,6 +23,7 @@ export const getPlayers = async (
     dribbling: payload.dribbling,
     defending: payload.defending,
     physic: payload.physic,
+    unlock_status: payload.unlockStatus,
   };
 
   const res = await axiosClient.get<IPlayersResponse[]>("/players", { params });

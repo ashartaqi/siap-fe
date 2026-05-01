@@ -17,6 +17,7 @@ export interface IPlayersPayload {
   dribbling?: number;
   defending?: number;
   physic?: number;
+  unlockStatus?: "all" | "locked" | "unlocked";
 }
 
 export interface IPlayerStats {

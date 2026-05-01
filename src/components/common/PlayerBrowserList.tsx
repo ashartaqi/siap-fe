@@ -9,6 +9,7 @@ import {
 } from "@/features/main/dashboard";
 
 import { Lock } from "lucide-react";
+import { TAxiosError } from "@/types/api";
 import { useUnlockPlayer } from "@/features/main/dashboard/hooks/useUnlockPlayer";
 import { toast } from "sonner";
 
@@ -137,9 +138,7 @@ export function PlayerBrowserList({
                 if (window.confirm(`Unlock ${p.short_name} for ${price} BB?`)) {
                   unlockPlayer(p.id, {
                     onSuccess: (data) => toast.success(data.message),
-                    onError: (err: {
-                      response?: { data?: { detail?: string } };
-                    }) =>
+                    onError: (err: TAxiosError) =>
                       toast.error(
                         err.response?.data?.detail || "Failed to unlock",
                       ),

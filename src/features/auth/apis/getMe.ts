@@ -5,6 +5,7 @@ export interface UserProfile {
   email: string;
   first_name: string;
   last_name: string;
+  bb_balance: number;
 }
 
 export async function getMe(): Promise<UserProfile> {

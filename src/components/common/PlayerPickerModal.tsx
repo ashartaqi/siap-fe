@@ -15,6 +15,7 @@ import { StatKey } from "@/types/dreamPlayer";
 import { useUnlockPlayer } from "@/features/main/dashboard/hooks/useUnlockPlayer";
 import { toast } from "sonner";
 import { Lock } from "lucide-react";
+import { TAxiosError } from "@/types/api";
 
 interface Props {
   label: string;
@@ -56,6 +57,9 @@ export function PlayerPickerModal({
   const [maxAge, setMaxAge] = useState<number | undefined>();
   const [preferredFoot, setPreferredFoot] = useState("");
   const [statFilter, setStatFilter] = useState<number | undefined>();
+  const [unlockStatus, setUnlockStatus] = useState<
+    "all" | "locked" | "unlocked"
+  >("all");
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -81,6 +85,7 @@ export function PlayerPickerModal({
     maxAge: dMaxAge,
     preferredFoot: preferredFoot || undefined,
     orderByStat: statKey,
+    unlockStatus: unlockStatus !== "all" ? unlockStatus : undefined,
     ...(statKey && dStatFilter !== undefined ? { [statKey]: dStatFilter } : {}),
   };
 
@@ -262,6 +267,20 @@ export function PlayerPickerModal({
               <option value="Right">Right</option>
             </select>
           </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL}>Unlock Status</span>
+            <select
+              className="w-full bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-[6px] px-2.5 py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none transition-colors appearance-none cursor-pointer focus:border-[rgba(0,255,102,0.4)]"
+              value={unlockStatus}
+              onChange={(e) =>
+                setUnlockStatus(e.target.value as "all" | "locked" | "unlocked")
+              }
+            >
+              <option value="all">All</option>
+              <option value="unlocked">Unlocked</option>
+              <option value="locked">Locked</option>
+            </select>
+          </div>
         </div>
 
         {/* Results */}
@@ -306,9 +325,7 @@ export function PlayerPickerModal({
                       ) {
                         unlockPlayer(p.id, {
                           onSuccess: (data) => toast.success(data.message),
-                          onError: (err: {
-                            response?: { data?: { detail?: string } };
-                          }) =>
+                          onError: (err: TAxiosError) =>
                             toast.error(
                               err.response?.data?.detail || "Failed to unlock",
                             ),
