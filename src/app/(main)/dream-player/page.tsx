@@ -6,11 +6,11 @@ import { Flag, Hash, Star, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useCreateDreamPlayer } from "@/features/main/dashboard/hooks/useCreateDreamPlayer";
 import { useUpdateDreamPlayer } from "@/features/main/dashboard/hooks/useUpdateDreamPlayer";
 import { useDeleteDreamPlayer } from "@/features/main/dashboard/hooks/useDeleteDreamPlayer";
-import { useGetDreamPlayers } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
+import { useGetDreamPlayer } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
 import { useGetPlayerAttributes } from "@/features/main/football";
 import { IDreamPlayerPayload } from "@/features/main/dashboard/types";
 import { IPlayersResponse } from "@/features/main/dashboard";
-import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
+import { PlayerPickerModal } from "@/components/common/modals/PlayerPickerModal";
 import { CountryPicker } from "@/components/ui/dream-player/CountryPicker";
 import { EditableText } from "@/components/ui/dream-player/EditableText";
 import { FootToggle } from "@/components/ui/dream-player/FootToggle";
@@ -27,7 +27,7 @@ import type {
   PlayerIdentity,
   SlotPlayers,
   PageState,
-} from "@/types/dreamPlayer";
+} from "@/features/main/dashboard/types";
 
 export default function DreamPlayerPage() {
   const { data: playerAttributes } = useGetPlayerAttributes();
@@ -73,7 +73,7 @@ export default function DreamPlayerPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const { data: savedPlayer, isLoading: isFetching } = useGetDreamPlayers();
+  const { data: savedPlayer, isLoading: isFetching } = useGetDreamPlayer();
   const { mutate: createDreamPlayer, isPending: isCreating } =
     useCreateDreamPlayer();
   const { mutate: updateDreamPlayer, isPending: isUpdating } =
@@ -173,9 +173,11 @@ export default function DreamPlayerPage() {
   const handleCreate = () => {
     setCreated(false);
     setErrorMsg(null);
-    const { position: _p, ...identityWithoutPosition } = identity;
     const payload: IDreamPlayerPayload = {
-      ...identityWithoutPosition,
+      name: identity.name,
+      nationality: identity.nationality,
+      shirt_number: identity.shirt_number,
+      preferred_foot: identity.preferred_foot,
       ...stats,
     };
     const mutate = isExisting ? updateDreamPlayer : createDreamPlayer;

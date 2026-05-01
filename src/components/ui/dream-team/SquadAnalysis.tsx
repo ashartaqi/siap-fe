@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { RatingBar } from "./RatingBar";
 import { categorizePosition } from "@/lib/utils/dreamTeamUtils";
 import { useGetPlayerAttributes } from "@/features/main/football";
-import type { SelectedPlayers } from "@/types/dreamTeam";
+import type { SelectedPlayers } from "@/features/main/dashboard/types";
 
 interface Props {
   selectedPlayers: SelectedPlayers;

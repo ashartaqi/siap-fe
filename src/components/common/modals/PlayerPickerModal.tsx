@@ -10,7 +10,12 @@ import {
 import { INPUT, LABEL } from "@/lib/constants";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { getStatValue } from "@/lib/utils/dreamPlayerUtils";
-import { StatKey } from "@/types/dreamPlayer";
+import { StatKey } from "@/features/main/dashboard/types";
+
+import { useUnlockPlayer } from "@/features/main/dashboard/hooks/useUnlockPlayer";
+import { toast } from "sonner";
+import { Lock } from "lucide-react";
+import { TAxiosError } from "@/types/api";
 
 interface Props {
   label: string;
@@ -33,6 +38,15 @@ export function PlayerPickerModal({
   statKey,
   statFieldMap,
 }: Props) {
+  const { mutate: unlockPlayer, isPending: isUnlocking } = useUnlockPlayer();
+
+  const getUnlockPrice = (overall: number) => {
+    if (overall < 70) return 0;
+    if (overall < 80) return 30;
+    if (overall < 85) return 40;
+    if (overall < 90) return 50;
+    return 100;
+  };
   const [name, setName] = useState("");
   const [teamId, setTeamId] = useState<number | undefined>();
   const [minOverall, setMinOverall] = useState<number | undefined>();
@@ -43,6 +57,9 @@ export function PlayerPickerModal({
   const [maxAge, setMaxAge] = useState<number | undefined>();
   const [preferredFoot, setPreferredFoot] = useState("");
   const [statFilter, setStatFilter] = useState<number | undefined>();
+  const [unlockStatus, setUnlockStatus] = useState<
+    "all" | "locked" | "unlocked"
+  >("all");
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -68,6 +85,7 @@ export function PlayerPickerModal({
     maxAge: dMaxAge,
     preferredFoot: preferredFoot || undefined,
     orderByStat: statKey,
+    unlockStatus: unlockStatus !== "all" ? unlockStatus : undefined,
     ...(statKey && dStatFilter !== undefined ? { [statKey]: dStatFilter } : {}),
   };
 
@@ -249,6 +267,20 @@ export function PlayerPickerModal({
               <option value="Right">Right</option>
             </select>
           </div>
+          <div className="flex flex-col gap-1.5">
+            <span className={LABEL}>Unlock Status</span>
+            <select
+              className="w-full bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-[6px] px-2.5 py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none transition-colors appearance-none cursor-pointer focus:border-[rgba(0,255,102,0.4)]"
+              value={unlockStatus}
+              onChange={(e) =>
+                setUnlockStatus(e.target.value as "all" | "locked" | "unlocked")
+              }
+            >
+              <option value="all">All</option>
+              <option value="unlocked">Unlocked</option>
+              <option value="locked">Locked</option>
+            </select>
+          </div>
         </div>
 
         {/* Results */}
@@ -277,22 +309,56 @@ export function PlayerPickerModal({
             !isError &&
             players.map((p, idx) => {
               const isUsed = usedPlayerIds.has(p.id);
+              const isLocked = p.overall >= 70 && !p.is_unlocked;
+              const disabled = isUsed || (isLocked && !isUnlocking);
+              const price = getUnlockPrice(p.overall);
+
               return (
                 <div
                   key={idx}
                   onClick={() => {
+                    if (isLocked) {
+                      if (
+                        window.confirm(
+                          `Unlock ${p.short_name} for ${price} BB?`,
+                        )
+                      ) {
+                        unlockPlayer(p.id, {
+                          onSuccess: (data) => toast.success(data.message),
+                          onError: (err: TAxiosError) =>
+                            toast.error(
+                              err.response?.data?.detail || "Failed to unlock",
+                            ),
+                        });
+                      }
+                      return;
+                    }
                     if (!isUsed) onSelect(p as IPlayersResponse);
                   }}
                   className={[
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-2",
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg mb-2 relative overflow-hidden",
                     "bg-[rgba(36,39,35,0.6)] border border-[rgba(71,72,69,0.15)]",
                     "transition-[border-color,background,opacity] duration-200",
-                    isUsed
+                    disabled && !isLocked
                       ? "opacity-35 cursor-not-allowed"
                       : "cursor-pointer hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.04)]",
                   ].join(" ")}
                 >
-                  <div className="w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center">
+                  {/* Lock Overlay */}
+                  {isLocked && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10 group/lock">
+                      <div className="flex flex-col items-center gap-1 group-hover/lock:scale-110 transition-transform">
+                        <Lock className="w-4 h-4 text-[var(--color-neon)]" />
+                        <span className="text-[9px] font-black tracking-widest text-white uppercase">
+                          Unlock {price} BB
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div
+                    className={`w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center ${isLocked ? "blur-sm" : ""}`}
+                  >
                     {p.player_face_url ? (
                       <Image
                         src={p.player_face_url}
@@ -313,7 +379,9 @@ export function PlayerPickerModal({
                       </span>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div
+                    className={`flex-1 min-w-0 ${isLocked ? "blur-sm" : ""}`}
+                  >
                     <div className="text-[13px] font-semibold text-[#fcfcf8] truncate">
                       {p.short_name}
                     </div>
@@ -322,21 +390,23 @@ export function PlayerPickerModal({
                       {p.preferred_foot} foot
                     </div>
                   </div>
-                  {isUsed ? (
-                    <span className="text-[8px] font-bold tracking-[0.15em] uppercase text-[rgba(255,100,100,0.7)] bg-[rgba(255,100,100,0.08)] border border-[rgba(255,100,100,0.2)] px-1.5 py-0.5 rounded-[3px] shrink-0">
-                      In Squad
-                    </span>
-                  ) : (
-                    <div className="font-[Bebas_Neue,sans-serif] text-[26px] text-[#00ff66] leading-none shrink-0">
-                      {statKey
-                        ? getStatValue(p, statKey as StatKey, statFieldMap)
-                        : ratingPosition
-                          ? (p as unknown as Record<string, number>)[
-                              ratingPosition.toLowerCase()
-                            ] || p.overall
-                          : p.overall}
-                    </div>
-                  )}
+                  <div className={isLocked ? "blur-sm" : ""}>
+                    {isUsed ? (
+                      <span className="text-[8px] font-bold tracking-[0.15em] uppercase text-[rgba(255,100,100,0.7)] bg-[rgba(255,100,100,0.08)] border border-[rgba(255,100,100,0.2)] px-1.5 py-0.5 rounded-[3px] shrink-0">
+                        In Squad
+                      </span>
+                    ) : (
+                      <div className="font-[Bebas_Neue,sans-serif] text-[26px] text-[#00ff66] leading-none shrink-0">
+                        {statKey
+                          ? getStatValue(p, statKey as StatKey, statFieldMap)
+                          : ratingPosition
+                            ? (p as unknown as Record<string, number>)[
+                                ratingPosition.toLowerCase()
+                              ] || p.overall
+                            : p.overall}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}

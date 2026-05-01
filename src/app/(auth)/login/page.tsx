@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/inputs/Input";
+import { Button } from "@/components/common/buttons/Button";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { setToken } from "@/lib/auth/token";
 import { toast } from "sonner";
@@ -42,7 +42,7 @@ export default function LoginPage() {
         { email, password },
         {
           onSuccess: (data) => {
-            setToken(data.token);
+            setToken(data.access_token);
             toast.success("Successfully signed in!");
             router.push("/dashboard");
           },

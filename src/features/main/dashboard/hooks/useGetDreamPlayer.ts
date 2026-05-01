@@ -3,7 +3,7 @@ import { TAxiosError } from "@/types/api";
 import { IDreamPlayerResponse } from "../types";
 import { getDreamPlayer } from "../apis/getDreamPlayer";
 
-const useGetDreamPlayers = () => {
+const useGetDreamPlayer = () => {
   return useQuery<IDreamPlayerResponse, TAxiosError>({
     queryKey: ["custom-player"],
     queryFn: () => getDreamPlayer(),
@@ -14,4 +14,4 @@ const useGetDreamPlayers = () => {
   });
 };
 
-export { useGetDreamPlayers };
+export { useGetDreamPlayer };

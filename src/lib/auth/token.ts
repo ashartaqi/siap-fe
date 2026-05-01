@@ -1,18 +1,21 @@
 import { AUTH_COOKIE } from "./constants";
 
+const cookieSecure =
+  typeof location !== "undefined" && location.protocol === "https:"
+    ? "; secure"
+    : "";
+
 export const getToken = (): string | null => {
   if (typeof window === "undefined") return null;
   const match = document.cookie.match(
     new RegExp(`(?:^|;\\s*)${AUTH_COOKIE}=([^;]*)`),
   );
-  if (match) return decodeURIComponent(match[1]);
-  // fallback for sessions created before cookie-based storage
-  return localStorage.getItem("token");
+  return match ? decodeURIComponent(match[1]) : null;
 };
 
 export const setToken = (token: string) => {
   if (typeof window === "undefined") return;
-  document.cookie = `${AUTH_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=strict${location.protocol === "https:" ? "; secure" : ""}`;
+  document.cookie = `${AUTH_COOKIE}=${encodeURIComponent(token)}; path=/; max-age=${60 * 15}; samesite=strict${cookieSecure}`;
 };
 
 export const clearToken = () => {

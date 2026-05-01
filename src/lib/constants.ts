@@ -181,40 +181,6 @@ export const ALL_POSITIONS = [
 /** All outfield + GK — use when GK must be included (e.g. Players page filter) */
 export const ALL_POSITIONS_WITH_GK = [...ALL_POSITIONS, "GK"];
 
-// ─── Settings — Profile ───────────────────────────────────────────────────────
-
-export const FAVORITE_TEAMS = [
-  "Arsenal",
-  "Chelsea",
-  "Liverpool",
-  "Manchester City",
-  "Manchester United",
-  "Tottenham",
-  "Newcastle",
-  "Aston Villa",
-  "Real Madrid",
-  "Barcelona",
-  "Atletico Madrid",
-  "Bayern Munich",
-  "Borussia Dortmund",
-  "PSG",
-  "Juventus",
-  "AC Milan",
-  "Inter Milan",
-  "Napoli",
-  "Porto",
-  "Benfica",
-];
-
-export const SETTINGS_LEAGUES = [
-  "Premier League",
-  "La Liga",
-  "Serie A",
-  "Bundesliga",
-  "Ligue 1",
-  "Primeira Liga",
-];
-
 // ─── Shared Input Styling ─────────────────────────────────────────────────────
 
 export const INPUT =
@@ -295,36 +261,6 @@ export const RIGHT_STATS: StatDefinition[] = [
     label: "Defending",
     Icon: Shield,
     connectorWidth: "w-16",
-  },
-];
-
-// ─── Settings Sections ────────────────────────────────────────────────────────
-
-export const SETTINGS_SECTIONS = [
-  { id: "profile", label: "Profile", icon: User },
-  { id: "privacy", label: "Privacy & Security", icon: Shield },
-];
-
-// ─── Settings Options ─────────────────────────────────────────────────────────
-
-export const THEME_OPTIONS = [
-  {
-    label: "Dark (Default)",
-    icon: Moon,
-    active: true,
-    colors: ["#000", "#0A0A0A", "#00FF7F"],
-  },
-  {
-    label: "OLED Black",
-    icon: Monitor,
-    active: false,
-    colors: ["#000", "#000", "#00A550"],
-  },
-  {
-    label: "Light",
-    icon: Monitor,
-    active: false,
-    colors: ["#F5F5F5", "#fff", "#006633"],
   },
 ];
 

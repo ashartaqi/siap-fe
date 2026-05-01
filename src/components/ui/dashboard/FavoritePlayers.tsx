@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Carousel } from "@/components/common/Carousel";
-import { PlayerDetailModal } from "@/components/common/PlayerDetailModal";
+import { PlayerDetailModal } from "@/components/common/modals/PlayerDetailModal";
 import { FavoritePlayerItem } from "@/components/ui/dashboard/FavoritePlayerItem";
 import {
   useGetFavoritePlayers,

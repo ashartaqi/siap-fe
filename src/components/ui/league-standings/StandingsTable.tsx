@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { StandingRow } from "@/types/football";
+import { StandingRow } from "@/features/main/football/types";
 import { getQualification } from "@/lib/utils/footballUtils";
 import { PositionBadge } from "./PositionBadge";
 import { abbrev } from "@/lib/utils/footballUtils";
