@@ -34,3 +34,29 @@ export async function claimBattleReward(result: "win" | "loss" | "draw") {
   const response = await axiosClient.post(`/battle/reward?result=${result}`);
   return response.data;
 }
+
+export interface IMatchSimulationStats {
+  shots1: number;
+  shots2: number;
+  xg1: number;
+  xg2: number;
+  possession1: number;
+  possession2: number;
+}
+
+export interface IMatchSimulationResult {
+  score1: number;
+  score2: number;
+  stats: IMatchSimulationStats;
+  log: string[];
+  winner: "me" | "opponent" | "draw";
+  reward: number;
+  new_balance: number;
+}
+
+export async function simulateBattle(
+  opponentId: number,
+): Promise<IMatchSimulationResult> {
+  const response = await axiosClient.post(`/battle/simulate/${opponentId}`);
+  return response.data;
+}

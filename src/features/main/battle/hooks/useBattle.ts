@@ -38,3 +38,15 @@ export const useClaimBattleReward = () => {
     },
   });
 };
+
+import { simulateBattle } from "../apis/battle";
+
+export const useSimulateBattle = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (opponentId: number) => simulateBattle(opponentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-me"] });
+    },
+  });
+};

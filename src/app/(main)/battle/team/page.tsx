@@ -2,11 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { Swords, Trophy, Skull, Users, ChevronLeft } from "lucide-react";
-import {
-  useGetBattleUsers,
-  useGetUserDreamTeam,
-  useClaimBattleReward,
-} from "@/features/main/battle";
+import { useGetBattleUsers, useGetUserDreamTeam } from "@/features/main/battle";
+import { useSimulateBattle } from "@/features/main/battle/hooks/useBattle";
+import { IMatchSimulationResult } from "@/features/main/battle/apis/battle";
 import { useGetDreamTeam } from "@/features/main/dashboard/hooks/useGetDreamTeam";
 import { IDreamTeamResponse } from "@/features/main/dashboard/types";
 import { useGetUser } from "@/features/auth/hooks/useGetUser";
@@ -18,9 +16,8 @@ export default function TeamBattlePage() {
   const [opponentId, setOpponentId] = useState<number | null>(null);
   const [isBattling, setIsBattling] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  const [battleResult, setBattleResult] = useState<{
-    winner: "me" | "opponent" | "draw";
-  } | null>(null);
+  const [battleResult, setBattleResult] =
+    useState<IMatchSimulationResult | null>(null);
 
   const { data: users = [] } = useGetBattleUsers();
   const { data: myTeam } = useGetDreamTeam();
@@ -59,34 +56,24 @@ export default function TeamBattlePage() {
   const opponentFormation =
     formations.find((f) => f.id === opponentTeam?.formation) || formations[0];
 
-  const { mutate: claimReward } = useClaimBattleReward();
+  const { mutate: simulate, isPending: isSimulating } = useSimulateBattle();
 
   const startBattle = () => {
-    if (!myTeam || !opponentTeam) return;
+    if (!myTeam || !opponentTeam || !opponentId) return;
 
     setIsBattling(true);
     setShowResult(false);
 
-    setTimeout(() => {
-      const myScore = myTeam.total_score;
-      const oppScore = opponentTeam.total_score;
-
-      let result: "win" | "loss" | "draw" = "draw";
-      if (myScore > oppScore) {
-        setBattleResult({ winner: "me" });
-        result = "win";
-      } else if (oppScore > myScore) {
-        setBattleResult({ winner: "opponent" });
-        result = "loss";
-      } else {
-        setBattleResult({ winner: "draw" });
-        result = "draw";
-      }
-
-      claimReward(result);
-      setIsBattling(false);
-      setShowResult(true);
-    }, 3000); // 3 seconds of "analyzing"
+    simulate(opponentId, {
+      onSuccess: (data) => {
+        setBattleResult(data);
+        setIsBattling(false);
+        setShowResult(true);
+      },
+      onError: () => {
+        setIsBattling(false);
+      },
+    });
   };
 
   const resetBattle = () => {
@@ -261,11 +248,7 @@ export default function TeamBattlePage() {
                   <div
                     className={`text-5xl font-[Bebas_Neue] uppercase tracking-tighter ${battleResult?.winner === "me" ? "text-[#00ff66]" : battleResult?.winner === "opponent" ? "text-[#ff4444]" : "text-[#aaaba7]"}`}
                   >
-                    {battleResult?.winner === "me"
-                      ? "VICTORY"
-                      : battleResult?.winner === "opponent"
-                        ? "DEFEAT"
-                        : "STALEMATE"}
+                    {battleResult?.score1} - {battleResult?.score2}
                   </div>
                   <div className="w-10" />
                 </div>
@@ -340,6 +323,60 @@ export default function TeamBattlePage() {
                       IT WAS A TACTICAL DEADLOCK
                     </p>
                   )}
+
+                  {/* Match Stats & Logs */}
+                  <div className="w-full max-w-4xl bg-[#121212] border border-[#333] rounded-3xl p-8 flex flex-col gap-8 mt-8">
+                    <h3 className="text-[#00ff66] font-[Bebas_Neue] text-2xl tracking-widest text-center uppercase">
+                      MATCH REPORT
+                    </h3>
+
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div className="text-[#aaaba7] font-bold">
+                        {battleResult?.stats.possession1}%
+                      </div>
+                      <div className="text-[10px] tracking-widest uppercase text-[#555]">
+                        Possession
+                      </div>
+                      <div className="text-[#aaaba7] font-bold">
+                        {battleResult?.stats.possession2}%
+                      </div>
+
+                      <div className="text-[#aaaba7] font-bold">
+                        {battleResult?.stats.shots1}
+                      </div>
+                      <div className="text-[10px] tracking-widest uppercase text-[#555]">
+                        Shots
+                      </div>
+                      <div className="text-[#aaaba7] font-bold">
+                        {battleResult?.stats.shots2}
+                      </div>
+
+                      <div className="text-[#aaaba7] font-bold">
+                        {battleResult?.stats.xg1.toFixed(2)}
+                      </div>
+                      <div className="text-[10px] tracking-widest uppercase text-[#555]">
+                        Expected Goals (xG)
+                      </div>
+                      <div className="text-[#aaaba7] font-bold">
+                        {battleResult?.stats.xg2.toFixed(2)}
+                      </div>
+                    </div>
+
+                    <div className="bg-[#0a0a0a] border border-[#222] rounded-xl p-4 max-h-60 overflow-y-auto flex flex-col gap-2 custom-scrollbar">
+                      {battleResult?.log.map((logStr, idx) => (
+                        <div
+                          key={idx}
+                          className="text-[11px] text-[#888] font-mono tracking-wider"
+                        >
+                          {logStr}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="text-[#aaaba7] font-bold tracking-widest uppercase text-sm mt-4">
+                    REWARD: +{battleResult?.reward} BB
+                  </p>
 
                   <button
                     onClick={resetBattle}
