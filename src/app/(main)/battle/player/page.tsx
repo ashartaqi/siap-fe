@@ -12,6 +12,7 @@ import {
 import {
   useGetBattleUsers,
   useGetUserCustomPlayer,
+  useClaimBattleReward,
 } from "@/features/main/battle";
 import { useGetDreamPlayer } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
 import { IDreamPlayerResponse } from "@/features/main/dashboard/types";
@@ -34,6 +35,7 @@ export default function PlayerBattlePage() {
     isError: errorOpponent,
   } = useGetUserCustomPlayer(opponentId);
 
+  const { mutate: claimReward } = useClaimBattleReward();
   const battleUsers = users.filter((u) => u.has_player);
 
   const startBattle = () => {
@@ -66,17 +68,23 @@ export default function PlayerBattlePage() {
     });
 
     setTimeout(() => {
-      if (myScore > oppScore)
+      let result: "win" | "loss" | "draw" = "draw";
+      if (myScore > oppScore) {
         setBattleResult({ winner: "me", myScore, opponentScore: oppScore });
-      else if (oppScore > myScore)
+        result = "win";
+      } else if (oppScore > myScore) {
         setBattleResult({
           winner: "opponent",
           myScore,
           opponentScore: oppScore,
         });
-      else
+        result = "loss";
+      } else {
         setBattleResult({ winner: "draw", myScore, opponentScore: oppScore });
+        result = "draw";
+      }
 
+      claimReward(result);
       setIsBattling(false);
       setShowResult(true);
     }, 2500);

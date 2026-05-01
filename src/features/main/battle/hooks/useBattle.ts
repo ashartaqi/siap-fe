@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getBattleUsers,
   getUserDreamTeam,
   getUserCustomPlayer,
+  claimBattleReward,
 } from "../apis/battle";
 
 export const useGetBattleUsers = () => {
@@ -25,5 +26,15 @@ export const useGetUserCustomPlayer = (userId: number | null) => {
     queryKey: ["user-custom-player", userId],
     queryFn: () => getUserCustomPlayer(userId!),
     enabled: !!userId,
+  });
+};
+
+export const useClaimBattleReward = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (result: "win" | "loss" | "draw") => claimBattleReward(result),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-me"] });
+    },
   });
 };

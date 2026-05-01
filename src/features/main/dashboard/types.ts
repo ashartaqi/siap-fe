@@ -57,6 +57,7 @@ export interface IPlayersResponse {
   player_stats: IPlayerStats | null;
   goalkeeper_stats: IGoalkeeperStats | null;
   player_face_url: string;
+  is_unlocked?: boolean;
 }
 
 export interface IDreamPlayerPayload {

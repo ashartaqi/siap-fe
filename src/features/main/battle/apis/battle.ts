@@ -29,3 +29,8 @@ export async function getUserCustomPlayer(
   const response = await axiosClient.get(`/battle/player/${userId}`);
   return response.data;
 }
+
+export async function claimBattleReward(result: "win" | "loss" | "draw") {
+  const response = await axiosClient.post(`/battle/reward?result=${result}`);
+  return response.data;
+}

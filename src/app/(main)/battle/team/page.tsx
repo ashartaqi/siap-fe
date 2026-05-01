@@ -2,7 +2,11 @@
 
 import { useState, useMemo } from "react";
 import { Swords, Trophy, Skull, Users, ChevronLeft } from "lucide-react";
-import { useGetBattleUsers, useGetUserDreamTeam } from "@/features/main/battle";
+import {
+  useGetBattleUsers,
+  useGetUserDreamTeam,
+  useClaimBattleReward,
+} from "@/features/main/battle";
 import { useGetDreamTeam } from "@/features/main/dashboard/hooks/useGetDreamTeam";
 import { IDreamTeamResponse } from "@/features/main/dashboard/types";
 import { useGetUser } from "@/features/auth/hooks/useGetUser";
@@ -55,6 +59,8 @@ export default function TeamBattlePage() {
   const opponentFormation =
     formations.find((f) => f.id === opponentTeam?.formation) || formations[0];
 
+  const { mutate: claimReward } = useClaimBattleReward();
+
   const startBattle = () => {
     if (!myTeam || !opponentTeam) return;
 
@@ -65,10 +71,19 @@ export default function TeamBattlePage() {
       const myScore = myTeam.total_score;
       const oppScore = opponentTeam.total_score;
 
-      if (myScore > oppScore) setBattleResult({ winner: "me" });
-      else if (oppScore > myScore) setBattleResult({ winner: "opponent" });
-      else setBattleResult({ winner: "draw" });
+      let result: "win" | "loss" | "draw" = "draw";
+      if (myScore > oppScore) {
+        setBattleResult({ winner: "me" });
+        result = "win";
+      } else if (oppScore > myScore) {
+        setBattleResult({ winner: "opponent" });
+        result = "loss";
+      } else {
+        setBattleResult({ winner: "draw" });
+        result = "draw";
+      }
 
+      claimReward(result);
       setIsBattling(false);
       setShowResult(true);
     }, 3000); // 3 seconds of "analyzing"

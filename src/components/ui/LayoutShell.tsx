@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, ChevronDown, ChevronRight } from "lucide-react";
+import { LogOut, ChevronDown, ChevronRight, Coins } from "lucide-react";
 import { clearToken } from "@/lib/auth/token";
 import { logout } from "@/features/auth/apis/logout";
 import { NAV_ITEMS } from "@/lib/navItems";
+import { useGetUser } from "@/features/auth/hooks/useGetUser";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
+  const { data: user } = useGetUser();
   const pathname = usePathname();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -63,21 +65,48 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             SI<span className="text-[var(--color-neon)]">A</span>P
           </span>
         </div>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 text-[var(--color-text-muted)] hover:text-[var(--color-neon)]"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            className="w-6 h-6 fill-none stroke-current stroke-2"
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 bg-[var(--color-black)] px-3 py-1.5 rounded-full border border-[var(--color-neon)]/30">
+            <Coins className="w-4 h-4 text-[var(--color-neon)]" />
+            <span className="text-[13px] font-bold text-[var(--color-text)]">
+              {user?.bb_balance ?? 0}{" "}
+              <span className="text-[var(--color-neon)]">BB</span>
+            </span>
+          </div>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 text-[var(--color-text-muted)] hover:text-[var(--color-neon)]"
           >
-            {isMobileMenuOpen ? (
-              <path d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
+            <svg
+              viewBox="0 0 24 24"
+              className="w-6 h-6 fill-none stroke-current stroke-2"
+            >
+              {isMobileMenuOpen ? (
+                <path d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop Currency Display */}
+      <div className="hidden lg:flex fixed top-8 right-8 z-50">
+        <div className="flex items-center gap-2 bg-[var(--color-surface)]/80 backdrop-blur-md px-4 py-2 rounded-xl border border-[var(--color-border)] shadow-xl animate-in slide-in-from-top-4 duration-500">
+          <div className="w-8 h-8 rounded-lg bg-[var(--color-neon)]/10 flex items-center justify-center">
+            <Coins className="w-5 h-5 text-[var(--color-neon)]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
+              Balance
+            </span>
+            <span className="text-lg font-display font-bold text-[var(--color-text)] -mt-1">
+              {user?.bb_balance ?? 0}{" "}
+              <span className="text-[var(--color-neon)] text-sm">BB</span>
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Mobile Overlay */}

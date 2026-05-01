@@ -8,6 +8,10 @@ import {
   type IPlayersResponse,
 } from "@/features/main/dashboard";
 
+import { Lock } from "lucide-react";
+import { useUnlockPlayer } from "@/features/main/dashboard/hooks/useUnlockPlayer";
+import { toast } from "sonner";
+
 interface PlayerBrowserListProps {
   payload: IPlayersPayload;
   onSelectPlayer: (player: IPlayersResponse) => void;
@@ -25,6 +29,15 @@ export function PlayerBrowserList({
   renderRightSlot,
   isPlayerDisabled = () => false,
 }: PlayerBrowserListProps) {
+  const { mutate: unlockPlayer, isPending: isUnlocking } = useUnlockPlayer();
+
+  const getUnlockPrice = (overall: number) => {
+    if (overall < 70) return 0;
+    if (overall < 80) return 30;
+    if (overall < 85) return 40;
+    if (overall < 90) return 50;
+    return 100;
+  };
   // Keep latest pagination state in a ref so the observer callback never
   // captures stale closures — observer is created once, reads fresh values via ref.
   const paginationRef = useRef<{
@@ -112,24 +125,55 @@ export function PlayerBrowserList({
   return (
     <div className="flex flex-col gap-2">
       {players.map((p) => {
-        const disabled = isPlayerDisabled(p);
+        const isLocked = p.overall >= 70 && !p.is_unlocked;
+        const disabled = isPlayerDisabled(p) || (isLocked && !isUnlocking);
+        const price = getUnlockPrice(p.overall);
+
         return (
           <div
             key={p.id}
             onClick={() => {
+              if (isLocked) {
+                if (window.confirm(`Unlock ${p.short_name} for ${price} BB?`)) {
+                  unlockPlayer(p.id, {
+                    onSuccess: (data) => toast.success(data.message),
+                    onError: (err: {
+                      response?: { data?: { detail?: string } };
+                    }) =>
+                      toast.error(
+                        err.response?.data?.detail || "Failed to unlock",
+                      ),
+                  });
+                }
+                return;
+              }
               if (!disabled) onSelectPlayer(p);
             }}
             className={[
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg",
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg relative overflow-hidden",
               "bg-[rgba(36,39,35,0.6)] border border-[rgba(71,72,69,0.15)]",
               "transition-all duration-200",
-              disabled
+              disabled && !isLocked
                 ? "opacity-35 cursor-not-allowed"
                 : "cursor-pointer hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.04)]",
             ].join(" ")}
           >
+            {/* Lock Overlay */}
+            {isLocked && (
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10 group/lock">
+                <div className="flex flex-col items-center gap-1 group-hover/lock:scale-110 transition-transform">
+                  <Lock className="w-4 h-4 text-[var(--color-neon)]" />
+                  <span className="text-[9px] font-black tracking-widest text-white uppercase">
+                    Unlock {price} BB
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Avatar */}
-            <div className="w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center">
+            <div
+              className={`w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center ${isLocked ? "blur-sm" : ""}`}
+            >
               {p.player_face_url ? (
                 <Image
                   src={p.player_face_url}
@@ -150,7 +194,7 @@ export function PlayerBrowserList({
             </div>
 
             {/* Identity */}
-            <div className="flex-1 min-w-0">
+            <div className={`flex-1 min-w-0 ${isLocked ? "blur-sm" : ""}`}>
               <div className="text-[13px] font-semibold text-[#fcfcf8] truncate">
                 {p.short_name}
               </div>
@@ -160,14 +204,16 @@ export function PlayerBrowserList({
               </div>
             </div>
 
-            {/* Right slot — caller decides; defaults to overall rating */}
-            {renderRightSlot ? (
-              renderRightSlot(p)
-            ) : (
-              <div className="font-[Bebas_Neue,sans-serif] text-[26px] text-[#00ff66] leading-none shrink-0">
-                {p.overall}
-              </div>
-            )}
+            {/* Right slot */}
+            <div className={isLocked ? "blur-sm" : ""}>
+              {renderRightSlot ? (
+                renderRightSlot(p)
+              ) : (
+                <div className="font-[Bebas_Neue,sans-serif] text-[26px] text-[#00ff66] leading-none shrink-0">
+                  {p.overall}
+                </div>
+              )}
+            </div>
           </div>
         );
       })}
