@@ -10,7 +10,7 @@ import { useGetDreamPlayer } from "@/features/main/dashboard/hooks/useGetDreamPl
 import { useGetPlayerAttributes } from "@/features/main/football";
 import { IDreamPlayerPayload } from "@/features/main/dashboard/types";
 import { IPlayersResponse } from "@/features/main/dashboard";
-import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
+import { PlayerPickerModal } from "@/components/common/modals/PlayerPickerModal";
 import { CountryPicker } from "@/components/ui/dream-player/CountryPicker";
 import { EditableText } from "@/components/ui/dream-player/EditableText";
 import { FootToggle } from "@/components/ui/dream-player/FootToggle";
@@ -27,7 +27,7 @@ import type {
   PlayerIdentity,
   SlotPlayers,
   PageState,
-} from "@/types/dreamPlayer";
+} from "@/features/main/dashboard/types";
 
 export default function DreamPlayerPage() {
   const { data: playerAttributes } = useGetPlayerAttributes();

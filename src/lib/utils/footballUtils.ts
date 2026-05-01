@@ -1,4 +1,4 @@
-import type { Match } from "@/types/football";
+import type { Match } from "@/features/main/football/types";
 
 export function isUpcoming(status: string) {
   return ["TIMED", "SCHEDULED", "POSTPONED"].includes(status);

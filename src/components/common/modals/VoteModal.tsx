@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Vote, AlertTriangle } from "lucide-react";
-import { Match } from "@/types/football";
+import { X, Vote } from "lucide-react";
+import { Match } from "@/features/main/football/types";
 import {
-  useGetUserVote,
+  useGetUserVotes,
   useCreateVote,
+  useUpdateVote,
   IVoteResponse,
 } from "@/features/main/football";
 
@@ -15,7 +16,7 @@ interface VoteModalProps {
 }
 
 export function VoteModal({ match, onClose }: VoteModalProps) {
-  const { data: userVote, isLoading: voteLoading } = useGetUserVote();
+  const { data: userVotes = [], isLoading: voteLoading } = useGetUserVotes();
 
   if (voteLoading) {
     return (
@@ -38,7 +39,9 @@ export function VoteModal({ match, onClose }: VoteModalProps) {
     <VoteModalContent
       match={match}
       onClose={onClose}
-      userVote={userVote ?? null}
+      userVote={
+        userVotes.find((v) => v.fixture_id === Number(match.id)) ?? null
+      }
     />
   );
 }
@@ -49,6 +52,7 @@ function VoteModalContent({
   userVote,
 }: VoteModalProps & { userVote: IVoteResponse | null }) {
   const createVote = useCreateVote();
+  const updateVote = useUpdateVote();
 
   const isCurrentMatch = userVote?.fixture_id === Number(match.id);
 
@@ -59,18 +63,19 @@ function VoteModalContent({
     isCurrentMatch ? userVote.prediction_away_score : 0,
   );
 
-  const hasVoteOnOtherMatch =
-    userVote && userVote.fixture_id !== Number(match.id);
+  const isPending = createVote.isPending || updateVote.isPending;
 
   const handleSubmit = () => {
-    createVote.mutate(
-      {
-        fixture_id: Number(match.id),
-        prediction_home_score: homeScore,
-        prediction_away_score: awayScore,
-      },
-      { onSuccess: () => onClose() },
-    );
+    const payload = {
+      fixture_id: Number(match.id),
+      prediction_home_score: homeScore,
+      prediction_away_score: awayScore,
+    };
+    if (isCurrentMatch) {
+      updateVote.mutate(payload, { onSuccess: () => onClose() });
+    } else {
+      createVote.mutate(payload, { onSuccess: () => onClose() });
+    }
   };
 
   return (
@@ -97,17 +102,6 @@ function VoteModalContent({
             <X className="w-5 h-5 text-on-surface-variant" />
           </button>
         </div>
-
-        {/* Warning if replacing */}
-        {hasVoteOnOtherMatch && (
-          <div className="mx-5 mt-4 p-3 bg-[#ff7351]/10 border border-[#ff7351]/30 rounded-lg flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 text-[#ff7351] flex-none mt-0.5" />
-            <p className="text-xs text-[#ff7351]/90 font-label">
-              You already have a vote on another match. Submitting here will{" "}
-              <strong>replace</strong> your current vote.
-            </p>
-          </div>
-        )}
 
         {/* Match Info */}
         <div className="p-5 space-y-6">
@@ -191,10 +185,10 @@ function VoteModalContent({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={createVote.isPending}
+            disabled={isPending}
             className="flex-1 py-2.5 rounded-lg bg-primary-container text-on-primary font-label font-bold text-sm uppercase tracking-widest hover:shadow-[0_0_16px_rgba(0,255,102,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {createVote.isPending
+            {isPending
               ? "Submitting…"
               : isCurrentMatch
                 ? "Update Vote"

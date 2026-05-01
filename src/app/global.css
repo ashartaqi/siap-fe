@@ -75,6 +75,7 @@
   --font-mono: 'JetBrains Mono', monospace;
   --font-headline: 'Space Grotesk', sans-serif;
   --font-label: 'Inter', sans-serif;
+  --font-outfit: 'Outfit', sans-serif;
 
   --color-inverse-surface: #f9faf5;
   --color-tertiary: #80ecff;
@@ -176,8 +177,8 @@
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    background-color: var(--color-background);
+    color: var(--color-on-background);
     @apply font-body;
   }
 

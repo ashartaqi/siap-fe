@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ITeamsResponse } from "@/features/main/dashboard";
-import { FavoriteButton } from "@/components/common/FavoriteButton";
-import { StatBadge } from "@/components/common/StatBadge";
+import { FavoriteButton } from "@/components/common/buttons/FavoriteButton";
+import { StatBadge } from "@/components/common/stats/StatBadge";
 
 interface TeamCardProps {
   team: ITeamsResponse;

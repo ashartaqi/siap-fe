@@ -17,11 +17,9 @@ import { Toast } from "@/components/common/Toast";
 import { FilterSidebar } from "@/components/common/FilterSidebar";
 import { DatabaseGrid } from "@/components/common/DatabaseGrid";
 import { PageHeader } from "@/components/common/PageHeader";
-import { ConfirmModal } from "@/components/common/ConfirmModal";
-import { TeamDetailModal } from "@/components/common/TeamDetailModal";
+import { ConfirmModal } from "@/components/common/modals/ConfirmModal";
+import { TeamDetailModal } from "@/components/common/modals/TeamDetailModal";
 import { TeamCard } from "@/components/ui/teams/TeamCard";
-
-// ── Teams Page Content ────────────────────────────────────────────────────────
 
 function TeamsPageContent() {
   const [teamType, setTeamType] = useState<"club" | "national">("club");
@@ -322,8 +320,20 @@ function TeamsPageContent() {
 
       {pendingFav && currentFav && (
         <ConfirmModal
-          currentFav={currentFav.name}
-          newFav={pendingFav.name}
+          title="Change Favorite Team?"
+          message={
+            <>
+              You already have{" "}
+              <span className="text-[#00ff66] font-bold">
+                {currentFav.name}
+              </span>{" "}
+              as your favorite. Do you want to remove it and set{" "}
+              <span className="text-[#00ff66] font-bold">
+                {pendingFav.name}
+              </span>{" "}
+              as your new favorite?
+            </>
+          }
           onConfirm={handleConfirmFavChange}
           onCancel={() => setPendingFav(null)}
         />

@@ -1,3 +1,8 @@
+export interface IShopUnlockResponse {
+  message: string;
+  new_balance: number;
+}
+
 export interface IPlayersPayload {
   limit?: number;
   skip?: number;
@@ -147,3 +152,46 @@ export interface ITeamsResponse {
   home_stadium: string;
   logo_url: string;
 }
+
+export type StatKey =
+  | "pace"
+  | "shooting"
+  | "passing"
+  | "dribbling"
+  | "defending"
+  | "physic";
+
+export interface PlayerIdentity {
+  name: string;
+  position: string;
+  nationality: string;
+  shirt_number: number;
+  preferred_foot: "Left" | "Right";
+}
+
+export interface PlayerStats {
+  pace: number;
+  shooting: number;
+  passing: number;
+  dribbling: number;
+  defending: number;
+  physic: number;
+}
+
+export type SlotPlayers = Record<StatKey, IPlayersResponse | undefined>;
+
+export interface PageState {
+  identity: PlayerIdentity;
+  stats: PlayerStats;
+  mode: "view" | "edit";
+}
+
+export interface Formation {
+  id: string;
+  label: string;
+  description: string;
+  tacticalFit: string;
+  rows: string[][];
+}
+
+export type SelectedPlayers = Record<string, IPlayersResponse | undefined>;

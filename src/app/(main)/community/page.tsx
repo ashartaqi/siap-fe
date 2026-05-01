@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Send, User, MessageSquare } from "lucide-react";
+import { useState } from "react";
+import { MessageSquare } from "lucide-react";
 import {
   useGetChatMessages,
   useSendChatMessage,
 } from "@/features/main/community";
 import { useGetUser } from "@/features/auth/hooks/useGetUser";
+import { ChatMessageItem } from "@/components/common/chat/ChatMessageItem";
+import { ChatInput } from "@/components/common/chat/ChatInput";
 import { Toast } from "@/components/common/Toast";
+import { useScrollToBottom } from "@/lib/hooks/useScrollToBottom";
 
 export default function CommunityPage() {
   const [message, setMessage] = useState("");
@@ -15,18 +18,11 @@ export default function CommunityPage() {
   const { data: messages = [], isLoading } = useGetChatMessages();
   const { mutate: sendMessage, isPending: isSending } = useSendChatMessage();
   const { data: currentUser } = useGetUser();
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+  const scrollRef = useScrollToBottom(messages);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || isSending) return;
-
     sendMessage(message, {
       onSuccess: () => {
         setMessage("");
@@ -69,68 +65,24 @@ export default function CommunityPage() {
               </div>
             ) : (
               messages.map((msg) => (
-                <div
+                <ChatMessageItem
                   key={msg.id}
-                  className={`flex gap-4 ${msg.username === currentUser?.username ? "flex-row-reverse" : ""}`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] flex items-center justify-center shrink-0">
-                    <User
-                      size={20}
-                      className={
-                        msg.username === currentUser?.username
-                          ? "text-[#00ff66]"
-                          : "text-[#aaaba7]"
-                      }
-                    />
-                  </div>
-                  <div
-                    className={`flex flex-col max-w-[70%] ${msg.username === currentUser?.username ? "items-end" : ""}`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-[#aaaba7]">
-                        {msg.username}
-                      </span>
-                      <span className="text-[8px] text-[#aaaba7]/50 font-bold uppercase">
-                        {new Date(msg.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                    <div
-                      className={`px-4 py-3 rounded-2xl text-[13px] leading-relaxed ${
-                        msg.username === currentUser?.username
-                          ? "bg-[#00ff66] text-[#0b0b0b] font-bold rounded-tr-none shadow-[0_0_20px_rgba(0,255,102,0.15)]"
-                          : "bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-tl-none"
-                      }`}
-                    >
-                      {msg.content}
-                    </div>
-                  </div>
-                </div>
+                  username={msg.username}
+                  content={msg.content}
+                  created_at={msg.created_at}
+                  isOwn={msg.username === currentUser?.username}
+                />
               ))
             )}
           </div>
 
-          <form
+          <ChatInput
+            value={message}
+            onChange={setMessage}
             onSubmit={handleSend}
-            className="p-4 bg-[rgba(0,0,0,0.2)] border-t border-[rgba(255,255,255,0.05)] flex gap-3"
-          >
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-xl px-5 py-3 text-[13px] outline-none focus:border-[#00ff66]/50 transition-colors placeholder:text-[#aaaba7]/30"
-            />
-            <button
-              type="submit"
-              disabled={!message.trim() || isSending}
-              className="w-12 h-12 bg-[#00ff66] text-[#0b0b0b] rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 shadow-[0_0_20px_rgba(0,255,102,0.2)]"
-            >
-              <Send size={20} />
-            </button>
-          </form>
+            isPending={isSending}
+            placeholder="Type your message..."
+          />
         </div>
       </div>
 

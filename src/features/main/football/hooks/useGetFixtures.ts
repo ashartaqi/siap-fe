@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Match } from "@/types/football";
+import { Match } from "@/features/main/football/types";
 import { IFixturesPayload } from "../types";
 import { getFixtures } from "../apis/getFixtures";
 

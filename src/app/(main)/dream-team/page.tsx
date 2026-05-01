@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { GetOptimizedTeamButton } from "@/components/common/GetOptimizedTeamButton";
+import { GetOptimizedTeamButton } from "@/components/common/buttons/GetOptimizedTeamButton";
 import {
   useCreateDreamTeam,
   useGetDreamTeam,
@@ -10,14 +10,14 @@ import {
   useGetOptimizedDreamTeam,
 } from "@/features/main/dashboard";
 import { IPlayersResponse } from "@/features/main/dashboard";
-import { PlayerPickerModal } from "@/components/common/PlayerPickerModal";
+import { PlayerPickerModal } from "@/components/common/modals/PlayerPickerModal";
 import { useGetFormations } from "@/features/main/football";
 import { Pitch } from "@/components/ui/dream-team/Pitch";
 import { FormationPicker } from "@/components/ui/dream-team/FormationPicker";
 import { SquadAnalysis } from "@/components/ui/dream-team/SquadAnalysis";
 import { SquadActions } from "@/components/ui/dream-team/SquadActions";
 import { Toast } from "@/components/common/Toast";
-import type { SelectedPlayers } from "@/types/dreamTeam";
+import type { SelectedPlayers } from "@/features/main/dashboard/types";
 
 interface ToastState {
   message: string;

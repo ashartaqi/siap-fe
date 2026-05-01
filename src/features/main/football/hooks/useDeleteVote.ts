@@ -8,7 +8,7 @@ const useDeleteVote = () => {
   return useMutation<{ success: boolean }, TAxiosError, number | undefined>({
     mutationFn: (voteId) => deleteVote(voteId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-vote"] });
+      queryClient.invalidateQueries({ queryKey: ["user-votes"] });
       queryClient.invalidateQueries({ queryKey: ["fixture-votes"] });
     },
   });

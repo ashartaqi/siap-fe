@@ -10,7 +10,7 @@ import {
 import { INPUT, LABEL } from "@/lib/constants";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { getStatValue } from "@/lib/utils/dreamPlayerUtils";
-import { StatKey } from "@/types/dreamPlayer";
+import { StatKey } from "@/features/main/dashboard/types";
 
 import { useUnlockPlayer } from "@/features/main/dashboard/hooks/useUnlockPlayer";
 import { toast } from "sonner";

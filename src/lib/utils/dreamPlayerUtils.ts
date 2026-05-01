@@ -1,5 +1,9 @@
 import type { IPlayersResponse } from "@/features/main/dashboard/types";
-import type { StatKey, PageState, PlayerIdentity } from "@/types/dreamPlayer";
+import type {
+  StatKey,
+  PageState,
+  PlayerIdentity,
+} from "@/features/main/dashboard/types";
 import type { IDreamPlayerResponse } from "@/features/main/dashboard/types";
 
 // Fallback defaults (mirrors backend DEFAULT_IDENTITY / DEFAULT_STATS)
@@ -20,10 +24,6 @@ const DEFAULT_STAT_FIELD_MAP: Record<string, string> = {
   physic: "physic",
 };
 
-/**
- * Return the numeric stat value for a player slot.
- * @param statFieldMap  From useGetPlayerAttributes().data.stat_field_map
- */
 export function getStatValue(
   player: IPlayersResponse,
   stat: StatKey,
@@ -55,10 +55,6 @@ export function getStatValue(
   return player.overall ?? 0;
 }
 
-/**
- * Build the page edit-state from a saved dream player response.
- * @param defaultIdentity  From useGetPlayerAttributes().data.default_identity
- */
 export function buildPageStateFromSaved(
   saved: IDreamPlayerResponse,
   defaultIdentity?: PlayerIdentity,

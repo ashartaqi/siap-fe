@@ -13,8 +13,8 @@ import {
   type IPlayersPayload,
 } from "@/features/main/dashboard";
 import { InfoPill } from "@/components/common/InfoPill";
-import { StatBar } from "@/components/common/StatBar";
-import { PlayerDetailModal } from "@/components/common/PlayerDetailModal";
+import { StatBar } from "@/components/common/stats/StatBar";
+import { PlayerDetailModal } from "@/components/common/modals/PlayerDetailModal";
 import { PlayerBrowserList } from "@/components/common/PlayerBrowserList";
 import {
   INPUT,

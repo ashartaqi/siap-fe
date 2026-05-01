@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axiosClient";
-import { Match } from "@/types/football";
+import { Match } from "@/features/main/football/types";
 import { IFixturesPayload } from "../types";
 
 export const getFixtures = async (

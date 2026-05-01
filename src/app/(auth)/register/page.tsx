@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/inputs/Input";
+import { Button } from "@/components/common/buttons/Button";
 import { useRegister } from "@/features/auth/hooks/useRegister";
 import { PASSWORD_STRENGTH_LEVELS, REGISTER_PERKS } from "@/lib/constants";
 import { toast } from "sonner";
@@ -282,7 +282,7 @@ export default function RegisterPage() {
           />
 
           {genericErr && (
-            <div className="mb-4 p-3 bg-red-50 text-red-500 border border-red-200 rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
+            <div className="mb-4 p-3 bg-[rgba(255,77,77,0.08)] text-[var(--auth-error)] border border-[rgba(255,77,77,0.25)] rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
               {genericErr}
             </div>
           )}
