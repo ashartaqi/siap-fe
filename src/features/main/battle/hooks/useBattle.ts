@@ -3,7 +3,8 @@ import {
   getBattleUsers,
   getUserDreamTeam,
   getUserCustomPlayer,
-  simulateBattle,
+  simulateTeamBattle,
+  simulatePlayerBattle,
 } from "../apis/battle";
 
 export const useGetBattleUsers = () => {
@@ -29,10 +30,20 @@ export const useGetUserCustomPlayer = (userId: number | null) => {
   });
 };
 
-export const useSimulateBattle = () => {
+export const useSimulateTeamBattle = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (opponentId: number) => simulateBattle(opponentId),
+    mutationFn: (opponentId: number) => simulateTeamBattle(opponentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-me"] });
+    },
+  });
+};
+
+export const useSimulatePlayerBattle = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (opponentId: number) => simulatePlayerBattle(opponentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-me"] });
     },

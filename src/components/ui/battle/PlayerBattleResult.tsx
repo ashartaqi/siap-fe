@@ -3,70 +3,22 @@
 import { Trophy, ChevronLeft } from "lucide-react";
 import type { IDreamPlayerResponse } from "@/features/main/dashboard/types";
 
-const DISPLAY_STATS = [
-  "PACE",
-  "SHOOTING",
-  "PASSING",
-  "DRIBBLING",
-  "DEFENDING",
-  "PHYSIC",
-] as const;
+import { BattleMatchReport } from "./BattleMatchReport";
+import type { IMatchSimulationResult } from "@/features/main/battle/apis/battle";
 
 interface PlayerBattleResultProps {
   myPlayer: IDreamPlayerResponse;
   opponentPlayer: IDreamPlayerResponse;
   winner: "me" | "opponent" | "draw";
+  battleResult?: IMatchSimulationResult;
   onReset: () => void;
-}
-
-function StatRow({
-  stat,
-  myValue,
-  oppValue,
-}: {
-  stat: string;
-  myValue: number;
-  oppValue: number;
-}) {
-  const isWin = myValue > oppValue;
-  const isLoss = oppValue > myValue;
-  const total = myValue + oppValue || 1;
-
-  return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-end">
-        <span
-          className={`text-[18px] font-black ${isWin ? "text-[#00ff66]" : "text-white/20"}`}
-        >
-          {myValue}
-        </span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#aaaba7] mb-1">
-          {stat}
-        </span>
-        <span
-          className={`text-[18px] font-black ${isLoss ? "text-[#ff4444]" : "text-white/20"}`}
-        >
-          {oppValue}
-        </span>
-      </div>
-      <div className="h-2 w-full bg-white/5 rounded-full flex overflow-hidden p-0.5">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ease-out ${isWin ? "bg-[#00ff66] shadow-[0_0_10px_#00ff66]" : "bg-white/10"}`}
-          style={{ width: `${(myValue / total) * 100}%` }}
-        />
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ease-out ${isLoss ? "bg-[#ff4444] shadow-[0_0_10px_#ff4444]" : "bg-white/10"}`}
-          style={{ width: `${(oppValue / total) * 100}%` }}
-        />
-      </div>
-    </div>
-  );
 }
 
 export function PlayerBattleResult({
   myPlayer,
   opponentPlayer,
   winner,
+  battleResult,
   onReset,
 }: PlayerBattleResultProps) {
   const outcomeColor =
@@ -74,25 +26,26 @@ export function PlayerBattleResult({
       ? "text-[#00ff66]"
       : winner === "opponent"
         ? "text-[#ff4444]"
-        : "text-[#ffcc00]";
-  const outcomeLabel =
-    winner === "me" ? "VICTORY" : winner === "opponent" ? "DEFEAT" : "DRAW";
+        : "text-[#aaaba7]";
 
   return (
-    <div className="w-full flex flex-col items-center animate-in fade-in duration-1000">
-      {/* Outcome header */}
-      <div className="flex items-center gap-8 mb-12 w-full max-w-4xl justify-center">
-        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#333]" />
-        <div
-          className={`text-6xl font-[Bebas_Neue] uppercase tracking-tighter ${outcomeColor}`}
+    <div className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-1000">
+      <div className="flex items-center justify-between mb-8 w-full">
+        <button
+          onClick={onReset}
+          className="flex items-center gap-2 text-[10px] font-bold text-[#aaaba7] hover:text-[#00ff66] transition-colors"
         >
-          {outcomeLabel}
+          <ChevronLeft size={16} /> BACK
+        </button>
+        <div
+          className={`text-5xl font-[Bebas_Neue] uppercase tracking-tighter ${outcomeColor}`}
+        >
+          {battleResult?.score1 ?? 0} – {battleResult?.score2 ?? 0}
         </div>
-        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#333]" />
+        <div className="w-10" />
       </div>
 
-      {/* Player cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 w-full items-center mb-16 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-center mb-12">
         <div
           className={`relative p-10 rounded-[40px] border transition-all duration-1000 ${
             winner === "me"
@@ -113,12 +66,6 @@ export function PlayerBattleResult({
           </h2>
           <div className="text-6xl font-black text-[#00ff66]">
             {myPlayer.overall}
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center">
-          <div className="text-9xl font-black italic opacity-5 mb-4 tracking-tighter select-none">
-            VS
           </div>
         </div>
 
@@ -146,32 +93,43 @@ export function PlayerBattleResult({
         </div>
       </div>
 
-      {/* Stat comparison */}
-      <div className="w-full max-w-2xl bg-[rgba(18,18,18,0.6)] backdrop-blur-xl border border-white/5 rounded-[40px] p-10 space-y-8 shadow-2xl">
-        {DISPLAY_STATS.map((stat) => {
-          const myValue =
-            myPlayer[stat.toLowerCase() as keyof IDreamPlayerResponse];
-          const oppValue =
-            opponentPlayer[stat.toLowerCase() as keyof IDreamPlayerResponse];
-          if (typeof myValue !== "number" || typeof oppValue !== "number")
-            return null;
-          return (
-            <StatRow
-              key={stat}
-              stat={stat}
-              myValue={myValue}
-              oppValue={oppValue}
-            />
-          );
-        })}
-      </div>
+      <div className="flex flex-col items-center gap-6 w-full max-w-4xl">
+        {winner === "me" ? (
+          <div className="flex flex-col items-center gap-2 animate-bounce">
+            <Trophy size={60} className="text-[#00ff66]" />
+            <p className="text-[#00ff66] font-bold tracking-widest uppercase text-sm">
+              YOU DOMINATED THE PITCH
+            </p>
+          </div>
+        ) : winner === "opponent" ? (
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[#ff4444] font-bold tracking-widest uppercase text-sm">
+              YOUR TACTICS WERE OUTMATCHED
+            </p>
+          </div>
+        ) : (
+          <p className="text-[#aaaba7] font-bold tracking-widest uppercase text-sm">
+            IT WAS A TACTICAL DEADLOCK
+          </p>
+        )}
 
-      <div className="flex items-center gap-6 mt-16 mb-8">
+        {battleResult && (
+          <div className="w-full flex flex-col items-center gap-6 mb-8">
+            <BattleMatchReport
+              stats={battleResult.stats}
+              log={battleResult.log}
+            />
+            <p className="text-[#aaaba7] font-bold tracking-widest uppercase text-sm mt-4">
+              REWARD: +{battleResult.reward} BB
+            </p>
+          </div>
+        )}
+
         <button
           onClick={onReset}
-          className="flex items-center gap-2 text-[10px] font-bold text-[#aaaba7] hover:text-[#00ff66] transition-colors uppercase tracking-widest"
+          className="px-12 py-4 bg-[rgba(255,255,255,0.05)] border border-white/10 rounded-2xl text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-white/10 hover:border-white/20 transition-all active:scale-95"
         >
-          <ChevronLeft size={16} /> NEW BATTLE
+          RETRY BATTLE
         </button>
       </div>
     </div>

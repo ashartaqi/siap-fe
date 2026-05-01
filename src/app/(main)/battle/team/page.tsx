@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Swords, Trophy, Skull, Users, ChevronLeft } from "lucide-react";
 import {
   useGetBattleUsers,
   useGetUserDreamTeam,
-  useSimulateBattle,
+  useSimulateTeamBattle,
 } from "@/features/main/battle";
 import type { IMatchSimulationResult } from "@/features/main/battle/apis/battle";
 import { useGetDreamTeam } from "@/features/main/dashboard/hooks/useGetDreamTeam";
@@ -13,6 +13,7 @@ import { useGetUser } from "@/features/auth/hooks/useGetUser";
 import { useGetFormations } from "@/features/main/football";
 import { BattleTeamCard } from "@/components/ui/battle/BattleTeamCard";
 import { BattleMatchReport } from "@/components/ui/battle/BattleMatchReport";
+import { BattleLoadingScreen } from "@/components/ui/battle/BattleLoadingScreen";
 import { slotsToPlayers } from "@/lib/utils/battleUtils";
 
 export default function TeamBattlePage() {
@@ -43,7 +44,16 @@ export default function TeamBattlePage() {
   const opponentFormation =
     formations.find((f) => f.id === opponentTeam?.formation) ?? formations[0];
 
-  const { mutate: simulate, isPending: isSimulating } = useSimulateBattle();
+  const { mutate: simulate, isPending: isSimulating } = useSimulateTeamBattle();
+
+  const handleMatchmaking = useCallback(() => {
+    const pool = battleUsers.filter(
+      (u) => u.username !== currentUser?.username,
+    ); //check by id
+    if (pool.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    setOpponentId(pool[randomIndex].id);
+  }, [battleUsers, currentUser?.username]);
 
   const startBattle = () => {
     if (!myTeam || !opponentTeam || !opponentId) return;
@@ -108,31 +118,28 @@ export default function TeamBattlePage() {
             <div className="bg-[#121212] border border-[rgba(255,255,255,0.05)] p-8 rounded-3xl flex flex-col gap-8 shadow-2xl animate-in slide-in-from-right-8 duration-500">
               <div>
                 <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff4444] uppercase mb-4 block">
-                  CHOOSE OPPONENT
+                  ARENA MATCHMAKING
                 </span>
-                <div className="relative group">
-                  <select
-                    onChange={(e) => setOpponentId(Number(e.target.value))}
-                    value={opponentId ?? ""}
-                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-4 text-[13px] outline-none focus:border-[#00ff66] text-[#fcfcf8] appearance-none cursor-pointer hover:border-[#444] transition-all"
-                  >
-                    <option value="" disabled className="bg-[#121212]">
-                      Select Rival User
-                    </option>
-                    {battleUsers.map((u) => (
-                      <option
-                        key={u.id}
-                        value={u.id}
-                        className="bg-[#121212] py-2"
-                      >
-                        {u.username}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#555] group-hover:text-[#888]">
-                    <Users size={18} />
-                  </div>
-                </div>
+                <button
+                  onClick={handleMatchmaking}
+                  className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-8 text-[13px] text-[#fcfcf8] hover:border-[#00ff66] hover:bg-[#1f1f1f] transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,255,102,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_3s_infinite]" />
+                  <Users
+                    size={24}
+                    className="text-[#555] group-hover:text-[#00ff66] transition-all group-hover:scale-110"
+                  />
+                  <span className="font-bold tracking-widest uppercase">
+                    {opponentId
+                      ? battleUsers.find((u) => u.id === opponentId)?.username
+                      : "Find Random Opponent"}
+                  </span>
+                  {opponentId && (
+                    <span className="text-[9px] text-[#00ff66] animate-pulse">
+                      RIVAL ACQUIRED
+                    </span>
+                  )}
+                </button>
               </div>
 
               <div className="flex flex-col gap-4">
@@ -159,14 +166,10 @@ export default function TeamBattlePage() {
 
       {/* Loading */}
       {isBattling && (
-        <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="text-3xl font-[Bebas_Neue] text-[#00ff66] animate-bounce">
-            ANALYZING TACTICS...
-          </div>
-          <div className="text-[10px] text-[#555] uppercase tracking-[0.5em] mt-2">
-            SIMULATING MATCH SCENARIO
-          </div>
-        </div>
+        <BattleLoadingScreen
+          title="ANALYZING TACTICS..."
+          subtitle="SIMULATING MATCH SCENARIO"
+        />
       )}
 
       {/* Results */}
