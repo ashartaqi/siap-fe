@@ -216,7 +216,12 @@ function VoteModalContent({
                   </button>
                 </div>
                 <div className="flex items-center justify-center gap-4">
-                  <div className="text-center">
+                  <div className="text-center flex-1 min-w-0">
+                    <div
+                      className={`text-[9px] font-black uppercase tracking-tighter truncate mb-1 ${isBlue ? "text-[#8aabdc]" : "text-on-surface-variant"}`}
+                    >
+                      {match.home_team}
+                    </div>
                     <div
                       className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
                     >
@@ -226,24 +231,35 @@ function VoteModalContent({
                       Home xG
                     </div>
                   </div>
-                  <div
-                    className={`h-8 w-[1px] ${isBlue ? "bg-white/10" : "bg-outline-variant/20"}`}
-                  />
-                  <div className="text-center">
+
+                  <div className="flex flex-col items-center">
                     <div
                       className={`text-2xl font-black italic ${isBlue ? "text-[#60aaff]" : "text-primary-container"}`}
                     >
                       {prediction.team1_score_rounded} -{" "}
                       {prediction.team2_score_rounded}
                     </div>
-                    <div className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60">
-                      Outcome: {prediction.outcome}
+                    <div
+                      className={`text-[9px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded-full mt-1 ${
+                        isBlue
+                          ? "bg-[#60aaff]/10 text-[#60aaff]"
+                          : "bg-primary-container/10 text-primary-container"
+                      }`}
+                    >
+                      {prediction.outcome === "win"
+                        ? `${match.home_team} Win`
+                        : prediction.outcome === "loss"
+                          ? `${match.away_team} Win`
+                          : "Draw Prediction"}
                     </div>
                   </div>
-                  <div
-                    className={`h-8 w-[1px] ${isBlue ? "bg-white/10" : "bg-outline-variant/20"}`}
-                  />
-                  <div className="text-center">
+
+                  <div className="text-center flex-1 min-w-0">
+                    <div
+                      className={`text-[9px] font-black uppercase tracking-tighter truncate mb-1 ${isBlue ? "text-[#8aabdc]" : "text-on-surface-variant"}`}
+                    >
+                      {match.away_team}
+                    </div>
                     <div
                       className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
                     >
