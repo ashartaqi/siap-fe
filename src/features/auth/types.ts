@@ -24,3 +24,14 @@ export interface ILoginResponse {
   token: string;
   token_type: string;
 }
+
+export interface IResetPasswordPayload {
+  email: string;
+  username: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface IResetPasswordResponse {
+  message: string;
+}
