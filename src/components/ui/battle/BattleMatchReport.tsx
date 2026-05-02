@@ -73,6 +73,7 @@ export function BattleMatchReport({
   const [isDone, setIsDone] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const completedRef = useRef(false);
 
   const speed = isFast ? 120 : 600;
 
@@ -81,12 +82,19 @@ export function BattleMatchReport({
       if (prev >= log.length) {
         setIsPlaying(false);
         setIsDone(true);
-        onSimulationComplete?.();
         return prev;
       }
       return prev + 1;
     });
-  }, [log.length, onSimulationComplete]);
+  }, [log.length]);
+
+  // Fire onSimulationComplete exactly once when isDone becomes true
+  useEffect(() => {
+    if (isDone && !completedRef.current) {
+      completedRef.current = true;
+      onSimulationComplete?.();
+    }
+  }, [isDone, onSimulationComplete]);
 
   useEffect(() => {
     if (!isPlaying || isDone) {
@@ -109,7 +117,6 @@ export function BattleMatchReport({
     setVisibleCount(log.length);
     setIsPlaying(false);
     setIsDone(true);
-    onSimulationComplete?.();
   };
 
   const togglePlayPause = () => setIsPlaying((p) => !p);

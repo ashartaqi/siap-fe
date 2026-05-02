@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useState } from "react";
 import { Toaster } from "sonner";
+import { RewardProvider } from "./RewardProvider";
 
 export default function AppProviders({
   children,
@@ -28,7 +29,7 @@ export default function AppProviders({
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster position="top-right" richColors closeButton />
-      {children}
+      <RewardProvider>{children}</RewardProvider>
     </QueryClientProvider>
   );
 }

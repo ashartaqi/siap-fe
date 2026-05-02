@@ -8,15 +8,26 @@ import { clearToken } from "@/lib/auth/token";
 import { logout } from "@/features/auth/apis/logout";
 import { NAV_ITEMS } from "@/lib/navItems";
 import { useGetUser } from "@/features/auth/hooks/useGetUser";
+import { useRewards } from "@/components/providers/RewardProvider";
+import { useEffect } from "react";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const { data: user } = useGetUser();
+  const { addReward } = useRewards();
   const pathname = usePathname();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const isUCL = pathname === "/ucl" || pathname === "/settings";
+
+  useEffect(() => {
+    const pending = localStorage.getItem("pending_login_reward");
+    if (pending) {
+      addReward(parseInt(pending, 10), "Daily Login Bonus");
+      localStorage.removeItem("pending_login_reward");
+    }
+  }, [addReward]);
 
   const handleLogout = async () => {
     await logout().catch(() => {});

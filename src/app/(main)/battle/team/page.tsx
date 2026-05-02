@@ -15,8 +15,10 @@ import { BattleTeamCard } from "@/components/ui/battle/BattleTeamCard";
 import { BattleMatchReport } from "@/components/ui/battle/BattleMatchReport";
 import { BattleLoadingScreen } from "@/components/ui/battle/BattleLoadingScreen";
 import { slotsToPlayers } from "@/lib/utils/battleUtils";
+import { useRewards } from "@/components/providers/RewardProvider";
 
 export default function TeamBattlePage() {
+  const { addReward } = useRewards();
   const [opponentId, setOpponentId] = useState<number | null>(null);
   const [isBattling, setIsBattling] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -69,6 +71,19 @@ export default function TeamBattlePage() {
       },
       onError: () => setIsBattling(false),
     });
+  };
+
+  const handleSimulationComplete = () => {
+    setSimDone(true);
+    if (battleResult && battleResult.reward > 0) {
+      const msg =
+        battleResult.winner === "me"
+          ? "Victory Bonus!"
+          : battleResult.winner === "draw"
+            ? "Hard-fought Draw Reward"
+            : "Participation Reward";
+      addReward(battleResult.reward, msg);
+    }
   };
 
   const resetBattle = () => {
@@ -218,7 +233,7 @@ export default function TeamBattlePage() {
               <BattleMatchReport
                 stats={battleResult.stats}
                 log={battleResult.log}
-                onSimulationComplete={() => setSimDone(true)}
+                onSimulationComplete={handleSimulationComplete}
               />
             </div>
 

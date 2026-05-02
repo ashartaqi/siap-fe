@@ -43,6 +43,12 @@ export default function LoginPage() {
         {
           onSuccess: (data) => {
             setToken(data.access_token);
+            if (data.reward_amount) {
+              localStorage.setItem(
+                "pending_login_reward",
+                data.reward_amount.toString(),
+              );
+            }
             toast.success("Successfully signed in!");
             router.push("/dashboard");
           },

@@ -6,6 +6,7 @@ import {
   simulateTeamBattle,
   simulatePlayerBattle,
 } from "../apis/battle";
+import { useRewards } from "@/components/providers/RewardProvider";
 
 export const useGetBattleUsers = () => {
   return useQuery({
@@ -32,6 +33,7 @@ export const useGetUserCustomPlayer = (userId: number | null) => {
 
 export const useSimulateTeamBattle = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (opponentId: number) => simulateTeamBattle(opponentId),
     onSuccess: () => {
@@ -42,6 +44,7 @@ export const useSimulateTeamBattle = () => {
 
 export const useSimulatePlayerBattle = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (opponentId: number) => simulatePlayerBattle(opponentId),
     onSuccess: () => {

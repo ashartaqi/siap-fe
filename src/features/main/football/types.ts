@@ -5,6 +5,7 @@ export interface MatchComment {
   username: string;
   content: string;
   created_at: string;
+  reward_amount?: number;
 }
 
 export interface IFixturesPayload {

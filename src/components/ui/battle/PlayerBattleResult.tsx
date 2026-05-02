@@ -5,6 +5,7 @@ import { Trophy, ChevronLeft } from "lucide-react";
 import type { IDreamPlayerResponse } from "@/features/main/dashboard/types";
 import { BattleMatchReport } from "./BattleMatchReport";
 import type { IMatchSimulationResult } from "@/features/main/battle/apis/battle";
+import { useRewards } from "@/components/providers/RewardProvider";
 
 interface PlayerBattleResultProps {
   myPlayer: IDreamPlayerResponse;
@@ -21,7 +22,21 @@ export function PlayerBattleResult({
   battleResult,
   onReset,
 }: PlayerBattleResultProps) {
+  const { addReward } = useRewards();
   const [simDone, setSimDone] = useState(false);
+
+  const handleSimulationComplete = () => {
+    setSimDone(true);
+    if (battleResult && battleResult.reward > 0) {
+      const msg =
+        winner === "me"
+          ? "Victory Bonus!"
+          : winner === "draw"
+            ? "Hard-fought Draw Reward"
+            : "Participation Reward";
+      addReward(battleResult.reward, msg);
+    }
+  };
 
   const outcomeColor =
     winner === "me"
@@ -62,7 +77,7 @@ export function PlayerBattleResult({
           <BattleMatchReport
             stats={battleResult.stats}
             log={battleResult.log}
-            onSimulationComplete={() => setSimDone(true)}
+            onSimulationComplete={handleSimulationComplete}
           />
         </div>
       )}
