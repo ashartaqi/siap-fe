@@ -225,6 +225,11 @@
   .ucl-page *::-webkit-scrollbar-thumb:hover {
     background: #60aaff;
   }
+
+  /* Smooth theme transitions — applied to sidebar, borders, backgrounds */
+  [class*="bg-[var(--color"], [class*="border-[var(--color"], [class*="text-[var(--color"] {
+    transition: background-color 700ms ease, border-color 700ms ease, color 700ms ease;
+  }
 }
 
 @layer utilities {
