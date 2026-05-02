@@ -82,6 +82,19 @@ export interface Match {
   matchday?: number;
 }
 
+export interface KnockoutTie {
+  id: string;
+  home_team: string;
+  away_team: string;
+  leg1: Match;
+  leg2?: Match;
+  aggregate_home: number | null;
+  aggregate_away: number | null;
+  winner: string | null;
+  status: string;
+  date: string;
+}
+
 export interface Player {
   id: number;
   short_name: string;

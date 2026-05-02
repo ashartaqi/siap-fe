@@ -1,4 +1,4 @@
-import type { Match } from "@/features/main/football/types";
+import type { Match, KnockoutTie } from "@/features/main/football/types";
 
 export function isUpcoming(status: string) {
   return ["TIMED", "SCHEDULED", "POSTPONED"].includes(status);
@@ -129,4 +129,77 @@ export function calculateAge(dob: string): number {
   const ageDifMs = Date.now() - birthday.getTime();
   const ageDate = new Date(ageDifMs);
   return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
+export function transformKnockoutTies(matches: Match[]): KnockoutTie[] {
+  const tiesMap: Record<string, Match[]> = {};
+
+  matches.forEach((m) => {
+    const key = [m.home_team, m.away_team].sort().join("_");
+    if (!tiesMap[key]) tiesMap[key] = [];
+    tiesMap[key].push(m);
+  });
+
+  const ties: KnockoutTie[] = Object.entries(tiesMap).map(([key, legs]) => {
+    // Sort legs by date
+    legs.sort(
+      (a, b) =>
+        new Date(a.date || a.utc_date || "").getTime() -
+        new Date(b.date || b.utc_date || "").getTime(),
+    );
+
+    const leg1 = legs[0];
+    const leg2 = legs[1];
+
+    const home_team = leg1.home_team;
+    const away_team = leg1.away_team;
+
+    let aggregate_home: number | null = null;
+    let aggregate_away: number | null = null;
+    let winner: string | null = null;
+
+    const getScore = (m: Match, isHome: boolean) => {
+      if (isHome) return m.home_team_score ?? m.home_score ?? 0;
+      return m.away_team_score ?? m.away_score ?? 0;
+    };
+
+    const isFinished = (m: Match) => m.status === "FINISHED";
+
+    if (leg1 && isFinished(leg1)) {
+      aggregate_home = getScore(leg1, true);
+      aggregate_away = getScore(leg1, false);
+    }
+
+    if (leg2 && isFinished(leg2)) {
+      // In leg 2, leg1.home_team is leg2.away_team
+      aggregate_home = (aggregate_home ?? 0) + getScore(leg2, false);
+      aggregate_away = (aggregate_away ?? 0) + getScore(leg2, true);
+    }
+
+    if (leg1 && leg2 && isFinished(leg1) && isFinished(leg2)) {
+      if (aggregate_home! > aggregate_away!) winner = home_team;
+      else if (aggregate_away! > aggregate_home!) winner = away_team;
+    } else if (leg1 && isFinished(leg1) && !leg2) {
+      if (aggregate_home! > aggregate_away!) winner = home_team;
+      else if (aggregate_away! > aggregate_home!) winner = away_team;
+    }
+
+    return {
+      id: key,
+      home_team,
+      away_team,
+      leg1,
+      leg2,
+      aggregate_home,
+      aggregate_away,
+      winner,
+      status: leg2 ? leg2.status : leg1.status,
+      date: leg1.date || leg1.utc_date || "",
+    };
+  });
+
+  // Sort ties by earliest match date
+  return ties.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  );
 }

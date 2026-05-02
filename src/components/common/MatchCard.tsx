@@ -16,6 +16,9 @@ interface MatchCardProps {
   votedFixtureIds: Set<number>;
   showRound?: string;
   theme?: "green" | "blue";
+  aggregateHome?: number | null;
+  aggregateAway?: number | null;
+  winner?: string | null;
 }
 
 export function MatchCard({
@@ -24,6 +27,9 @@ export function MatchCard({
   votedFixtureIds,
   showRound,
   theme = "green",
+  aggregateHome,
+  aggregateAway,
+  winner,
 }: MatchCardProps) {
   const [showVoteModal, setShowVoteModal] = useState(false);
   const [showViewVotes, setShowViewVotes] = useState(false);
@@ -86,6 +92,8 @@ export function MatchCard({
             teamNameClasses={teamNameClasses}
             scoreLabelClasses={scoreLabelClasses}
             onTeamClick={setSelectedTeam}
+            isWinner={winner === m.home_team}
+            aggregate={aggregateHome}
           />
           <TeamRow
             name={m.away_team}
@@ -101,6 +109,8 @@ export function MatchCard({
             onTeamClick={setSelectedTeam}
             dimmed
             isBlue={isBlue}
+            isWinner={winner === m.away_team}
+            aggregate={aggregateAway}
           />
         </div>
 
@@ -192,6 +202,8 @@ function TeamRow({
   onTeamClick,
   dimmed,
   isBlue,
+  isWinner,
+  aggregate,
 }: {
   name: string;
   score: string | number;
@@ -200,6 +212,8 @@ function TeamRow({
   onTeamClick: (team: ITeamsResponse) => void;
   dimmed?: boolean;
   isBlue?: boolean;
+  isWinner?: boolean;
+  aggregate?: number | null;
 }) {
   const { data: team } = useGetTeamByName(name);
 
@@ -209,9 +223,27 @@ function TeamRow({
       onClick={() => team && onTeamClick(team)}
     >
       <div className="flex items-center gap-2 min-w-0">
-        <span className={teamNameClasses}>{name}</span>
+        <span
+          className={`${teamNameClasses} ${isWinner ? "font-black text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" : ""}`}
+        >
+          {name}
+        </span>
+        {isWinner && (
+          <div className="w-1 h-1 rounded-full bg-[#60aaff] shadow-[0_0_8px_rgba(96,170,255,1)]" />
+        )}
       </div>
-      <span className={scoreLabelClasses}>{score}</span>
+      <div className="flex items-center gap-3">
+        {aggregate !== null && aggregate !== undefined && (
+          <span className="text-[10px] font-bold text-[#4a6a9a] bg-[rgba(100,160,255,0.1)] px-1.5 py-0.5 rounded border border-[rgba(100,160,255,0.15)]">
+            AGG {aggregate}
+          </span>
+        )}
+        <span
+          className={`${scoreLabelClasses} ${isWinner ? "text-white scale-110 transition-transform" : ""}`}
+        >
+          {score}
+        </span>
+      </div>
     </div>
   );
 }
