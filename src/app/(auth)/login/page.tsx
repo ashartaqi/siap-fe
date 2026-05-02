@@ -119,7 +119,10 @@ export default function LoginPage() {
             placeholder="Enter your password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+            }}
             error={pwErr}
             icon={
               <svg
@@ -135,7 +138,7 @@ export default function LoginPage() {
 
           <div className="text-right mt-[-10px] mb-7 animate-[fadeUp_0.6s_0.28s_ease_both]">
             <Link
-              href="#"
+              href="/forgot-password"
               className="text-[12px] text-[var(--auth-muted)] no-underline transition-colors hover:text-[var(--auth-green)]"
             >
               Forgot password?

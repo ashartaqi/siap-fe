@@ -5,6 +5,7 @@ export interface IShopUnlockResponse {
 
 export interface IPlayersPayload {
   limit?: number;
+  offset?: number;
   skip?: number;
   teamId?: number;
   name?: string;

@@ -25,3 +25,14 @@ export interface ILoginResponse {
   token_type: string;
   reward_amount?: number;
 }
+
+export interface IResetPasswordPayload {
+  email: string;
+  username: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface IResetPasswordResponse {
+  message: string;
+}

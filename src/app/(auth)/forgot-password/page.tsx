@@ -6,29 +6,26 @@ import { useRouter } from "next/navigation";
 import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
 import { Input } from "@/components/common/inputs/Input";
 import { Button } from "@/components/common/buttons/Button";
-import { useRegister } from "@/features/auth/hooks/useRegister";
-import { PASSWORD_STRENGTH_LEVELS, REGISTER_PERKS } from "@/lib/constants";
+import { useResetPassword } from "@/features/auth/hooks/useResetPassword";
+import { PASSWORD_STRENGTH_LEVELS } from "@/lib/constants";
 import { toast } from "sonner";
 
-export default function RegisterPage() {
+export default function ForgotPasswordPage() {
   const router = useRouter();
-  const registerMutation = useRegister();
+  const resetPasswordMutation = useResetPassword();
 
   const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
 
   const [usernameErr, setUsernameErr] = useState("");
-  const [firstNameErr, setFirstNameErr] = useState("");
-  const [lastNameErr, setLastNameErr] = useState("");
   const [emailErr, setEmailErr] = useState("");
   const [pwErr, setPwErr] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
   const [genericErr, setGenericErr] = useState("");
 
+  // Password strength logic
   const getPasswordStrength = (v: string) => {
     if (!v) return null;
     let score = 0;
@@ -51,8 +48,6 @@ export default function RegisterPage() {
     let valid = true;
 
     setUsernameErr("");
-    setFirstNameErr("");
-    setLastNameErr("");
     setEmailErr("");
     setPwErr("");
     setConfirmErr("");
@@ -60,14 +55,6 @@ export default function RegisterPage() {
 
     if (username.trim().length < 3) {
       setUsernameErr("Username must be at least 3 characters.");
-      valid = false;
-    }
-    if (firstName.trim().length < 1) {
-      setFirstNameErr("First name is required.");
-      valid = false;
-    }
-    if (lastName.trim().length < 1) {
-      setLastNameErr("Last name is required.");
       valid = false;
     }
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,25 +72,24 @@ export default function RegisterPage() {
     }
 
     if (valid) {
-      registerMutation.mutate(
+      resetPasswordMutation.mutate(
         {
           username,
-          first_name: firstName,
-          last_name: lastName,
           email,
           password,
           confirm_password: confirmPw,
         },
         {
           onSuccess: () => {
-            toast.success("Account created! Please sign in.");
+            toast.success("Password reset successful!");
             router.push("/login");
           },
           onError: (err) => {
-            console.error("Registration failed:", err);
+            console.error("Reset password failed:", err);
             setGenericErr(
-              err.response?.data?.message ||
-                "Registration failed. Please try again.",
+              err.response?.data?.detail ||
+                err.response?.data?.message ||
+                "Failed to reset password. Please check your details.",
             );
           },
         },
@@ -111,82 +97,37 @@ export default function RegisterPage() {
     }
   };
 
-  const isLoading = registerMutation.isPending;
+  const isLoading = resetPasswordMutation.isPending;
 
   return (
     <>
       <AuthLeftPanel
-        label="Join The Platform"
+        label="Account Recovery"
         title={
           <>
-            Your Edge
+            Regain
             <br />
-            <span className="block text-[var(--auth-green)]">Starts Here.</span>
+            <span className="block text-[var(--auth-green)]">Access.</span>
           </>
         }
       >
         <div className="flex flex-col gap-4 mt-2.5">
-          {REGISTER_PERKS.map((perk, i) => (
-            <div key={i} className="flex items-start gap-3.5">
-              <div className="w-2 h-2 rounded-[2px] bg-[var(--auth-green)] shrink-0 mt-1.5"></div>
-              <div className="text-[14px] text-[var(--auth-muted)] leading-[1.5]">
-                <strong className="text-[var(--auth-text)] font-medium">
-                  {perk.title}
-                </strong>{" "}
-                — {perk.desc}
-              </div>
-            </div>
-          ))}
+          <p className="text-[15px] leading-[1.7] text-[var(--auth-muted)] max-w-[380px] mb-12">
+            Forgot your password? No worries. Just fill in your registered
+            username and email, and set a new password. We&apos;ll have you back
+            on the pitch in no time.
+          </p>
         </div>
       </AuthLeftPanel>
 
       <div className="flex flex-col justify-center px-8 md:px-[70px] py-[60px] overflow-y-auto">
         <div className="mb-8 animate-[fadeUp_0.6s_0.1s_ease_both]">
           <h2 className="font-outfit font-extrabold text-[38px] tracking-[1px] uppercase mb-2">
-            Create Account
+            Reset Password
           </h2>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-4.5">
-            <Input
-              label="First Name"
-              type="text"
-              placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              error={firstNameErr}
-              icon={
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              }
-            />
-            <Input
-              label="Last Name"
-              type="text"
-              placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              error={lastNameErr}
-              icon={
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              }
-            />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-4.5">
             <Input
               label="Username"
@@ -229,9 +170,9 @@ export default function RegisterPage() {
           </div>
 
           <Input
-            label="Password"
+            label="New Password"
             type="password"
-            placeholder="Password"
+            placeholder="New Password"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
@@ -265,9 +206,9 @@ export default function RegisterPage() {
           )}
 
           <Input
-            label="Confirm Password"
+            label="Confirm New Password"
             type="password"
-            placeholder="Re-enter password"
+            placeholder="Re-enter new password"
             autoComplete="new-password"
             value={confirmPw}
             onChange={(e) => setConfirmPw(e.target.value.replace(/\s/g, ""))}
@@ -288,18 +229,18 @@ export default function RegisterPage() {
           />
 
           {genericErr && (
-            <div className="mb-4 p-3 bg-[rgba(255,77,77,0.08)] text-[var(--auth-error)] border border-[rgba(255,77,77,0.25)] rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
+            <div className="mb-4 p-3 bg-red-50 text-red-500 border border-red-200 rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
               {genericErr}
             </div>
           )}
 
           <Button type="submit" className="mt-2" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create Account"}
+            {isLoading ? "Resetting password..." : "Reset Password"}
           </Button>
         </form>
 
         <div className="text-center mt-5 text-[14px] text-[var(--auth-muted)] animate-[fadeUp_0.6s_0.48s_ease_both]">
-          Already a member?{" "}
+          Remembered your password?{" "}
           <Link
             href="/login"
             className="text-[var(--auth-green)] font-semibold ml-1 transition-opacity hover:opacity-75"
