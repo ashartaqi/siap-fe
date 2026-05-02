@@ -65,7 +65,7 @@ const THEME_AMBER: PageTheme = {
   "--color-text-muted": "#e07b1a",
   "--color-neon": "#f97316",
   background:
-    "radial-gradient(ellipse at 30% 0%, rgba(249,115,22,0.15) 0%, #0a0600 65%)",
+    "radial-gradient(circle at 50% 20%, rgba(251, 191, 36, 0.22) 0%, rgba(249, 115, 22, 0.1) 40%, #0a0600 80%)",
 };
 
 // Dream Team — dark teal & cyan (Formation builder)
@@ -77,7 +77,7 @@ const THEME_CYAN: PageTheme = {
   "--color-text-muted": "#4dd9d0",
   "--color-neon": "#06b6d4",
   background:
-    "radial-gradient(ellipse at 70% 0%, rgba(6,182,212,0.12) 0%, #00100f 60%)",
+    "radial-gradient(ellipse at 80% -10%, rgba(6,182,212,0.25) 0%, rgba(139,92,246,0.12) 50%, #00100f 85%)",
 };
 
 // League Standings — dark slate & cool silver (Data & stats)
@@ -89,7 +89,7 @@ const THEME_SILVER: PageTheme = {
   "--color-text-muted": "#64748b",
   "--color-neon": "#94a3b8",
   background:
-    "radial-gradient(ellipse at 50% 0%, rgba(100,116,139,0.12) 0%, #090c10 60%)",
+    "radial-gradient(ellipse at 50% 0%, rgba(226,232,240,0.25) 0%, #090c10 65%)",
 };
 
 // Players — deep rose & hot pink (Player discovery)
@@ -101,7 +101,7 @@ const THEME_ROSE: PageTheme = {
   "--color-text-muted": "#f472b6",
   "--color-neon": "#ec4899",
   background:
-    "radial-gradient(ellipse at 60% 0%, rgba(236,72,153,0.14) 0%, #110008 60%)",
+    "radial-gradient(circle at 10% 10%, rgba(236,72,153,0.25) 0%, rgba(56,189,248,0.1) 40%, #110008 80%)",
 };
 
 // Teams — dark moss & chartreuse (Club hub)
@@ -113,7 +113,7 @@ const THEME_LIME: PageTheme = {
   "--color-text-muted": "#7ec832",
   "--color-neon": "#a3e635",
   background:
-    "radial-gradient(ellipse at 20% 10%, rgba(163,230,53,0.12) 0%, #060e00 65%)",
+    "radial-gradient(circle at 90% 10%, rgba(163,230,53,0.25) 0%, rgba(250,204,21,0.12) 40%, #060e00 80%)",
 };
 
 // Map path prefixes → themes (most specific first)
