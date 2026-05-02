@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { UCLIcon } from "@/components/icons/UCLIcon";
 
 /* ─── Per-page transition config ─────────────────────────── */
 interface PageConfig {
@@ -33,12 +34,7 @@ const PAGE_CONFIGS: { prefix: string; config: PageConfig }[] = [
       label: "Champions League",
       accent: "#4cc9f0",
       bg: "radial-gradient(ellipse at center, #0b0f2a 0%, #050810 100%)",
-      icon: (
-        <SVG>
-          {/* Trophy */}
-          <path d="M6 2h12M8 2v4a4 4 0 008 0V2M6 2C6 2 4 4 4 7h3M18 2c0 0 2 2 2 5h-3M8 16v4M16 16v4M6 20h12" />
-        </SVG>
-      ),
+      icon: <UCLIcon size={64} />,
     },
   },
   {

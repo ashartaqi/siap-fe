@@ -5,6 +5,7 @@ import { useGetFixtures } from "@/features/main/football";
 import { transformKnockoutTies } from "@/lib/utils/footballUtils";
 import { MatchNode } from "@/components/ui/ucl/MatchNode";
 import { UCL_FOOTER_STATS } from "@/lib/constants";
+import { UCLIcon } from "@/components/icons/UCLIcon";
 
 export default function UCLPage() {
   const {
@@ -45,10 +46,16 @@ export default function UCLPage() {
 
   if (loading) {
     return (
-      <div className="h-full min-h-0 flex flex-col items-center justify-center gap-4 bg-[#02081e]">
-        <div className="animate-spin w-12 h-12 rounded-full border-4 border-[rgba(100,160,255,0.4)] border-t-transparent" />
-        <p className="animate-pulse text-[#7eb8ff] uppercase tracking-[0.15em] text-sm font-bold">
-          Analyzing Roadmap...
+      <div className="h-full min-h-0 flex flex-col items-center justify-center gap-6 bg-[#02081e]">
+        <div className="relative">
+          <div className="absolute inset-0 bg-[#60aaff]/20 blur-[30px] rounded-full animate-pulse" />
+          <UCLIcon
+            size={80}
+            className="text-[#60aaff] relative z-10 animate-pulse drop-shadow-[0_0_15px_rgba(96,170,255,0.4)]"
+          />
+        </div>
+        <p className="animate-pulse text-[#7eb8ff] uppercase tracking-[0.25em] text-[10px] font-black italic">
+          Fetching European Elite...
         </p>
       </div>
     );
@@ -84,7 +91,7 @@ export default function UCLPage() {
           <h1 className="font-headline italic text-[clamp(2rem,8vw,5rem)] font-black uppercase tracking-[-0.03em] leading-[0.9] bg-[linear-gradient(to_bottom,#e8f0ff_0%,#7eb8ff_55%,rgba(100,160,255,0.25)_100%)] bg-clip-text text-transparent">
             Road{" "}
             <span className="[-webkit-text-fill-color:#60aaff] drop-shadow-[0_0_20px_rgba(0,100,255,0.5)]">
-              to Puskás
+              to Hungary
             </span>
           </h1>
           <p className="text-[#5a80b0] text-[11px] md:text-[12px] mt-2 max-w-[450px] uppercase tracking-[0.1em] font-medium hidden sm:block">
@@ -99,7 +106,7 @@ export default function UCLPage() {
               Grand Final
             </p>
             <p className="text-[#c8dcff] text-[13px] md:text-[15px] font-black uppercase">
-              Budapest • May 30
+              Puskás arena - budapest • May 30
             </p>
           </div>
         </div>

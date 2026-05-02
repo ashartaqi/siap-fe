@@ -188,6 +188,7 @@ export function MatchCard({
         <TeamDetailModal
           team={selectedTeam}
           onClose={() => setSelectedTeam(null)}
+          theme={theme}
         />
       )}
     </>

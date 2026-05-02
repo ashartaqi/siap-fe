@@ -20,6 +20,7 @@ interface PlayerBrowserListProps {
   onSelectPlayer: (player: IPlayersResponse) => void;
   renderRightSlot?: (player: IPlayersResponse) => React.ReactNode;
   isPlayerDisabled?: (player: IPlayersResponse) => boolean;
+  theme?: "green" | "blue";
 }
 
 export function PlayerBrowserList({
@@ -27,6 +28,7 @@ export function PlayerBrowserList({
   onSelectPlayer,
   renderRightSlot,
   isPlayerDisabled = () => false,
+  theme = "green",
 }: PlayerBrowserListProps) {
   const [pendingUnlock, setPendingUnlock] = useState<IPlayersResponse | null>(
     null,
@@ -76,7 +78,11 @@ export function PlayerBrowserList({
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="h-14 rounded-lg bg-[rgba(255,255,255,0.04)] animate-pulse"
+            className={`h-14 rounded-lg animate-pulse ${
+              theme === "blue"
+                ? "bg-[rgba(100,160,255,0.04)]"
+                : "bg-[rgba(255,255,255,0.04)]"
+            }`}
           />
         ))}
       </div>
@@ -119,11 +125,15 @@ export function PlayerBrowserList({
               }}
               className={[
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg relative overflow-hidden",
-                "bg-[rgba(36,39,35,0.6)] border border-[rgba(71,72,69,0.15)]",
+                theme === "blue"
+                  ? "bg-[rgba(10,25,70,0.6)] border border-[rgba(100,160,255,0.15)]"
+                  : "bg-[rgba(36,39,35,0.6)] border border-[rgba(71,72,69,0.15)]",
                 "transition-all duration-200",
                 disabled && !isLocked
                   ? "opacity-35 cursor-not-allowed"
-                  : "cursor-pointer hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.04)]",
+                  : theme === "blue"
+                    ? "cursor-pointer hover:border-[rgba(100,160,255,0.3)] hover:bg-[rgba(100,160,255,0.04)]"
+                    : "cursor-pointer hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.04)]",
               ].join(" ")}
             >
               {isLocked && (
@@ -138,7 +148,11 @@ export function PlayerBrowserList({
               )}
 
               <div
-                className={`w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center ${isLocked ? "blur-sm" : ""}`}
+                className={`w-11 h-11 rounded-[6px] overflow-hidden shrink-0 flex items-center justify-center ${isLocked ? "blur-sm" : ""} ${
+                  theme === "blue"
+                    ? "bg-[rgba(10,25,70,0.9)] border border-[rgba(100,160,255,0.2)]"
+                    : "bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)]"
+                }`}
               >
                 {p.player_face_url ? (
                   <Image
@@ -155,7 +169,11 @@ export function PlayerBrowserList({
                     }}
                   />
                 ) : (
-                  <span className="text-[rgba(0,255,102,0.3)] text-xl">👤</span>
+                  <span
+                    className={`${theme === "blue" ? "text-[rgba(100,160,255,0.3)]" : "text-[rgba(0,255,102,0.3)]"} text-xl`}
+                  >
+                    👤
+                  </span>
                 )}
               </div>
 
@@ -174,7 +192,11 @@ export function PlayerBrowserList({
                 {renderRightSlot ? (
                   renderRightSlot(p)
                 ) : (
-                  <div className="font-[Bebas_Neue,sans-serif] text-[26px] text-[#00ff66] leading-none shrink-0">
+                  <div
+                    className={`font-[Bebas_Neue,sans-serif] text-[26px] leading-none shrink-0 ${
+                      theme === "blue" ? "text-[#60aaff]" : "text-[#00ff66]"
+                    }`}
+                  >
                     {p.overall}
                   </div>
                 )}
@@ -188,7 +210,11 @@ export function PlayerBrowserList({
             ref={sentinelRef}
             className="h-10 w-full flex items-center justify-center mt-2"
           >
-            <div className="w-5 h-5 border-2 border-[#00ff66] border-t-transparent rounded-full animate-spin" />
+            <div
+              className={`w-5 h-5 border-2 rounded-full animate-spin border-t-transparent ${
+                theme === "blue" ? "border-[#60aaff]" : "border-[#00ff66]"
+              }`}
+            />
           </div>
         )}
       </div>
@@ -199,11 +225,15 @@ export function PlayerBrowserList({
           message={
             <>
               Unlock{" "}
-              <span className="text-[#00ff66] font-bold">
+              <span
+                className={`${theme === "blue" ? "text-[#60aaff]" : "text-[#00ff66]"} font-bold`}
+              >
                 {pendingUnlock.short_name}
               </span>{" "}
               for{" "}
-              <span className="text-[#00ff66] font-bold">
+              <span
+                className={`${theme === "blue" ? "text-[#60aaff]" : "text-[#00ff66]"} font-bold`}
+              >
                 {getUnlockPrice(pendingUnlock.overall)} BB
               </span>
               ?
