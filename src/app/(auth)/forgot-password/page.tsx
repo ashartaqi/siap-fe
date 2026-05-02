@@ -178,7 +178,10 @@ export default function ForgotPasswordPage() {
             placeholder="New Password"
             autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+            }}
             error={pwErr}
             icon={
               <svg
@@ -215,7 +218,10 @@ export default function ForgotPasswordPage() {
             placeholder="Re-enter new password"
             autoComplete="new-password"
             value={confirmPw}
-            onChange={(e) => setConfirmPw(e.target.value)}
+            onChange={(e) => setConfirmPw(e.target.value.replace(/\s/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+            }}
             error={confirmErr}
             icon={
               <svg
