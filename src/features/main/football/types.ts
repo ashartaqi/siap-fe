@@ -144,3 +144,12 @@ export interface StandingRow {
   form?: string[];
   forms?: string[];
 }
+
+export interface IMatchPredictionResponse {
+  team1_score_pred: number;
+  team2_score_pred: number;
+  team1_score_rounded: number;
+  team2_score_rounded: number;
+  score_diff: number;
+  outcome: string;
+}

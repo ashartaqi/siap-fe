@@ -7,6 +7,7 @@ import {
   useGetUserVotes,
   useCreateVote,
   useUpdateVote,
+  useGetMatchPrediction,
   IVoteResponse,
 } from "@/features/main/football";
 import { Toast } from "@/components/common/Toast";
@@ -86,7 +87,19 @@ function VoteModalContent({
     isCurrentMatch ? userVote.prediction_away_score : 0,
   );
 
+  const { data: prediction, isLoading: predLoading } = useGetMatchPrediction(
+    match.home_team,
+    match.away_team,
+  );
+
   const isPending = createVote.isPending || updateVote.isPending;
+
+  const handleApplyPrediction = () => {
+    if (prediction) {
+      setHomeScore(prediction.team1_score_rounded);
+      setAwayScore(prediction.team2_score_rounded);
+    }
+  };
 
   const handleSubmit = () => {
     const payload = {
@@ -170,6 +183,79 @@ function VoteModalContent({
                 {match.away_team}
               </p>
             </div>
+
+            {/* AI Prediction Display */}
+            {prediction && (
+              <div
+                className={`p-4 rounded-xl border animate-in slide-in-from-bottom-2 duration-300 ${
+                  isBlue
+                    ? "bg-[#60aaff]/5 border-[#60aaff]/20"
+                    : "bg-primary-container/5 border-primary-container/20"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-2 h-2 rounded-full animate-pulse ${isBlue ? "bg-[#60aaff]" : "bg-primary-container"}`}
+                    />
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wider ${isBlue ? "text-[#60aaff]" : "text-primary-container"}`}
+                    >
+                      AI Neural Prediction
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleApplyPrediction}
+                    className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded border transition-all ${
+                      isBlue
+                        ? "border-[#60aaff]/40 text-[#60aaff] hover:bg-[#60aaff] hover:text-white"
+                        : "border-primary-container/40 text-primary-container hover:bg-primary-container hover:text-on-primary"
+                    }`}
+                  >
+                    Apply Prediction
+                  </button>
+                </div>
+                <div className="flex items-center justify-center gap-4">
+                  <div className="text-center">
+                    <div
+                      className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
+                    >
+                      {prediction.team1_score_pred.toFixed(2)}
+                    </div>
+                    <div className="text-[8px] uppercase tracking-tighter opacity-40">
+                      Home xG
+                    </div>
+                  </div>
+                  <div
+                    className={`h-8 w-[1px] ${isBlue ? "bg-white/10" : "bg-outline-variant/20"}`}
+                  />
+                  <div className="text-center">
+                    <div
+                      className={`text-2xl font-black italic ${isBlue ? "text-[#60aaff]" : "text-primary-container"}`}
+                    >
+                      {prediction.team1_score_rounded} -{" "}
+                      {prediction.team2_score_rounded}
+                    </div>
+                    <div className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60">
+                      Outcome: {prediction.outcome}
+                    </div>
+                  </div>
+                  <div
+                    className={`h-8 w-[1px] ${isBlue ? "bg-white/10" : "bg-outline-variant/20"}`}
+                  />
+                  <div className="text-center">
+                    <div
+                      className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
+                    >
+                      {prediction.team2_score_pred.toFixed(2)}
+                    </div>
+                    <div className="text-[8px] uppercase tracking-tighter opacity-40">
+                      Away xG
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Score Inputs */}
             <div className="flex items-center justify-center gap-6">
