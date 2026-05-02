@@ -4,4 +4,5 @@ export interface ChatMessage {
   username: string;
   content: string;
   created_at: string;
+  reward_amount: number;
 }
