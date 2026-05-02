@@ -21,7 +21,7 @@ import type { SelectedPlayers } from "@/features/main/dashboard/types";
 
 interface ToastState {
   message: string;
-  type: "success" | "error" | "info";
+  type: "success" | "error" | "info" | "blue";
 }
 
 export default function DreamTeamPage() {
@@ -38,7 +38,7 @@ export default function DreamTeamPage() {
   const { data: formations = [], isLoading: formationsLoading } =
     useGetFormations();
 
-  const showToast = (message: string, type: "success" | "error" | "info") => {
+  const showToast = (message: string, type: ToastState["type"]) => {
     setToast({ message, type });
   };
 
@@ -164,6 +164,10 @@ export default function DreamTeamPage() {
           }
         });
         setSelectedPlayers(players);
+        showToast("Squad optimized based on player ratings!", "blue");
+      },
+      onError: () => {
+        showToast("Failed to optimize squad", "error");
       },
     });
   };
