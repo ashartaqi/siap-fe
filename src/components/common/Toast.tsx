@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 interface ToastProps {
   message: string;
-  type?: "success" | "error" | "info";
+  type?: "success" | "error" | "info" | "blue";
   onClose: () => void;
   duration?: number;
 }
@@ -36,22 +36,29 @@ export function Toast({
       text: "text-[rgba(255,80,80,0.9)]",
     },
     info: {
-      border: "border-[rgba(255,215,0,0.3)]",
-      bg: "bg-[rgba(255,215,0,0.08)]",
+      border: "border-[rgba(0,255,102,0.2)]",
+      bg: "bg-[rgba(0,255,102,0.04)]",
       icon: "★",
-      iconColor: "text-[#ffd700]",
-      text: "text-[#ffd700]",
+      iconColor: "text-[#00ff66]",
+      text: "text-[#00ff66]",
+    },
+    blue: {
+      border: "border-[rgba(100,160,255,0.3)]",
+      bg: "bg-[rgba(0,100,255,0.08)]",
+      icon: "⚡",
+      iconColor: "text-[#60aaff]",
+      text: "text-[#e8f0ff]",
     },
   }[type];
 
   return (
     <div
       className={`
-        fixed bottom-6 right-6 z-[9999]
+        fixed top-6 right-6 z-[9999]
         flex items-center gap-3 px-4 py-3 rounded-xl
         border ${styles.border} ${styles.bg}
         backdrop-blur-[8px] shadow-[0_8px_32px_rgba(0,0,0,0.5)]
-        animate-[slideUpFade_0.25s_ease-out]
+        animate-[slideDownFade_0.25s_ease-out]
         min-w-[240px] max-w-[340px]
       `}
     >

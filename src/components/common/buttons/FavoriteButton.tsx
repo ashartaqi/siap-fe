@@ -1,6 +1,8 @@
+import React from "react";
+
 interface FavoriteButtonProps {
   isFavorite: boolean;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 }
 
 export function FavoriteButton({ isFavorite, onClick }: FavoriteButtonProps) {
@@ -14,8 +16,8 @@ export function FavoriteButton({ isFavorite, onClick }: FavoriteButtonProps) {
         border transition-all duration-200 text-[15px] leading-none
         ${
           isFavorite
-            ? "text-[#ffd700] border-[rgba(255,215,0,0.35)] bg-[rgba(255,215,0,0.08)] hover:bg-[rgba(255,80,80,0.1)] hover:border-[rgba(255,80,80,0.35)] hover:text-[rgba(255,80,80,0.9)]"
-            : "text-[rgba(255,255,255,0.5)] border-[rgba(71,72,69,0.4)] bg-transparent hover:text-[#ffd700] hover:border-[rgba(255,215,0,0.35)] hover:bg-[rgba(255,215,0,0.06)]"
+            ? "text-[#00ff66] border-[rgba(0,255,102,0.35)] bg-[rgba(0,255,102,0.08)] hover:bg-[rgba(255,80,80,0.1)] hover:border-[rgba(255,80,80,0.35)] hover:text-[rgba(255,80,80,0.9)]"
+            : "text-[rgba(255,255,255,0.5)] border-[rgba(71,72,69,0.4)] bg-transparent hover:text-[#00ff66] hover:border-[rgba(0,255,102,0.35)] hover:bg-[rgba(0,255,102,0.06)]"
         }
       `}
     >

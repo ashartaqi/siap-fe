@@ -32,7 +32,10 @@ export function TeamCard({
     >
       <FavoriteButton
         isFavorite={isFavorite}
-        onClick={() => onStarClick(team)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onStarClick(team);
+        }}
       />
       <div
         onClick={() => onCardClick(team)}
