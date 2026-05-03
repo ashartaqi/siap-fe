@@ -54,8 +54,8 @@ export function ViewVotesModal({
           </button>
         </div>
 
-        {/* Match Info */}
-        <div className="px-5 pt-4 pb-2">
+        {/* Match Info + AI Prediction */}
+        <div className="px-5 pt-4 pb-3 space-y-3">
           <div className="flex items-center justify-center gap-3">
             <span
               className={`font-headline font-bold text-sm ${isBlue ? "text-[#e8f0ff]" : ""}`}
@@ -73,6 +73,74 @@ export function ViewVotesModal({
               {match.away_team}
             </span>
           </div>
+
+          {match.predicted_home_score != null &&
+            match.predicted_away_score != null && (
+              <div
+                className={`flex items-center justify-between px-4 py-3 rounded-xl border ${
+                  isBlue
+                    ? "bg-[#60aaff]/5 border-[#60aaff]/20"
+                    : "bg-primary-container/5 border-primary-container/20"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full animate-pulse ${isBlue ? "bg-[#60aaff]" : "bg-primary-container"}`}
+                  />
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-wider ${isBlue ? "text-[#60aaff]" : "text-primary-container"}`}
+                  >
+                    AI Prediction
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div
+                      className={`text-[9px] font-black uppercase tracking-tighter truncate max-w-[60px] ${isBlue ? "text-[#8aabdc]" : "text-on-surface-variant"}`}
+                    >
+                      {match.home_team.split(" ").slice(-1)[0]}
+                    </div>
+                    <div
+                      className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
+                    >
+                      {match.predicted_home_score}
+                    </div>
+                  </div>
+                  <span
+                    className={`text-sm font-black ${isBlue ? "text-[#5a80b0]" : "text-on-surface-variant"}`}
+                  >
+                    —
+                  </span>
+                  <div className="text-center">
+                    <div
+                      className={`text-[9px] font-black uppercase tracking-tighter truncate max-w-[60px] ${isBlue ? "text-[#8aabdc]" : "text-on-surface-variant"}`}
+                    >
+                      {match.away_team.split(" ").slice(-1)[0]}
+                    </div>
+                    <div
+                      className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
+                    >
+                      {match.predicted_away_score}
+                    </div>
+                  </div>
+                  {match.predicted_outcome && (
+                    <div
+                      className={`text-[9px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded-full ml-1 ${
+                        isBlue
+                          ? "bg-[#60aaff]/10 text-[#60aaff]"
+                          : "bg-primary-container/10 text-primary-container"
+                      }`}
+                    >
+                      {match.predicted_outcome === "win"
+                        ? `${match.home_team.split(" ").slice(-1)[0]} Win`
+                        : match.predicted_outcome === "loss"
+                          ? `${match.away_team.split(" ").slice(-1)[0]} Win`
+                          : "Draw"}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
         </div>
 
         {/* Votes List */}

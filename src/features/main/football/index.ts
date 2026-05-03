@@ -23,4 +23,6 @@ export * from "./hooks/useGetFixtureVotes";
 export * from "./hooks/useDeleteVote";
 export * from "./hooks/useMatchComments";
 export * from "./hooks/useGetMatchPrediction";
+export * from "./hooks/useGetPredictedFixtures";
 export * from "./apis/matchComments";
+export * from "./apis/getPredictedFixtures";

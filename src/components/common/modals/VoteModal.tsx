@@ -7,7 +7,6 @@ import {
   useGetUserVotes,
   useCreateVote,
   useUpdateVote,
-  useGetMatchPrediction,
   IVoteResponse,
 } from "@/features/main/football";
 import { Toast } from "@/components/common/Toast";
@@ -79,6 +78,8 @@ function VoteModalContent({
 
   const isBlue = theme === "blue";
   const isCurrentMatch = userVote?.fixture_id === Number(match.id);
+  const hasPrediction =
+    match.predicted_home_score != null && match.predicted_away_score != null;
 
   const [homeScore, setHomeScore] = useState(
     isCurrentMatch ? userVote.prediction_home_score : 0,
@@ -87,17 +88,12 @@ function VoteModalContent({
     isCurrentMatch ? userVote.prediction_away_score : 0,
   );
 
-  const { data: prediction, isLoading: predLoading } = useGetMatchPrediction(
-    match.home_team,
-    match.away_team,
-  );
-
   const isPending = createVote.isPending || updateVote.isPending;
 
   const handleApplyPrediction = () => {
-    if (prediction) {
-      setHomeScore(prediction.team1_score_rounded);
-      setAwayScore(prediction.team2_score_rounded);
+    if (hasPrediction) {
+      setHomeScore(match.predicted_home_score!);
+      setAwayScore(match.predicted_away_score!);
     }
   };
 
@@ -165,7 +161,7 @@ function VoteModalContent({
           </div>
 
           {/* Match Info */}
-          <div className="p-5 space-y-6">
+          <div className="p-5 space-y-5">
             <div className="text-center space-y-1">
               <p
                 className={`font-headline font-bold text-base ${isBlue ? "text-[#e8f0ff]" : ""}`}
@@ -184,8 +180,8 @@ function VoteModalContent({
               </p>
             </div>
 
-            {/* AI Prediction Display */}
-            {prediction && (
+            {/* AI Prediction */}
+            {hasPrediction && (
               <div
                 className={`p-4 rounded-xl border animate-in slide-in-from-bottom-2 duration-300 ${
                   isBlue
@@ -212,9 +208,10 @@ function VoteModalContent({
                         : "border-primary-container/40 text-primary-container hover:bg-primary-container hover:text-on-primary"
                     }`}
                   >
-                    Apply Prediction
+                    Apply
                   </button>
                 </div>
+
                 <div className="flex items-center justify-center gap-4">
                   <div className="text-center flex-1 min-w-0">
                     <div
@@ -223,35 +220,33 @@ function VoteModalContent({
                       {match.home_team}
                     </div>
                     <div
-                      className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
+                      className={`text-3xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
                     >
-                      {prediction.team1_score_pred.toFixed(2)}
-                    </div>
-                    <div className="text-[8px] uppercase tracking-tighter opacity-40">
-                      Home xG
+                      {match.predicted_home_score}
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`text-2xl font-black italic ${isBlue ? "text-[#60aaff]" : "text-primary-container"}`}
+                  <div className="flex flex-col items-center gap-1.5">
+                    <span
+                      className={`text-[9px] font-black uppercase tracking-widest ${isBlue ? "text-[#5a80b0]" : "text-on-surface-variant"}`}
                     >
-                      {prediction.team1_score_rounded} -{" "}
-                      {prediction.team2_score_rounded}
-                    </div>
-                    <div
-                      className={`text-[9px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded-full mt-1 ${
-                        isBlue
-                          ? "bg-[#60aaff]/10 text-[#60aaff]"
-                          : "bg-primary-container/10 text-primary-container"
-                      }`}
-                    >
-                      {prediction.outcome === "win"
-                        ? `${match.home_team} Win`
-                        : prediction.outcome === "loss"
-                          ? `${match.away_team} Win`
-                          : "Draw Prediction"}
-                    </div>
+                      —
+                    </span>
+                    {match.predicted_outcome && (
+                      <div
+                        className={`text-[9px] font-black uppercase tracking-[0.1em] px-2 py-0.5 rounded-full ${
+                          isBlue
+                            ? "bg-[#60aaff]/10 text-[#60aaff]"
+                            : "bg-primary-container/10 text-primary-container"
+                        }`}
+                      >
+                        {match.predicted_outcome === "win"
+                          ? `${match.home_team.split(" ").slice(-1)[0]} Win`
+                          : match.predicted_outcome === "loss"
+                            ? `${match.away_team.split(" ").slice(-1)[0]} Win`
+                            : "Draw"}
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-center flex-1 min-w-0">
@@ -261,12 +256,9 @@ function VoteModalContent({
                       {match.away_team}
                     </div>
                     <div
-                      className={`text-xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
+                      className={`text-3xl font-black ${isBlue ? "text-white" : "text-on-surface"}`}
                     >
-                      {prediction.team2_score_pred.toFixed(2)}
-                    </div>
-                    <div className="text-[8px] uppercase tracking-tighter opacity-40">
-                      Away xG
+                      {match.predicted_away_score}
                     </div>
                   </div>
                 </div>
@@ -294,7 +286,7 @@ function VoteModalContent({
                     −
                   </button>
                   <span
-                    className={`w-12 h-12 rounded-xl border flex items-center justify-center font-headline font-black text-2xl shadow-[inset_0_0_12px_rgba(0,100,255,0.1)] ${
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center font-headline font-black text-2xl ${
                       isBlue
                         ? "bg-black/20 border-white/10 text-[#60aaff]"
                         : "bg-surface-container-highest border-outline-variant/20 text-primary-container shadow-[inset_0_0_12px_rgba(0,255,102,0.1)]"
@@ -341,7 +333,7 @@ function VoteModalContent({
                     −
                   </button>
                   <span
-                    className={`w-12 h-12 rounded-xl border flex items-center justify-center font-headline font-black text-2xl shadow-[inset_0_0_12px_rgba(0,100,255,0.1)] ${
+                    className={`w-12 h-12 rounded-xl border flex items-center justify-center font-headline font-black text-2xl ${
                       isBlue
                         ? "bg-black/20 border-white/10 text-[#60aaff]"
                         : "bg-surface-container-highest border-outline-variant/20 text-primary-container shadow-[inset_0_0_12px_rgba(0,255,102,0.1)]"

@@ -114,6 +114,23 @@ export function MatchCard({
           />
         </div>
 
+        {!isFinished &&
+          m.predicted_home_score != null &&
+          m.predicted_away_score != null && (
+            <div
+              className={`flex items-center justify-center gap-2 mt-3 py-1.5 px-3 rounded-md text-[10px] font-label uppercase tracking-widest ${
+                isBlue
+                  ? "bg-[rgba(0,100,255,0.08)] text-[#60aaff]/70 border border-[rgba(100,160,255,0.1)]"
+                  : "bg-primary-container/5 text-primary-container/60 border border-primary-container/10"
+              }`}
+            >
+              <span className="opacity-60">PREDICTED SCORE</span>
+              <span className="font-bold">
+                {m.predicted_home_score} – {m.predicted_away_score}
+              </span>
+            </div>
+          )}
+
         {/* Action buttons */}
         <div
           className={`flex flex-col gap-2 mt-4 pt-3 border-t ${isBlue ? "border-white/5" : "border-outline-variant/10"}`}

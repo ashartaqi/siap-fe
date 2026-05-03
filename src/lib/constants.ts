@@ -141,6 +141,17 @@ export const FIXTURE_LEAGUES = [
   { key: "CL", label: "Champions League", badge: "CL" },
 ];
 
+// ─── Nationalities ────────────────────────────────────────────────────────────
+
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+
+countries.registerLocale(enLocale);
+
+export const COUNTRIES: string[] = Object.values(
+  countries.getNames("en", { select: "official" }),
+).sort();
+
 // ─── Players ──────────────────────────────────────────────────────────────────
 
 export const PREFERRED_FEET = ["Left", "Right"] as const;

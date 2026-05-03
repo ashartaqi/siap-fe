@@ -81,6 +81,9 @@ export interface Match {
   league?: string;
   winner?: string | null;
   matchday?: number;
+  predicted_home_score?: number | null;
+  predicted_away_score?: number | null;
+  predicted_outcome?: "win" | "loss" | "draw" | null;
 }
 
 export interface KnockoutTie {
