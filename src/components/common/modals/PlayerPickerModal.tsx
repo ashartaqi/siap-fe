@@ -59,7 +59,7 @@ export function PlayerPickerModal({
   const [statFilter, setStatFilter] = useState<number | undefined>();
   const [unlockStatus, setUnlockStatus] = useState<
     "all" | "locked" | "unlocked"
-  >("all");
+  >("unlocked");
   const [unlockConfirmPlayer, setUnlockConfirmPlayer] =
     useState<IPlayersResponse | null>(null);
 
@@ -344,7 +344,7 @@ export function PlayerPickerModal({
                 >
                   {/* Lock Overlay */}
                   {isLocked && (
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-end pr-3 z-10 group/lock">
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-10 group/lock">
                       <div className="flex flex-col items-center gap-1 group-hover/lock:scale-110 transition-transform">
                         <Lock className="w-4 h-4 text-[var(--color-neon)]" />
                         <span className="text-[9px] font-black tracking-widest text-white uppercase">

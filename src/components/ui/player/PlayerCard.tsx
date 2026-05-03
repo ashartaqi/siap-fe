@@ -22,12 +22,11 @@ export function PlayerCard({
 }: PlayerCardProps) {
   const [imgErr, setImgErr] = useState(false);
   const age = calculateAge(player.dob);
-
   return (
     <div
       className="
-        relative bg-[rgba(18,20,17,0.92)] border border-[rgba(71,72,69,0.2)]
-        hover:border-[rgba(0,255,102,0.3)] hover:bg-[rgba(0,255,102,0.03)]
+        relative bg-[var(--color-surface)]/90 border border-[var(--color-border)]
+        hover:border-[var(--color-neon)]/30 hover:bg-[var(--color-neon)]/3
         rounded-xl overflow-hidden transition-all duration-200 flex flex-col
         group
       "
@@ -69,7 +68,7 @@ export function PlayerCard({
               <span className="font-[Bebas_Neue,sans-serif] text-[20px] text-[#fcfcf8] leading-none truncate">
                 {player.short_name}
               </span>
-              <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-[#00ff66] bg-[rgba(0,255,102,0.08)] border border-[rgba(0,255,102,0.2)] px-2 py-0.5 rounded-[4px]">
+              <span className="text-[9px] font-bold tracking-[0.18em] uppercase text-[var(--color-neon)] bg-[var(--color-neon)]/8 border border-[var(--color-neon)]/20 px-2 py-0.5 rounded-[4px]">
                 {player.positions?.join(" · ") ?? "—"}
               </span>
             </div>
@@ -82,7 +81,7 @@ export function PlayerCard({
             </div>
           </div>
 
-          <div className="font-[Bebas_Neue,sans-serif] text-[38px] text-[#00ff66] leading-none shrink-0">
+          <div className="font-[Bebas_Neue,sans-serif] text-[38px] text-[var(--color-neon)] leading-none shrink-0">
             {player.overall}
           </div>
         </div>

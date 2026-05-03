@@ -12,6 +12,13 @@ import { useRewards } from "@/components/providers/RewardProvider";
 import { useQueryClient } from "@tanstack/react-query";
 import { getTheme } from "@/lib/themes";
 
+function hexToRgb(hex: string) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+    : "0, 0, 0";
+}
+
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const { data: user } = useGetUser();
   const { addReward } = useRewards();
@@ -44,7 +51,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     ${isCollapsed ? "w-20" : "w-64"} 
     ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
     fixed lg:relative z-50 h-screen
-    border-r border-[var(--color-border)] bg-[var(--color-surface)] p-6 flex flex-col gap-8 
+    border-r border-[var(--color-border)] bg-[var(--color-surface)]/70 backdrop-blur-xl p-6 flex flex-col gap-8 
     transition-all duration-700 ease-in-out
   `;
 
@@ -54,7 +61,10 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       style={
         {
           ...theme,
-          transition: "background-color 700ms ease, color 700ms ease",
+          "--color-neon-rgb": hexToRgb(theme["--color-neon"]),
+          background: theme.background,
+          transition:
+            "background-color 700ms ease, color 700ms ease, background 700ms ease",
         } as React.CSSProperties
       }
     >
@@ -246,7 +256,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         className={`flex-1 p-4 md:p-8 pt-20 lg:pt-8 text-[var(--color-text)] transition-all duration-700 ease-in-out ${
           isUCL ? "min-h-0 overflow-hidden" : "overflow-y-auto h-screen"
         }`}
-        style={{ background: theme.background }}
+        style={{ background: "transparent" }}
       >
         {children}
       </main>

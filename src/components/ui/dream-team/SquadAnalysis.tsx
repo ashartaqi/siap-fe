@@ -59,8 +59,8 @@ export function SquadAnalysis({
   }, [selectedPlayers, validPlayerPositions]);
 
   return (
-    <div className="bg-[#121411] p-[14px] rounded-xl border border-[rgba(71,72,69,0.12)]">
-      <h3 className="text-[10px] font-bold tracking-[0.24em] uppercase text-[#00ff66] mb-[10px]">
+    <div className="bg-[var(--color-surface)] p-[14px] rounded-xl border border-[var(--color-border)]">
+      <h3 className="text-[10px] font-bold tracking-[0.24em] uppercase text-[var(--color-neon)] mb-[10px]">
         Squad Analysis
       </h3>
 
@@ -87,12 +87,14 @@ export function SquadAnalysis({
         />
       </div>
 
-      <div className="flex justify-between items-center mt-3 pt-3 border-t border-[rgba(71,72,69,0.12)]">
+      <div className="flex justify-between items-center mt-3 pt-3 border-t border-[var(--color-border)]">
         <div>
           <span
             className={[
               "block font-[Bebas_Neue,sans-serif] text-[26px] leading-none",
-              ratings.total !== null ? "text-[#00ff66]" : "text-white/20",
+              ratings.total !== null
+                ? "text-[var(--color-neon)]"
+                : "text-white/20",
             ].join(" ")}
           >
             {ratings.total !== null ? Math.round(ratings.total) : "–"}
@@ -102,7 +104,7 @@ export function SquadAnalysis({
           </span>
         </div>
         <div className="text-right">
-          <span className="block font-[Bebas_Neue,sans-serif] text-[26px] leading-none text-[#00ff66]">
+          <span className="block font-[Bebas_Neue,sans-serif] text-[26px] leading-none text-[var(--color-neon)]">
             {tacticalFit}
           </span>
           <span className="block text-[9px] font-bold tracking-[0.14em] uppercase text-white/30 mt-[3px]">
@@ -111,16 +113,20 @@ export function SquadAnalysis({
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-[rgba(71,72,69,0.12)]">
+      <div className="mt-3 pt-3 border-t border-[var(--color-border)]">
         <div className="flex justify-between text-[9px] font-bold tracking-[0.18em] uppercase mb-[5px]">
           <span className="text-white/30">Players Selected</span>
-          <span className={isComplete ? "text-[#00ff66]" : "text-white/40"}>
+          <span
+            className={
+              isComplete ? "text-[var(--color-neon)]" : "text-white/40"
+            }
+          >
             {filledSlots} / {totalSlots}
           </span>
         </div>
-        <div className="h-[2px] bg-[#242723] rounded-[2px] overflow-hidden">
+        <div className="h-[2px] bg-white/5 rounded-[2px] overflow-hidden">
           <div
-            className="h-full bg-[#00ff66] rounded-[2px] transition-[width] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+            className="h-full bg-[var(--color-neon)] rounded-[2px] transition-[width] duration-[400ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
             style={{ width: `${(filledSlots / totalSlots) * 100}%` }}
           />
         </div>

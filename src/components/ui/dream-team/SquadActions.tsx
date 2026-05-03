@@ -40,7 +40,7 @@ export function SquadActions({
       <div className="relative overflow-hidden rounded-xl">
         {/* Animated Background for Save Mode */}
         {hasExistingTeam && isEditing && isDirty && isComplete && (
-          <div className="absolute inset-0 bg-[#00ff66]/10 animate-pulse pointer-events-none" />
+          <div className="absolute inset-0 bg-[var(--color-neon)]/10 animate-pulse pointer-events-none" />
         )}
 
         <div className="flex gap-3 relative z-10">
@@ -54,7 +54,7 @@ export function SquadActions({
                 ${
                   !isComplete || isPending
                     ? "bg-[rgba(36,39,35,0.6)] text-[rgba(252,252,248,0.2)] cursor-not-allowed"
-                    : "bg-gradient-to-br from-[#00ff66] to-[#00cc52] text-[#0a0b09] shadow-[0_0_20px_rgba(0,255,102,0.2)] hover:shadow-[0_0_30px_rgba(0,255,102,0.4)] hover:-translate-y-0.5"
+                    : "bg-gradient-to-br from-[var(--color-neon)] to-[var(--color-neon)]/80 text-[var(--color-black)] shadow-[0_0_20px_rgba(var(--color-neon-rgb),0.2)] hover:shadow-[0_0_30px_rgba(var(--color-neon-rgb),0.4)] hover:-translate-y-0.5"
                 }
               `}
             >
@@ -71,7 +71,7 @@ export function SquadActions({
             <button
               onClick={onEnterEditMode}
               disabled={isPending}
-              className="flex-1 relative py-4 px-6 rounded-xl border border-[rgba(0,255,102,0.3)] bg-[rgba(0,255,102,0.05)] text-[#00ff66] font-[Bebas_Neue] text-xl tracking-wider transition-all duration-300 hover:bg-[rgba(0,255,102,0.12)] hover:shadow-[0_0_20px_rgba(0,255,102,0.1)] active:scale-[0.98]"
+              className="flex-1 relative py-4 px-6 rounded-xl border border-[var(--color-neon)]/30 bg-[var(--color-neon)]/5 text-[var(--color-neon)] font-[Bebas_Neue] text-xl tracking-wider transition-all duration-300 hover:bg-[var(--color-neon)]/12 hover:shadow-[0_0_20px_rgba(var(--color-neon-rgb),0.1)] active:scale-[0.98]"
             >
               <div className="relative flex items-center justify-center gap-3 z-10">
                 <RefreshCw className="w-5 h-5" />
@@ -88,7 +88,7 @@ export function SquadActions({
                 ${
                   !isComplete || isPending || !isDirty
                     ? "bg-[rgba(36,39,35,0.6)] text-[rgba(252,252,248,0.2)] cursor-not-allowed"
-                    : "bg-gradient-to-br from-[#00ff66] to-[#00cc52] text-[#0a0b09] shadow-[0_0_20px_rgba(0,255,102,0.4)] animate-in zoom-in-95 duration-300"
+                    : "bg-gradient-to-br from-[var(--color-neon)] to-[var(--color-neon)]/80 text-[var(--color-black)] shadow-[0_0_20px_rgba(var(--color-neon-rgb),0.4)] animate-in zoom-in-95 duration-300"
                 }
               `}
             >

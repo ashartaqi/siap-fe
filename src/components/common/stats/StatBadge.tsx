@@ -7,7 +7,7 @@ export function StatBadge({ label, value }: StatBadgeProps) {
   const pct = value ?? 0;
   const color =
     pct >= 80
-      ? "text-[#00ff66] border-[rgba(0,255,102,0.25)]"
+      ? "text-[var(--color-neon)] border-[var(--color-neon)]/25"
       : pct >= 65
         ? "text-[#ffd700] border-[rgba(255,215,0,0.2)]"
         : "text-[rgba(255,80,80,0.85)] border-[rgba(255,80,80,0.2)]";

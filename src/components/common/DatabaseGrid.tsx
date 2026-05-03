@@ -53,7 +53,7 @@ export function DatabaseGrid({
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            className="mt-2 text-[9px] font-bold tracking-[0.2em] uppercase text-[#00ff66] bg-[rgba(0,255,102,0.08)] border border-[rgba(0,255,102,0.2)] px-3 py-1.5 rounded-[4px] hover:bg-[rgba(0,255,102,0.12)] transition-colors"
+            className="mt-2 text-[9px] font-bold tracking-[0.2em] uppercase text-[var(--color-neon)] bg-[var(--color-neon)]/8 border border-[var(--color-neon)]/20 px-3 py-1.5 rounded-[4px] hover:bg-[var(--color-neon)]/12 transition-colors"
           >
             Clear Filters
           </button>
@@ -72,7 +72,7 @@ export function DatabaseGrid({
           ref={observerRef}
           className="h-20 w-full mt-4 flex items-center justify-center"
         >
-          <div className="w-6 h-6 border-2 border-[#00ff66] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-[var(--color-neon)] border-t-transparent rounded-full animate-spin" />
         </div>
       )}
     </>
