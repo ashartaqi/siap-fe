@@ -7,7 +7,8 @@ import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
 import { Input } from "@/components/common/inputs/Input";
 import { Button } from "@/components/common/buttons/Button";
 import { useRegister } from "@/features/auth/hooks/useRegister";
-import { PASSWORD_STRENGTH_LEVELS, REGISTER_PERKS } from "@/lib/constants";
+import { REGISTER_PERKS } from "@/lib/constants";
+import { getPasswordStrength } from "@/lib/utils/authUtils";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
@@ -28,21 +29,6 @@ export default function RegisterPage() {
   const [pwErr, setPwErr] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
   const [genericErr, setGenericErr] = useState("");
-
-  const getPasswordStrength = (v: string) => {
-    if (!v) return null;
-    let score = 0;
-    if (v.length >= 8) score++;
-    if (v.length >= 12) score++;
-    if (/[A-Z]/.test(v)) score++;
-    if (/[0-9]/.test(v)) score++;
-    if (/[^A-Za-z0-9]/.test(v)) score++;
-
-    return (
-      PASSWORD_STRENGTH_LEVELS[Math.min(score - 1, 4)] ||
-      PASSWORD_STRENGTH_LEVELS[0]
-    );
-  };
 
   const strength = getPasswordStrength(password);
 

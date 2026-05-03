@@ -7,39 +7,23 @@ import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
 import { Input } from "@/components/common/inputs/Input";
 import { Button } from "@/components/common/buttons/Button";
 import { useResetPassword } from "@/features/auth/hooks/useResetPassword";
-import { PASSWORD_STRENGTH_LEVELS } from "@/lib/constants";
+import { getPasswordStrength } from "@/lib/utils/authUtils";
 import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const resetPasswordMutation = useResetPassword();
 
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [currentPw, setCurrentPw] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
 
-  const [usernameErr, setUsernameErr] = useState("");
   const [emailErr, setEmailErr] = useState("");
+  const [currentPwErr, setCurrentPwErr] = useState("");
   const [pwErr, setPwErr] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
   const [genericErr, setGenericErr] = useState("");
-
-  // Password strength logic
-  const getPasswordStrength = (v: string) => {
-    if (!v) return null;
-    let score = 0;
-    if (v.length >= 8) score++;
-    if (v.length >= 12) score++;
-    if (/[A-Z]/.test(v)) score++;
-    if (/[0-9]/.test(v)) score++;
-    if (/[^A-Za-z0-9]/.test(v)) score++;
-
-    return (
-      PASSWORD_STRENGTH_LEVELS[Math.min(score - 1, 4)] ||
-      PASSWORD_STRENGTH_LEVELS[0]
-    );
-  };
 
   const strength = getPasswordStrength(password);
 
@@ -47,19 +31,19 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     let valid = true;
 
-    setUsernameErr("");
     setEmailErr("");
+    setCurrentPwErr("");
     setPwErr("");
     setConfirmErr("");
     setGenericErr("");
 
-    if (username.trim().length < 3) {
-      setUsernameErr("Username must be at least 3 characters.");
-      valid = false;
-    }
     const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailReg.test(email.trim())) {
       setEmailErr("Please enter a valid email address.");
+      valid = false;
+    }
+    if (currentPw.length < 1) {
+      setCurrentPwErr("Current password is required.");
       valid = false;
     }
     if (password.length < 8) {
@@ -74,8 +58,8 @@ export default function ForgotPasswordPage() {
     if (valid) {
       resetPasswordMutation.mutate(
         {
-          username,
           email,
+          current_password: currentPw,
           password,
           confirm_password: confirmPw,
         },
@@ -113,9 +97,9 @@ export default function ForgotPasswordPage() {
       >
         <div className="flex flex-col gap-4 mt-2.5">
           <p className="text-[15px] leading-[1.7] text-[var(--auth-muted)] max-w-[380px] mb-12">
-            Forgot your password? No worries. Just fill in your registered
-            username and email, and set a new password. We&apos;ll have you back
-            on the pitch in no time.
+            Need a new password? Enter your registered email, verify your
+            current password, and set a new one. We&apos;ll have you back on the
+            pitch in no time.
           </p>
         </div>
       </AuthLeftPanel>
@@ -128,46 +112,48 @@ export default function ForgotPasswordPage() {
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-4.5">
-            <Input
-              label="Username"
-              type="text"
-              placeholder="Username"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              error={usernameErr}
-              icon={
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
-                >
-                  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                  <path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                </svg>
-              }
-            />
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="Email Address"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              error={emailErr}
-              icon={
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
-                >
-                  <rect x="2" y="4" width="20" height="16" rx="2" />
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                </svg>
-              }
-            />
-          </div>
+          <Input
+            label="Email Address"
+            type="email"
+            placeholder="Email Address"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={emailErr}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+            }
+          />
+
+          <Input
+            label="Current Password"
+            type="password"
+            placeholder="Current Password"
+            autoComplete="current-password"
+            value={currentPw}
+            onChange={(e) => setCurrentPw(e.target.value.replace(/\s/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+            }}
+            error={currentPwErr}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="w-[15px] h-[15px] stroke-current stroke-[1.8] stroke-linecap-round stroke-linejoin-round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            }
+          />
 
           <Input
             label="New Password"
@@ -229,7 +215,7 @@ export default function ForgotPasswordPage() {
           />
 
           {genericErr && (
-            <div className="mb-4 p-3 bg-red-50 text-red-500 border border-red-200 rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
+            <div className="mb-4 p-3 bg-[rgba(255,77,77,0.08)] text-[var(--auth-error)] border border-[rgba(255,77,77,0.25)] rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
               {genericErr}
             </div>
           )}

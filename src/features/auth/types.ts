@@ -28,7 +28,7 @@ export interface ILoginResponse {
 
 export interface IResetPasswordPayload {
   email: string;
-  username: string;
+  current_password: string;
   password: string;
   confirm_password: string;
 }
