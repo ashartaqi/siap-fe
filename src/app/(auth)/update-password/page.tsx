@@ -69,11 +69,11 @@ export default function UpdatePasswordPage() {
             router.push("/login");
           },
           onError: (err) => {
-            console.error("Reset password failed:", err);
+            console.error("Update Password failed:", err);
             setGenericErr(
               err.response?.data?.detail ||
                 err.response?.data?.message ||
-                "Failed to reset password. Please check your details.",
+                "Failed to Update Password. Please check your details.",
             );
           },
         },
@@ -107,7 +107,7 @@ export default function UpdatePasswordPage() {
       <div className="flex flex-col justify-center px-8 md:px-[70px] py-[60px] overflow-y-auto">
         <div className="mb-8 animate-[fadeUp_0.6s_0.1s_ease_both]">
           <h2 className="font-outfit font-extrabold text-[38px] tracking-[1px] uppercase mb-2">
-            Reset Password
+            Update Password
           </h2>
         </div>
 
@@ -221,7 +221,7 @@ export default function UpdatePasswordPage() {
           )}
 
           <Button type="submit" className="mt-2" disabled={isLoading}>
-            {isLoading ? "Resetting password..." : "Reset Password"}
+            {isLoading ? "Resetting password..." : "Update Password"}
           </Button>
         </form>
 
