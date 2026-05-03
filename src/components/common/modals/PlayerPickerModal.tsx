@@ -59,7 +59,7 @@ export function PlayerPickerModal({
   const [statFilter, setStatFilter] = useState<number | undefined>();
   const [unlockStatus, setUnlockStatus] = useState<
     "all" | "locked" | "unlocked"
-  >("all");
+  >("unlocked");
   const [unlockConfirmPlayer, setUnlockConfirmPlayer] =
     useState<IPlayersResponse | null>(null);
 
