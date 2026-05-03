@@ -34,10 +34,10 @@ export function PlayerSlotButton({
         border transition-all duration-200
         ${
           hasImage
-            ? "border-[rgba(0,255,102,0.35)] shadow-[0_0_14px_rgba(0,255,102,0.15)]"
+            ? "border-[var(--color-neon)]/35 shadow-[0_0_14px_rgba(var(--color-neon-rgb),0.15)]"
             : hasPlayer
-              ? "border-[rgba(0,255,102,0.2)] shadow-[0_0_8px_rgba(0,255,102,0.08)]"
-              : "border-[rgba(255,255,255,0.15)] hover:border-[rgba(0,255,102,0.4)]"
+              ? "border-[var(--color-neon)]/20 shadow-[0_0_8px_rgba(var(--color-neon-rgb),0.08)]"
+              : "border-white/15 hover:border-[var(--color-neon)]/40"
         }
         bg-[rgba(20,22,19,0.9)]
         hover:scale-[1.05] active:scale-[0.97]
@@ -69,7 +69,7 @@ export function PlayerSlotButton({
           ) : (
             <span
               className={`text-[18px] ${
-                isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
+                isGK ? "text-[var(--color-neon)]" : "text-white/50"
               }`}
             >
               <PlusIcon />
@@ -85,8 +85,8 @@ export function PlayerSlotButton({
           backdrop-blur-[2px]
           ${
             isGK
-              ? "text-[#00ff66] bg-[rgba(0,255,102,0.15)]"
-              : "text-white bg-[rgba(0,0,0,0.55)]"
+              ? "text-[var(--color-neon)] bg-[var(--color-neon)]/15"
+              : "text-white bg-black/55"
           }
         `}
       >

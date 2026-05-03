@@ -33,7 +33,7 @@ export function ConfirmModal({
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-lg bg-[#00ff66] text-[#0a0b09] text-[11px] font-bold tracking-widest uppercase hover:bg-[#00e65c] transition-colors shadow-[0_0_20px_rgba(0,255,102,0.2)]"
+            className="flex-1 py-2.5 rounded-lg bg-[var(--color-neon)] text-[var(--color-black)] text-[11px] font-bold tracking-widest uppercase hover:opacity-90 transition-colors shadow-[0_0_20px_rgba(var(--color-neon-rgb),0.2)]"
           >
             {confirmLabel}
           </button>

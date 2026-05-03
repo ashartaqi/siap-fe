@@ -47,7 +47,7 @@ export default function UCLPage() {
 
   if (loading) {
     return (
-      <div className="h-full min-h-0 flex flex-col items-center justify-center gap-6 bg-[#02081e]">
+      <div className="h-full min-h-0 flex flex-col items-center justify-center gap-6 bg-transparent">
         <div className="relative">
           <div className="absolute inset-0 bg-[#60aaff]/20 blur-[30px] rounded-full animate-pulse" />
           <UCLIcon
@@ -64,7 +64,7 @@ export default function UCLPage() {
 
   if (error) {
     return (
-      <div className="h-full min-h-0 flex items-center justify-center bg-[#02081e]">
+      <div className="h-full min-h-0 flex items-center justify-center bg-transparent">
         <p className="text-[#60aaff] uppercase tracking-[0.1em] font-bold">
           Failed to load UCL data.
         </p>
@@ -73,7 +73,7 @@ export default function UCLPage() {
   }
 
   return (
-    <div className="ucl-page h-full min-h-0 flex flex-col overflow-hidden relative p-3 [overscroll-behavior:none] bg-cover bg-center bg-no-repeat bg-[url('/ucl_background.jpg')] bg-[#02081e]">
+    <div className="ucl-page h-full min-h-0 flex flex-col overflow-hidden relative p-3 [overscroll-behavior:none] bg-cover bg-center bg-no-repeat bg-[url('/ucl_background.jpg')] bg-transparent">
       {/* Overlays */}
       <div className="absolute inset-0 bg-[rgba(2,8,30,0.65)] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(2,8,30,0.95)_0%,transparent_25%,transparent_75%,rgba(2,8,30,0.95)_100%)] pointer-events-none" />

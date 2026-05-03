@@ -196,7 +196,7 @@ export default function DreamPlayerPage() {
 
   if (isFetching) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#0d0f0c]">
+      <div className="min-h-screen w-full flex items-center justify-center bg-transparent">
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
             {(
@@ -208,7 +208,7 @@ export default function DreamPlayerPage() {
             ).map((delayClass) => (
               <div
                 key={delayClass}
-                className={`w-2 h-2 rounded-full bg-[#00fe66] animate-bounce ${delayClass}`}
+                className={`w-2 h-2 rounded-full bg-[var(--color-neon)] animate-bounce ${delayClass}`}
               />
             ))}
           </div>
@@ -222,9 +222,9 @@ export default function DreamPlayerPage() {
 
   return (
     <>
-      <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#0d0f0c] text-[#fcfcf8] font-[Oxanium,sans-serif] bg-[linear-gradient(to_right,rgba(71,72,69,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(71,72,69,0.1)_1px,transparent_1px)] [background-size:40px_40px]">
+      <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-transparent text-[var(--color-text)] font-[Oxanium,sans-serif] bg-[linear-gradient(to_right,rgba(71,72,69,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(71,72,69,0.1)_1px,transparent_1px)] [background-size:40px_40px]">
         {created && (
-          <div className="animate-toast-success fixed top-8 left-1/2 z-50 px-7 py-3 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase text-[#00fe66] bg-[rgba(0,254,102,0.12)] border border-[rgba(0,254,102,0.4)] backdrop-blur-md font-[Oxanium,sans-serif]">
+          <div className="animate-toast-success fixed top-8 left-1/2 z-50 px-7 py-3 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase text-[var(--color-neon)] bg-[var(--color-neon)]/10 border border-[var(--color-neon)]/40 backdrop-blur-md font-[Oxanium,sans-serif]">
             {isExisting
               ? "PLAYER UPDATED SUCCESSFULLY"
               : "PLAYER CREATED SUCCESSFULLY"}
@@ -237,7 +237,7 @@ export default function DreamPlayerPage() {
         )}
 
         <div className="absolute top-4 left-4 md:top-8 md:left-8 pointer-events-none select-none z-0">
-          <h1 className="font-[Bebas_Neue,sans-serif] leading-[0.95] tracking-[-0.01em] text-[clamp(32px,8vw,80px)] text-[rgba(252,252,248,0.06)]">
+          <h1 className="font-[Bebas_Neue,sans-serif] leading-[0.95] tracking-[-0.01em] text-[clamp(32px,8vw,80px)] text-[var(--color-text)]/5">
             DREAM
             <br />
             PLAYER
@@ -245,9 +245,9 @@ export default function DreamPlayerPage() {
         </div>
 
         {isReadOnly && (
-          <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[rgba(0,254,102,0.08)] border border-[rgba(0,254,102,0.2)] backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00fe66] animate-pulse" />
-            <span className="text-[8px] md:text-[9px] font-bold tracking-[0.2em] uppercase text-[#00fe66] font-[Oxanium,sans-serif]">
+          <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[var(--color-neon)]/10 border border-[var(--color-neon)]/20 backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-neon)] animate-pulse" />
+            <span className="text-[8px] md:text-[9px] font-bold tracking-[0.2em] uppercase text-[var(--color-neon)] font-[Oxanium,sans-serif]">
               Your Dream Player
             </span>
           </div>
@@ -303,8 +303,8 @@ export default function DreamPlayerPage() {
                       className={[
                         "text-[20px] md:text-[26px] leading-none font-[Bebas_Neue,sans-serif]",
                         overall > 0
-                          ? "text-[#00fe66]"
-                          : "text-[rgba(0,254,102,0.3)]",
+                          ? "text-[var(--color-neon)]"
+                          : "text-[var(--color-neon)]/30",
                       ].join(" ")}
                     >
                       {overall > 0 ? overall : "–"}
@@ -316,7 +316,7 @@ export default function DreamPlayerPage() {
                       onChange={(v) => patchIdentity("name", v)}
                       placeholder="Player Name"
                       maxLength={22}
-                      className="text-[18px] md:text-[20px] leading-none uppercase tracking-wide text-[#fcfcf8] font-[Bebas_Neue,sans-serif] block w-full truncate"
+                      className="text-[18px] md:text-[20px] leading-none uppercase tracking-wide text-[var(--color-text)] font-[Bebas_Neue,sans-serif] block w-full truncate"
                       inputClassName="text-[18px] md:text-[20px] leading-none uppercase tracking-wide w-full font-[Bebas_Neue,sans-serif]"
                       readOnly={isReadOnly}
                     />
@@ -336,13 +336,13 @@ export default function DreamPlayerPage() {
                 <div className="grid grid-cols-3 gap-x-2 md:gap-x-3">
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
-                      <Flag className="w-2.5 md:w-3 h-2.5 md:h-3 text-[#00fe66] opacity-70" />
+                      <Flag className="w-2.5 md:w-3 h-2.5 md:h-3 text-[var(--color-neon)] opacity-70" />
                       <span className="text-[7px] md:text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
                         Nat
                       </span>
                     </div>
                     {isReadOnly ? (
-                      <span className="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-[#fcfcf8] truncate max-w-[60px] md:max-w-[72px] block text-center">
+                      <span className="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-[var(--color-text)] truncate max-w-[60px] md:max-w-[72px] block text-center">
                         {identity.nationality}
                       </span>
                     ) : (
@@ -354,7 +354,7 @@ export default function DreamPlayerPage() {
                   </div>
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
-                      <Hash className="w-2.5 md:w-3 h-2.5 md:h-3 text-[#00fe66] opacity-70" />
+                      <Hash className="w-2.5 md:w-3 h-2.5 md:h-3 text-[var(--color-neon)] opacity-70" />
                       <span className="text-[7px] md:text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
                         Shirt
                       </span>
@@ -371,14 +371,14 @@ export default function DreamPlayerPage() {
                       min={1}
                       max={99}
                       type="number"
-                      className="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-[#fcfcf8] text-center block w-full"
+                      className="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-[var(--color-text)] text-center block w-full"
                       inputClassName="font-[Bebas_Neue,sans-serif] text-[12px] md:text-[14px] text-center w-[30px] md:w-[40px]"
                       readOnly={isReadOnly}
                     />
                   </div>
                   <div className="flex flex-col items-center gap-[3px]">
                     <div className="flex items-center gap-1">
-                      <Star className="w-2.5 md:w-3 h-2.5 md:h-3 text-[#00fe66] opacity-70" />
+                      <Star className="w-2.5 md:w-3 h-2.5 md:h-3 text-[var(--color-neon)] opacity-70" />
                       <span className="text-[7px] md:text-[8px] font-bold tracking-widest text-white/35 uppercase font-[Oxanium,sans-serif]">
                         Foot
                       </span>

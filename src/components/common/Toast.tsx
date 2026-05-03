@@ -22,11 +22,11 @@ export function Toast({
 
   const styles = {
     success: {
-      border: "border-[rgba(0,255,102,0.3)]",
-      bg: "bg-[rgba(0,255,102,0.08)]",
+      border: "border-[var(--color-neon)]/30",
+      bg: "bg-[var(--color-neon)]/8",
       icon: "✓",
-      iconColor: "text-[#00ff66]",
-      text: "text-[#00ff66]",
+      iconColor: "text-[var(--color-neon)]",
+      text: "text-[var(--color-neon)]",
     },
     error: {
       border: "border-[rgba(255,80,80,0.3)]",
@@ -36,11 +36,11 @@ export function Toast({
       text: "text-[rgba(255,80,80,0.9)]",
     },
     info: {
-      border: "border-[rgba(0,255,102,0.2)]",
-      bg: "bg-[rgba(0,255,102,0.04)]",
+      border: "border-[var(--color-neon)]/20",
+      bg: "bg-[var(--color-neon)]/4",
       icon: "★",
-      iconColor: "text-[#00ff66]",
-      text: "text-[#00ff66]",
+      iconColor: "text-[var(--color-neon)]",
+      text: "text-[var(--color-neon)]",
     },
     blue: {
       border: "border-[rgba(100,160,255,0.3)]",

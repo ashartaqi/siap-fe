@@ -144,7 +144,7 @@ function PlayersPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0b09] text-[#fcfcf8] font-[Oxanium,sans-serif]">
+    <div className="min-h-screen bg-transparent text-[var(--color-text)] font-[Oxanium,sans-serif]">
       <PageHeader title="Players Database" isFetching={isFetching} />
 
       <div className="flex flex-col lg:flex-row gap-0 max-w-[1600px] mx-auto">
@@ -324,7 +324,7 @@ export default function PlayersPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0a0b09] flex items-center justify-center text-[#00ff66] font-[Bebas_Neue]">
+        <div className="min-h-screen bg-transparent flex items-center justify-center text-[var(--color-neon)] font-[Bebas_Neue]">
           Loading...
         </div>
       }

@@ -138,7 +138,7 @@ function TeamsPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0b09] text-[#fcfcf8] font-[Oxanium,sans-serif]">
+    <div className="min-h-screen bg-transparent text-[var(--color-text)] font-[Oxanium,sans-serif]">
       <PageHeader title="Teams Database" isFetching={isFetching}>
         {/* Tab Switcher */}
         <div className="flex p-1 bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-xl self-start md:self-auto">
@@ -325,11 +325,11 @@ function TeamsPageContent() {
           message={
             <>
               You already have{" "}
-              <span className="text-[#00ff66] font-bold">
+              <span className="text-[var(--color-neon)] font-bold">
                 {currentFav.name}
               </span>{" "}
               as your favorite. Do you want to remove it and set{" "}
-              <span className="text-[#00ff66] font-bold">
+              <span className="text-[var(--color-neon)] font-bold">
                 {pendingFav.name}
               </span>{" "}
               as your new favorite?
@@ -355,7 +355,7 @@ export default function TeamsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0a0b09] flex items-center justify-center text-[#00ff66] font-[Bebas_Neue]">
+        <div className="min-h-screen bg-transparent flex items-center justify-center text-[var(--color-neon)] font-[Bebas_Neue]">
           Loading...
         </div>
       }

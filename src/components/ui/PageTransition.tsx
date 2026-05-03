@@ -2,167 +2,62 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { UCLIcon } from "@/components/icons/UCLIcon";
+import { NAV_ITEMS } from "@/lib/navItems";
+import type { LucideIcon } from "lucide-react";
 
 /* ─── Per-page transition config ─────────────────────────── */
 interface PageConfig {
   label: string;
   accent: string; // glow / icon colour
   bg: string; // overlay bg
-  icon: React.ReactNode; // SVG / emoji icon
+  Icon: LucideIcon | React.FC<{ size?: number; className?: string }>;
 }
 
-const SVG = (props: { children: React.ReactNode; size?: number }) => (
-  <svg
-    viewBox="0 0 24 24"
-    width={props.size ?? 64}
-    height={props.size ?? 64}
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={1.2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {props.children}
-  </svg>
-);
-
-const PAGE_CONFIGS: { prefix: string; config: PageConfig }[] = [
+const PAGE_CONFIGS: { prefix: string; accent: string; bg: string }[] = [
   {
     prefix: "/ucl",
-    config: {
-      label: "Champions League",
-      accent: "#4cc9f0",
-      bg: "radial-gradient(ellipse at center, #0b0f2a 0%, #050810 100%)",
-      icon: <UCLIcon size={64} />,
-    },
+    accent: "#4cc9f0",
+    bg: "radial-gradient(ellipse at center, #0b0f2a 0%, #050810 100%)",
   },
   {
     prefix: "/battle",
-    config: {
-      label: "Ultimate Battle",
-      accent: "#ff3c3c",
-      bg: "radial-gradient(ellipse at center, #120508 0%, #06020400 100%)",
-      icon: (
-        <SVG>
-          {/* Crossed swords */}
-          <path d="M14.5 17.5L3 6 3 3h3l11.5 11.5M8.5 8.5l-1 1M17.5 3h3v3L14 12.5M20 21L14 15M3 21l6-6" />
-        </SVG>
-      ),
-    },
+    accent: "#ff3c3c",
+    bg: "radial-gradient(ellipse at center, #120508 0%, #06020400 100%)",
   },
   {
     prefix: "/community",
-    config: {
-      label: "Community",
-      accent: "#a855f7",
-      bg: "radial-gradient(ellipse at center, #0d0514 0%, #05000b 100%)",
-      icon: (
-        <SVG>
-          {/* Message bubbles */}
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-        </SVG>
-      ),
-    },
+    accent: "#a855f7",
+    bg: "radial-gradient(ellipse at center, #0d0514 0%, #05000b 100%)",
   },
   {
     prefix: "/dream-player",
-    config: {
-      label: "Dream Player",
-      accent: "#f97316",
-      bg: "radial-gradient(ellipse at center, #0a0600 0%, #050300 100%)",
-      icon: (
-        <SVG>
-          {/* Star person */}
-          <circle cx="12" cy="8" r="4" />
-          <path d="M12 14c-5 0-8 2.5-8 4v1h16v-1c0-1.5-3-4-8-4z" />
-          <path d="M12 1l1.5 3 3 .5-2.2 2.1.5 3.1L12 8.3l-2.8 1.4.5-3.1L7.5 4.5 10.5 4z" />
-        </SVG>
-      ),
-    },
+    accent: "#f97316",
+    bg: "radial-gradient(ellipse at center, #0a0600 0%, #050300 100%)",
   },
   {
     prefix: "/dream-team",
-    config: {
-      label: "Dream Team",
-      accent: "#06b6d4",
-      bg: "radial-gradient(ellipse at center, #00100f 0%, #000806 100%)",
-      icon: (
-        <SVG>
-          {/* Team / formation */}
-          <circle cx="12" cy="5" r="2" />
-          <circle cx="5" cy="13" r="2" />
-          <circle cx="19" cy="13" r="2" />
-          <circle cx="8" cy="20" r="2" />
-          <circle cx="16" cy="20" r="2" />
-          <path d="M12 7v3M7 13h10M5 15l3 3M19 15l-3 3" />
-        </SVG>
-      ),
-    },
+    accent: "#06b6d4",
+    bg: "radial-gradient(ellipse at center, #00100f 0%, #000806 100%)",
   },
   {
     prefix: "/league-standings",
-    config: {
-      label: "League Standings",
-      accent: "#94a3b8",
-      bg: "radial-gradient(ellipse at center, #090c10 0%, #040506 100%)",
-      icon: (
-        <SVG>
-          {/* Bar chart */}
-          <rect x="3" y="12" width="4" height="9" rx="1" />
-          <rect x="10" y="7" width="4" height="14" rx="1" />
-          <rect x="17" y="3" width="4" height="18" rx="1" />
-        </SVG>
-      ),
-    },
+    accent: "#94a3b8",
+    bg: "radial-gradient(ellipse at center, #090c10 0%, #040506 100%)",
   },
   {
     prefix: "/player",
-    config: {
-      label: "Players",
-      accent: "#ec4899",
-      bg: "radial-gradient(ellipse at center, #110008 0%, #080005 100%)",
-      icon: (
-        <SVG>
-          {/* Player / person with number */}
-          <circle cx="12" cy="7" r="4" />
-          <path d="M4 20v-1a6 6 0 0112 0v1" />
-          <path d="M9 11h6" />
-        </SVG>
-      ),
-    },
+    accent: "#ec4899",
+    bg: "radial-gradient(ellipse at center, #110008 0%, #080005 100%)",
   },
   {
     prefix: "/team",
-    config: {
-      label: "Teams",
-      accent: "#a3e635",
-      bg: "radial-gradient(ellipse at center, #060e00 0%, #030700 100%)",
-      icon: (
-        <SVG>
-          {/* Shield */}
-          <path d="M12 2l9 4v6c0 5.25-3.75 10.15-9 11.5C6.75 22.15 3 17.25 3 12V6l9-4z" />
-          <path d="M9 12l2 2 4-4" />
-        </SVG>
-      ),
-    },
+    accent: "#a3e635",
+    bg: "radial-gradient(ellipse at center, #060e00 0%, #030700 100%)",
   },
   {
     prefix: "/dashboard",
-    config: {
-      label: "Dashboard",
-      accent: "#00ff66",
-      bg: "radial-gradient(ellipse at center, #0b0b0b 0%, #050505 100%)",
-      icon: (
-        <SVG>
-          {/* Grid dashboard */}
-          <rect x="3" y="3" width="7" height="7" rx="1" />
-          <rect x="14" y="3" width="7" height="7" rx="1" />
-          <rect x="3" y="14" width="7" height="7" rx="1" />
-          <rect x="14" y="14" width="7" height="7" rx="1" />
-        </SVG>
-      ),
-    },
+    accent: "#00ff66",
+    bg: "radial-gradient(ellipse at center, #0b0b0b 0%, #050505 100%)",
   },
 ];
 
@@ -171,9 +66,19 @@ function getPageConfig(pathname: string): PageConfig | null {
   const sorted = [...PAGE_CONFIGS].sort(
     (a, b) => b.prefix.length - a.prefix.length,
   );
-  for (const { prefix, config } of sorted) {
+
+  for (const { prefix, accent, bg } of sorted) {
     if (pathname === prefix || pathname.startsWith(prefix + "/")) {
-      return config;
+      // Find matching nav item for icon and label
+      const navItem = NAV_ITEMS.find((item) => item.href === prefix);
+      if (navItem) {
+        return {
+          label: navItem.label,
+          accent,
+          bg,
+          Icon: navItem.Icon,
+        };
+      }
     }
   }
   return null;
@@ -283,7 +188,7 @@ export function PageTransition() {
               : "none",
           }}
         >
-          {config.icon}
+          <config.Icon size={64} strokeWidth={1.5} />
         </div>
       </div>
 

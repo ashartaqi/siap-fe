@@ -14,11 +14,11 @@ export function FavoriteButton({ isFavorite, onClick }: FavoriteButtonProps) {
         absolute top-3 right-3 z-10
         w-7 h-7 flex items-center justify-center rounded-full
         border transition-all duration-200 text-[15px] leading-none
-        ${
-          isFavorite
-            ? "text-[#00ff66] border-[rgba(0,255,102,0.35)] bg-[rgba(0,255,102,0.08)] hover:bg-[rgba(255,80,80,0.1)] hover:border-[rgba(255,80,80,0.35)] hover:text-[rgba(255,80,80,0.9)]"
-            : "text-[rgba(255,255,255,0.5)] border-[rgba(71,72,69,0.4)] bg-transparent hover:text-[#00ff66] hover:border-[rgba(0,255,102,0.35)] hover:bg-[rgba(0,255,102,0.06)]"
-        }
+          ${
+            isFavorite
+              ? "text-[var(--color-neon)] border-[var(--color-neon)]/35 bg-[var(--color-neon)]/8 hover:bg-[rgba(255,80,80,0.1)] hover:border-[rgba(255,80,80,0.35)] hover:text-[rgba(255,80,80,0.9)]"
+              : "text-white/50 border-[var(--color-border)] bg-transparent hover:text-[var(--color-neon)] hover:border-[var(--color-neon)]/35 hover:bg-[var(--color-neon)]/6"
+          }
       `}
     >
       {isFavorite ? "★" : "☆"}

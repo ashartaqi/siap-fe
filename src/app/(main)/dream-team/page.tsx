@@ -151,6 +151,10 @@ export default function DreamTeamPage() {
   };
 
   const handleGetOptimizedTeam = () => {
+    if (!isEditing) {
+      showToast("Click 'Update Squad' to optimize", "info");
+      return;
+    }
     getOptimizedTeam(activeId, {
       onSuccess: (data) => {
         const players: SelectedPlayers = {};
@@ -238,10 +242,10 @@ export default function DreamTeamPage() {
 
   if (formationsLoading || teamLoading) {
     return (
-      <div className="flex items-center justify-center w-full h-[60vh] font-[Oxanium,sans-serif] text-[#fcfcf8]">
+      <div className="flex items-center justify-center w-full h-[60vh] font-[Oxanium,sans-serif] text-[var(--color-text)]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-[rgba(0,255,102,0.2)] border-t-[#00ff66] rounded-full animate-spin" />
-          <span className="text-[12px] font-bold tracking-[0.24em] uppercase text-[#aaaba7]">
+          <div className="w-10 h-10 border-2 border-[var(--color-neon)]/20 border-t-[var(--color-neon)] rounded-full animate-spin" />
+          <span className="text-[12px] font-bold tracking-[0.24em] uppercase text-[var(--color-text-muted)]">
             Loading Dream Team…
           </span>
         </div>
@@ -251,13 +255,13 @@ export default function DreamTeamPage() {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-5 w-full h-full font-[Oxanium,sans-serif] text-[#fcfcf8] pb-10 lg:pb-0">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-8 lg:gap-5 w-full h-full font-[Oxanium,sans-serif] text-[var(--color-text)] pb-10 lg:pb-0">
         <div className="flex flex-col gap-5 lg:w-1/3 lg:shrink-0">
           <div>
             <h1 className="font-[Bebas_Neue,sans-serif] text-[36px] md:text-[42px] leading-[0.92] tracking-[-0.01em] uppercase">
               {existingTeam ? "YOUR DREAM TEAM" : "DREAM TEAM"}
             </h1>
-            <p className="text-[11px] md:text-[12px] text-[#aaaba7] leading-[1.4] mt-[5px] max-w-[280px]">
+            <p className="text-[11px] md:text-[12px] text-[var(--color-text-muted)] leading-[1.4] mt-[5px] max-w-[280px]">
               {existingTeam
                 ? "Update your formation and players below."
                 : "Assemble your ideal team and rise to the top."}
@@ -265,20 +269,20 @@ export default function DreamTeamPage() {
           </div>
 
           {existingTeam && (
-            <div className="flex items-center justify-between p-4 rounded-xl bg-[rgba(0,255,102,0.04)] border border-[rgba(0,255,102,0.15)]">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-[var(--color-neon)]/5 border border-[var(--color-neon)]/15">
               <div>
-                <span className="block text-[10px] font-bold tracking-[0.15em] uppercase text-[#aaaba7] mb-1">
+                <span className="block text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-muted)] mb-1">
                   Total Score
                 </span>
-                <span className="font-[Bebas_Neue,sans-serif] text-[36px] leading-none text-[#00ff66]">
+                <span className="font-[Bebas_Neue,sans-serif] text-[36px] leading-none text-[var(--color-neon)]">
                   {existingTeam.total_score}
                 </span>
               </div>
               <div className="text-right">
-                <span className="block text-[10px] font-bold tracking-[0.15em] uppercase text-[#aaaba7] mb-1">
+                <span className="block text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-text-muted)] mb-1">
                   Formation
                 </span>
-                <span className="inline-block px-2 py-1 rounded bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#fcfcf8] text-[12px] font-bold tracking-[0.1em]">
+                <span className="inline-block px-2 py-1 rounded bg-white/5 border border-white/10 text-[var(--color-text)] text-[12px] font-bold tracking-[0.1em]">
                   {existingTeam.formation}
                 </span>
               </div>
