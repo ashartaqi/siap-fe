@@ -139,6 +139,7 @@ export function TeamDetailModal({
                   className="w-full h-full object-contain"
                   referrerPolicy="no-referrer"
                   unoptimized
+                  loading="eager"
                   onError={() => setImgErr(true)}
                 />
               ) : (

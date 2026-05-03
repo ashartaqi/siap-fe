@@ -10,7 +10,7 @@ import { useResetPassword } from "@/features/auth/hooks/useResetPassword";
 import { getPasswordStrength } from "@/lib/utils/authUtils";
 import { toast } from "sonner";
 
-export default function ForgotPasswordPage() {
+export default function UpdatePasswordPage() {
   const router = useRouter();
   const resetPasswordMutation = useResetPassword();
 

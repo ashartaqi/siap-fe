@@ -101,7 +101,15 @@ export function PlayerPickerModal({
     isFetchingNextPage,
   } = useInfinitePlayers(payload, 10);
 
-  const players = useMemo(() => data?.pages.flat() || [], [data?.pages]);
+  const { unlockedPlayers, lockedPlayers } = useMemo(() => {
+    const all = data?.pages.flat() ?? [];
+    return {
+      unlockedPlayers: all.filter((p) => p.is_unlocked || p.overall < 70),
+      lockedPlayers: all.filter((p) => !p.is_unlocked && p.overall >= 70),
+    };
+  }, [data]);
+
+  const players = [...unlockedPlayers, ...lockedPlayers];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -336,18 +344,18 @@ export function PlayerPickerModal({
                 >
                   {/* Lock Overlay */}
                   {isLocked && (
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10 group/lock">
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-end pr-3 z-10 group/lock">
                       <div className="flex flex-col items-center gap-1 group-hover/lock:scale-110 transition-transform">
                         <Lock className="w-4 h-4 text-[var(--color-neon)]" />
                         <span className="text-[9px] font-black tracking-widest text-white uppercase">
-                          Unlock {price} BB
+                          {price} BB
                         </span>
                       </div>
                     </div>
                   )}
 
                   <div
-                    className={`w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center ${isLocked ? "blur-sm" : ""}`}
+                    className={`w-11 h-11 rounded-[6px] overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.2)] shrink-0 flex items-center justify-center ${isLocked ? "blur-[2px]" : ""}`}
                   >
                     {p.player_face_url ? (
                       <Image
@@ -362,6 +370,7 @@ export function PlayerPickerModal({
                             "none";
                         }}
                         unoptimized
+                        loading="eager"
                       />
                     ) : (
                       <span className="material-symbols-outlined text-[18px] text-[rgba(0,255,102,0.3)]">
@@ -369,9 +378,7 @@ export function PlayerPickerModal({
                       </span>
                     )}
                   </div>
-                  <div
-                    className={`flex-1 min-w-0 ${isLocked ? "blur-sm" : ""}`}
-                  >
+                  <div className="flex-1 min-w-0">
                     <div className="text-[13px] font-semibold text-[#fcfcf8] truncate">
                       {p.short_name}
                     </div>
@@ -380,7 +387,7 @@ export function PlayerPickerModal({
                       {p.preferred_foot} foot
                     </div>
                   </div>
-                  <div className={isLocked ? "blur-sm" : ""}>
+                  <div>
                     {isUsed ? (
                       <span className="text-[8px] font-bold tracking-[0.15em] uppercase text-[rgba(255,100,100,0.7)] bg-[rgba(255,100,100,0.08)] border border-[rgba(255,100,100,0.2)] px-1.5 py-0.5 rounded-[3px] shrink-0">
                         In Squad

@@ -21,6 +21,7 @@ export function PlayerSlotButton({
 }: PlayerSlotButtonProps) {
   const [imgError, setImgError] = useState(false);
   const hasImage = !!playerFaceUrl && !imgError;
+  const hasPlayer = !!playerName;
 
   return (
     <button
@@ -34,7 +35,9 @@ export function PlayerSlotButton({
         ${
           hasImage
             ? "border-[rgba(0,255,102,0.35)] shadow-[0_0_14px_rgba(0,255,102,0.15)]"
-            : "border-[rgba(255,255,255,0.15)] hover:border-[rgba(0,255,102,0.4)]"
+            : hasPlayer
+              ? "border-[rgba(0,255,102,0.2)] shadow-[0_0_8px_rgba(0,255,102,0.08)]"
+              : "border-[rgba(255,255,255,0.15)] hover:border-[rgba(0,255,102,0.4)]"
         }
         bg-[rgba(20,22,19,0.9)]
         hover:scale-[1.05] active:scale-[0.97]
@@ -45,6 +48,7 @@ export function PlayerSlotButton({
           src={playerFaceUrl}
           alt={playerName ?? position}
           unoptimized
+          loading="eager"
           fill
           className="object-cover object-top"
           referrerPolicy="no-referrer"
@@ -57,19 +61,20 @@ export function PlayerSlotButton({
       )}
 
       {!hasImage && (
-        <div className="flex flex-col items-center justify-center gap-1 text-center">
-          <span
-            className={`material-symbols-outlined text-[18px] ${
-              isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
-            }`}
-          >
-            <PlusIcon />
-          </span>
-          <span
-            className={`text-[8px] font-bold tracking-[0.15em] uppercase ${
-              isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
-            }`}
-          />
+        <div className="flex flex-col items-center justify-center gap-1 text-center px-1">
+          {hasPlayer ? (
+            <span className="text-[7px] sm:text-[8px] font-bold tracking-[0.05em] uppercase text-[#fcfcf8] leading-tight text-center line-clamp-2">
+              {playerName}
+            </span>
+          ) : (
+            <span
+              className={`text-[18px] ${
+                isGK ? "text-[#00ff66]" : "text-[rgba(255,255,255,0.5)]"
+              }`}
+            >
+              <PlusIcon />
+            </span>
+          )}
         </div>
       )}
 

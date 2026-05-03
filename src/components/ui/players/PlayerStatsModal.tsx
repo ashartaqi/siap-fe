@@ -27,13 +27,21 @@ interface Props {
   onClose: () => void;
 }
 
-const STAT_DEFS = [
-  { key: "pace" as const, label: "Pace", Icon: Zap },
-  { key: "shooting" as const, label: "Shooting", Icon: Target },
-  { key: "passing" as const, label: "Passing", Icon: Share2 },
-  { key: "dribbling" as const, label: "Dribbling", Icon: Footprints },
-  { key: "defending" as const, label: "Defending", Icon: Shield },
-  { key: "physic" as const, label: "Physical", Icon: Dumbbell },
+type StatKey =
+  | "pace"
+  | "shooting"
+  | "passing"
+  | "dribbling"
+  | "defending"
+  | "physic";
+
+const STAT_DEFS: { key: StatKey; label: string; Icon: React.ElementType }[] = [
+  { key: "pace", label: "Pace", Icon: Zap },
+  { key: "shooting", label: "Shooting", Icon: Target },
+  { key: "passing", label: "Passing", Icon: Share2 },
+  { key: "dribbling", label: "Dribbling", Icon: Footprints },
+  { key: "defending", label: "Defending", Icon: Shield },
+  { key: "physic", label: "Physical", Icon: Dumbbell },
 ];
 
 export function PlayerStatsModal({
@@ -42,15 +50,8 @@ export function PlayerStatsModal({
   onToggleFav,
   onClose,
 }: Props) {
-  const overall = Math.round(
-    (player.pace +
-      player.shooting +
-      player.passing +
-      player.dribbling +
-      player.defending +
-      player.physic) /
-      6,
-  );
+  const stats = player.player_stats;
+  const overall = player.overall;
 
   return (
     <div
@@ -118,7 +119,7 @@ export function PlayerStatsModal({
               <StatBar
                 key={key}
                 label={label}
-                value={player[key]}
+                value={stats?.[key] ?? 0}
                 icon={<Icon className="w-5 h-5" />}
                 side="left"
               />
@@ -179,7 +180,7 @@ export function PlayerStatsModal({
                     {player.short_name}
                   </span>
                   <span className="text-[12px] font-bold tracking-[0.3em] uppercase text-[#00fe66]/70 font-[Oxanium,sans-serif] block mt-1">
-                    {player.player_positions}
+                    {player.positions?.join(" · ")}
                   </span>
                 </div>
               </div>
@@ -195,7 +196,7 @@ export function PlayerStatsModal({
                 <InfoChip
                   icon={<MapPin className="w-4 h-4 text-[#00fe66]" />}
                   label="Club"
-                  value={player.club_name}
+                  value={player.club_name ?? "—"}
                 />
                 <InfoChip
                   icon={<Hash className="w-4 h-4 text-[#00fe66]" />}
@@ -242,7 +243,7 @@ export function PlayerStatsModal({
               <StatBar
                 key={key}
                 label={label}
-                value={player[key]}
+                value={stats?.[key] ?? 0}
                 icon={<Icon className="w-5 h-5" />}
                 side="right"
               />

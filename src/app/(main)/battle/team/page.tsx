@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { Skull } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetBattleUsers,
   useGetUserDreamTeam,
@@ -19,6 +20,7 @@ import { useRewards } from "@/components/providers/RewardProvider";
 
 export default function TeamBattlePage() {
   const { addReward } = useRewards();
+  const queryClient = useQueryClient();
   const [opponentId, setOpponentId] = useState<number | null>(null);
   const [isBattling, setIsBattling] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -75,6 +77,7 @@ export default function TeamBattlePage() {
 
   const handleSimulationComplete = () => {
     setSimDone(true);
+    queryClient.invalidateQueries({ queryKey: ["user-me"] });
     if (battleResult && battleResult.reward > 0) {
       const msg =
         battleResult.winner === "me"

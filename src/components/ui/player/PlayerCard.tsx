@@ -56,6 +56,7 @@ export function PlayerCard({
                 className="w-full h-full object-cover object-top"
                 referrerPolicy="no-referrer"
                 unoptimized
+                loading="eager"
                 onError={() => setImgErr(true)}
               />
             ) : (

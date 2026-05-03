@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getBattleUsers,
   getUserDreamTeam,
@@ -32,23 +32,13 @@ export const useGetUserCustomPlayer = (userId: number | null) => {
 };
 
 export const useSimulateTeamBattle = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (opponentId: number) => simulateTeamBattle(opponentId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-me"] });
-    },
   });
 };
 
 export const useSimulatePlayerBattle = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (opponentId: number) => simulatePlayerBattle(opponentId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-me"] });
-    },
   });
 };

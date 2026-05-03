@@ -78,6 +78,7 @@ export function FavoritePlayerItem({
                 height={48}
                 className="w-12 h-12 object-cover rounded-full border-2 border-primary-container/20 shadow-lg flex-none transition-transform group-hover:scale-110"
                 unoptimized
+                loading="eager"
               />
             )}
           </div>
