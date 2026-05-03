@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Swords, Trophy, Skull, Users, ChevronLeft } from "lucide-react";
 import {
   useGetBattleUsers,
   useGetUserDreamTeam,
-  useSimulateBattle,
+  useSimulateTeamBattle,
 } from "@/features/main/battle";
 import type { IMatchSimulationResult } from "@/features/main/battle/apis/battle";
 import { useGetDreamTeam } from "@/features/main/dashboard/hooks/useGetDreamTeam";
@@ -13,12 +13,16 @@ import { useGetUser } from "@/features/auth/hooks/useGetUser";
 import { useGetFormations } from "@/features/main/football";
 import { BattleTeamCard } from "@/components/ui/battle/BattleTeamCard";
 import { BattleMatchReport } from "@/components/ui/battle/BattleMatchReport";
+import { BattleLoadingScreen } from "@/components/ui/battle/BattleLoadingScreen";
 import { slotsToPlayers } from "@/lib/utils/battleUtils";
+import { useRewards } from "@/components/providers/RewardProvider";
 
 export default function TeamBattlePage() {
+  const { addReward } = useRewards();
   const [opponentId, setOpponentId] = useState<number | null>(null);
   const [isBattling, setIsBattling] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [simDone, setSimDone] = useState(false);
   const [battleResult, setBattleResult] =
     useState<IMatchSimulationResult | null>(null);
 
@@ -43,12 +47,22 @@ export default function TeamBattlePage() {
   const opponentFormation =
     formations.find((f) => f.id === opponentTeam?.formation) ?? formations[0];
 
-  const { mutate: simulate, isPending: isSimulating } = useSimulateBattle();
+  const { mutate: simulate, isPending: isSimulating } = useSimulateTeamBattle();
+
+  const handleMatchmaking = useCallback(() => {
+    const pool = battleUsers.filter(
+      (u) => u.username !== currentUser?.username,
+    );
+    if (pool.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    setOpponentId(pool[randomIndex].id);
+  }, [battleUsers, currentUser?.username]);
 
   const startBattle = () => {
     if (!myTeam || !opponentTeam || !opponentId) return;
     setIsBattling(true);
     setShowResult(false);
+    setSimDone(false);
     simulate(opponentId, {
       onSuccess: (data) => {
         setBattleResult(data);
@@ -59,10 +73,24 @@ export default function TeamBattlePage() {
     });
   };
 
+  const handleSimulationComplete = () => {
+    setSimDone(true);
+    if (battleResult && battleResult.reward > 0) {
+      const msg =
+        battleResult.winner === "me"
+          ? "Victory Bonus!"
+          : battleResult.winner === "draw"
+            ? "Hard-fought Draw Reward"
+            : "Participation Reward";
+      addReward(battleResult.reward, msg);
+    }
+  };
+
   const resetBattle = () => {
     setOpponentId(null);
     setBattleResult(null);
     setShowResult(false);
+    setSimDone(false);
   };
 
   if (!myTeam) {
@@ -108,31 +136,28 @@ export default function TeamBattlePage() {
             <div className="bg-[#121212] border border-[rgba(255,255,255,0.05)] p-8 rounded-3xl flex flex-col gap-8 shadow-2xl animate-in slide-in-from-right-8 duration-500">
               <div>
                 <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff4444] uppercase mb-4 block">
-                  CHOOSE OPPONENT
+                  ARENA MATCHMAKING
                 </span>
-                <div className="relative group">
-                  <select
-                    onChange={(e) => setOpponentId(Number(e.target.value))}
-                    value={opponentId ?? ""}
-                    className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-4 text-[13px] outline-none focus:border-[#00ff66] text-[#fcfcf8] appearance-none cursor-pointer hover:border-[#444] transition-all"
-                  >
-                    <option value="" disabled className="bg-[#121212]">
-                      Select Rival User
-                    </option>
-                    {battleUsers.map((u) => (
-                      <option
-                        key={u.id}
-                        value={u.id}
-                        className="bg-[#121212] py-2"
-                      >
-                        {u.username}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#555] group-hover:text-[#888]">
-                    <Users size={18} />
-                  </div>
-                </div>
+                <button
+                  onClick={handleMatchmaking}
+                  className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-8 text-[13px] text-[#fcfcf8] hover:border-[#00ff66] hover:bg-[#1f1f1f] transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,255,102,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_3s_infinite]" />
+                  <Users
+                    size={24}
+                    className="text-[#555] group-hover:text-[#00ff66] transition-all group-hover:scale-110"
+                  />
+                  <span className="font-bold tracking-widest uppercase">
+                    {opponentId
+                      ? battleUsers.find((u) => u.id === opponentId)?.username
+                      : "Find Random Opponent"}
+                  </span>
+                  {opponentId && (
+                    <span className="text-[9px] text-[#00ff66] animate-pulse">
+                      RIVAL ACQUIRED
+                    </span>
+                  )}
+                </button>
               </div>
 
               <div className="flex flex-col gap-4">
@@ -159,14 +184,10 @@ export default function TeamBattlePage() {
 
       {/* Loading */}
       {isBattling && (
-        <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="text-3xl font-[Bebas_Neue] text-[#00ff66] animate-bounce">
-            ANALYZING TACTICS...
-          </div>
-          <div className="text-[10px] text-[#555] uppercase tracking-[0.5em] mt-2">
-            SIMULATING MATCH SCENARIO
-          </div>
-        </div>
+        <BattleLoadingScreen
+          title="ANALYZING TACTICS..."
+          subtitle="SIMULATING MATCH SCENARIO"
+        />
       )}
 
       {/* Results */}
@@ -176,7 +197,8 @@ export default function TeamBattlePage() {
         myFormation &&
         opponentFormation &&
         currentUser && (
-          <div className="w-full animate-in fade-in zoom-in duration-1000">
+          <div className="w-full animate-in fade-in zoom-in duration-700">
+            {/* Header row: back + score */}
             <div className="flex items-center justify-between mb-8">
               <button
                 onClick={resetBattle}
@@ -184,81 +206,98 @@ export default function TeamBattlePage() {
               >
                 <ChevronLeft size={16} /> BACK
               </button>
-              <div
-                className={`text-5xl font-[Bebas_Neue] uppercase tracking-tighter ${
-                  battleResult.winner === "me"
-                    ? "text-[#00ff66]"
-                    : battleResult.winner === "opponent"
-                      ? "text-[#ff4444]"
-                      : "text-[#aaaba7]"
-                }`}
-              >
-                {battleResult.score1} – {battleResult.score2}
-              </div>
+
+              {/* Score hidden until simulation ends */}
+              {simDone ? (
+                <div
+                  className={`text-5xl font-[Bebas_Neue] uppercase tracking-tighter animate-in fade-in zoom-in duration-500 ${
+                    battleResult.winner === "me"
+                      ? "text-[#00ff66]"
+                      : battleResult.winner === "opponent"
+                        ? "text-[#ff4444]"
+                        : "text-[#aaaba7]"
+                  }`}
+                >
+                  {battleResult.score1} – {battleResult.score2}
+                </div>
+              ) : (
+                <div className="text-5xl font-[Bebas_Neue] uppercase tracking-tighter text-[#333] select-none">
+                  ? – ?
+                </div>
+              )}
               <div className="w-10" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-12">
-              <BattleTeamCard
-                variant="result"
-                side="me"
-                username={currentUser.username}
-                totalScore={myTeam.total_score}
-                formation={myFormation}
-                players={myPlayers}
-                isWinner={battleResult.winner === "me"}
-              />
-              <BattleTeamCard
-                variant="result"
-                side="opponent"
-                username={
-                  battleUsers.find((u) => u.id === opponentId)?.username ??
-                  "Opponent"
-                }
-                totalScore={opponentTeam.total_score}
-                formation={opponentFormation}
-                players={opponentPlayers}
-                isWinner={battleResult.winner === "opponent"}
-              />
-            </div>
-
-            <div className="flex flex-col items-center gap-6">
-              {battleResult.winner === "me" ? (
-                <div className="flex flex-col items-center gap-2 animate-bounce">
-                  <Trophy size={60} className="text-[#00ff66]" />
-                  <p className="text-[#00ff66] font-bold tracking-widest uppercase text-sm">
-                    YOU DOMINATED THE PITCH
-                  </p>
-                </div>
-              ) : battleResult.winner === "opponent" ? (
-                <div className="flex flex-col items-center gap-2">
-                  <Skull size={60} className="text-[#ff4444] opacity-50" />
-                  <p className="text-[#ff4444] font-bold tracking-widest uppercase text-sm">
-                    YOUR TACTICS WERE OUTMATCHED
-                  </p>
-                </div>
-              ) : (
-                <p className="text-[#aaaba7] font-bold tracking-widest uppercase text-sm">
-                  IT WAS A TACTICAL DEADLOCK
-                </p>
-              )}
-
+            {/* Simulation log — always shown first */}
+            <div className="flex justify-center mb-10">
               <BattleMatchReport
                 stats={battleResult.stats}
                 log={battleResult.log}
+                onSimulationComplete={handleSimulationComplete}
               />
-
-              <p className="text-[#aaaba7] font-bold tracking-widest uppercase text-sm mt-4">
-                REWARD: +{battleResult.reward} BB
-              </p>
-
-              <button
-                onClick={resetBattle}
-                className="px-12 py-4 bg-[rgba(255,255,255,0.05)] border border-white/10 rounded-2xl text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-white/10 hover:border-white/20 transition-all active:scale-95"
-              >
-                RETRY BATTLE
-              </button>
             </div>
+
+            {/* Team cards — revealed after simulation finishes */}
+            {simDone && (
+              <>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <BattleTeamCard
+                    variant="result"
+                    side="me"
+                    username={currentUser.username}
+                    totalScore={myTeam.total_score}
+                    formation={myFormation}
+                    players={myPlayers}
+                    isWinner={battleResult.winner === "me"}
+                  />
+                  <BattleTeamCard
+                    variant="result"
+                    side="opponent"
+                    username={
+                      battleUsers.find((u) => u.id === opponentId)?.username ??
+                      "Opponent"
+                    }
+                    totalScore={opponentTeam.total_score}
+                    formation={opponentFormation}
+                    players={opponentPlayers}
+                    isWinner={battleResult.winner === "opponent"}
+                  />
+                </div>
+
+                <div className="flex flex-col items-center gap-6 animate-in fade-in duration-700">
+                  {battleResult.winner === "me" ? (
+                    <div className="flex flex-col items-center gap-2 animate-bounce">
+                      <Trophy size={60} className="text-[#00ff66]" />
+                      <p className="text-[#00ff66] font-bold tracking-widest uppercase text-sm">
+                        YOU DOMINATED THE PITCH
+                      </p>
+                    </div>
+                  ) : battleResult.winner === "opponent" ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <Skull size={60} className="text-[#ff4444] opacity-50" />
+                      <p className="text-[#ff4444] font-bold tracking-widest uppercase text-sm">
+                        YOUR TACTICS WERE OUTMATCHED
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-[#aaaba7] font-bold tracking-widest uppercase text-sm">
+                      IT WAS A TACTICAL DEADLOCK
+                    </p>
+                  )}
+
+                  <p className="text-[#aaaba7] font-bold tracking-widest uppercase text-sm">
+                    REWARD: +{battleResult.reward} BB
+                  </p>
+
+                  <button
+                    onClick={resetBattle}
+                    className="px-12 py-4 bg-[rgba(255,255,255,0.05)] border border-white/10 rounded-2xl text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-white/10 hover:border-white/20 transition-all active:scale-95"
+                  >
+                    RETRY BATTLE
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
     </div>

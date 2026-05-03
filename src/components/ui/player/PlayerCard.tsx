@@ -35,7 +35,10 @@ export function PlayerCard({
       {/* Button is a sibling to the clickable content — no stopPropagation needed */}
       <FavoriteButton
         isFavorite={isFavorite}
-        onClick={() => onStarClick(player)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onStarClick(player);
+        }}
       />
       <div
         onClick={() => onCardClick(player)}

@@ -16,11 +16,13 @@ import { useScrollToBottom } from "@/lib/hooks/useScrollToBottom";
 interface MatchCommentsModalProps {
   match: Match;
   onClose: () => void;
+  theme?: "green" | "blue";
 }
 
 export function MatchCommentsModal({
   match,
   onClose,
+  theme = "green",
 }: MatchCommentsModalProps) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,7 @@ export function MatchCommentsModal({
   );
   const { data: currentUser } = useGetUser();
   const scrollRef = useScrollToBottom(comments);
+  const isBlue = theme === "blue";
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,19 +51,34 @@ export function MatchCommentsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#0b0b0b] border border-[rgba(255,255,255,0.05)] w-full max-w-2xl rounded-2xl overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200 h-[80vh]">
-        <div className="p-4 border-b border-[rgba(255,255,255,0.05)] flex items-center justify-between bg-[rgba(255,255,255,0.02)]">
+      <div
+        className={`border w-full max-w-2xl rounded-2xl overflow-hidden flex flex-col shadow-2xl animate-in fade-in zoom-in duration-200 h-[80vh] ${
+          isBlue
+            ? "bg-[#0a193c] border-[rgba(100,160,255,0.3)]"
+            : "bg-[#0b0b0b] border-[rgba(255,255,255,0.05)]"
+        }`}
+      >
+        <div
+          className={`p-4 border-b flex items-center justify-between ${isBlue ? "border-white/5 bg-white/5" : "border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)]"}`}
+        >
           <div>
-            <h3 className="font-[Bebas_Neue,sans-serif] text-xl tracking-tight uppercase">
-              MATCH <span className="text-[#00ff66]">COMMENTS</span>
+            <h3
+              className={`font-[Bebas_Neue,sans-serif] text-xl tracking-tight uppercase ${isBlue ? "text-[#e8f0ff]" : ""}`}
+            >
+              MATCH{" "}
+              <span className={isBlue ? "text-[#60aaff]" : "text-[#00ff66]"}>
+                COMMENTS
+              </span>
             </h3>
-            <p className="text-[10px] text-[#aaaba7] uppercase font-bold tracking-widest">
+            <p
+              className={`text-[10px] uppercase font-bold tracking-widest ${isBlue ? "text-[#5a80b0]" : "text-[#aaaba7]"}`}
+            >
               {match.home_team} VS {match.away_team}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[rgba(255,255,255,0.05)] text-[#aaaba7] transition-colors"
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isBlue ? "hover:bg-white/10 text-[#8aabdc]" : "hover:bg-[rgba(255,255,255,0.05)] text-[#aaaba7]"}`}
           >
             <X size={20} />
           </button>
@@ -72,10 +90,18 @@ export function MatchCommentsModal({
         >
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="w-8 h-8 border-2 border-[rgba(0,255,102,0.2)] border-t-[#00ff66] rounded-full animate-spin" />
+              <div
+                className={`w-8 h-8 border-2 rounded-full animate-spin ${
+                  isBlue
+                    ? "border-[rgba(100,160,255,0.2)] border-t-[#60aaff]"
+                    : "border-[rgba(0,255,102,0.2)] border-t-[#00ff66]"
+                }`}
+              />
             </div>
           ) : comments.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-[#aaaba7] opacity-30">
+            <div
+              className={`flex flex-col items-center justify-center h-full opacity-30 ${isBlue ? "text-[#60aaff]" : "text-[#aaaba7]"}`}
+            >
               <MessageSquare size={40} className="mb-4" />
               <p className="text-[10px] font-bold tracking-[0.2em] uppercase">
                 No comments yet
@@ -90,6 +116,7 @@ export function MatchCommentsModal({
                 created_at={msg.created_at}
                 isOwn={msg.username === currentUser?.username}
                 size="sm"
+                theme={theme}
               />
             ))
           )}
@@ -101,6 +128,7 @@ export function MatchCommentsModal({
           onSubmit={handleSend}
           isPending={isSending}
           placeholder="Write a comment..."
+          theme={theme}
         />
       </div>
 

@@ -70,7 +70,8 @@ function TeamsPageContent() {
   } = useInfiniteTeams(payload);
 
   const { data: favTeams = [] } = useGetFavoriteTeam();
-  const currentFav = favTeams.length > 0 ? favTeams[0] : null;
+  const currentFav =
+    favTeams.length > 0 ? (favTeams[0] as unknown as ITeamsResponse) : null;
 
   const addFav = useAddFavoriteTeam();
   const removeFav = useRemoveFavoriteTeam();
@@ -89,7 +90,7 @@ function TeamsPageContent() {
     if (isFav) {
       removeFav.mutate(team.id, {
         onSuccess: () =>
-          showToast(`${team.name} removed from favourites`, "error"),
+          showToast(`${team.name} removed from favourites`, "info"),
         onError: () => showToast("Failed to remove favourite", "error"),
       });
     } else if (currentFav) {

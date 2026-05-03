@@ -8,15 +8,29 @@ import { clearToken } from "@/lib/auth/token";
 import { logout } from "@/features/auth/apis/logout";
 import { NAV_ITEMS } from "@/lib/navItems";
 import { useGetUser } from "@/features/auth/hooks/useGetUser";
+import { useRewards } from "@/components/providers/RewardProvider";
+import { useEffect } from "react";
+import { getTheme } from "@/lib/themes";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const { data: user } = useGetUser();
+  const { addReward } = useRewards();
   const pathname = usePathname();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
-  const isUCL = pathname === "/ucl" || pathname === "/settings";
+
+  const theme = getTheme(pathname);
+  const isUCL = pathname === "/ucl" || pathname.startsWith("/ucl/");
+
+  useEffect(() => {
+    const pending = localStorage.getItem("pending_login_reward");
+    if (pending) {
+      addReward(parseInt(pending, 10), "Daily Login Bonus");
+      localStorage.removeItem("pending_login_reward");
+    }
+  }, [addReward]);
 
   const handleLogout = async () => {
     await logout().catch(() => {});
@@ -29,25 +43,17 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
     ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
     fixed lg:relative z-50 h-screen
     border-r border-[var(--color-border)] bg-[var(--color-surface)] p-6 flex flex-col gap-8 
-    transition-all duration-300 ease-in-out
+    transition-all duration-700 ease-in-out
   `;
 
   return (
     <div
       className={`flex font-body ${isUCL ? "h-screen overflow-hidden" : "min-h-screen"} bg-[var(--color-black)]`}
       style={
-        isUCL
-          ? ({
-              "--color-black": "#0b0f2a",
-              "--color-surface": "#111a3a",
-              "--color-border": "#1f2d5c",
-              "--color-text": "#e6ecff",
-              "--color-text-muted": "#8fa4ff",
-              "--color-neon": "#4cc9f0",
-              background:
-                "radial-gradient(circle at 20% 20%, #1e40af 0%, #0b0f2a 60%)",
-            } as React.CSSProperties)
-          : undefined
+        {
+          ...theme,
+          transition: "background-color 700ms ease, color 700ms ease",
+        } as React.CSSProperties
       }
     >
       {/* Mobile Header */}
@@ -235,9 +241,10 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       <main
-        className={`flex-1 p-4 md:p-8 pt-20 lg:pt-8 bg-[var(--color-black)] text-[var(--color-text)] ${
+        className={`flex-1 p-4 md:p-8 pt-20 lg:pt-8 text-[var(--color-text)] transition-all duration-700 ease-in-out ${
           isUCL ? "min-h-0 overflow-hidden" : "overflow-y-auto h-screen"
         }`}
+        style={{ background: theme.background }}
       >
         {children}
       </main>

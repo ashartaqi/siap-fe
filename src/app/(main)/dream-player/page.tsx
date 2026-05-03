@@ -296,9 +296,9 @@ export default function DreamPlayerPage() {
 
             {/* Player card */}
             <div className="absolute bottom-0 md:bottom-4 left-1/2 -translate-x-1/2 z-20 w-full max-w-[340px] px-4 md:px-0">
-              <div className="rounded-2xl px-4 py-3 md:px-5 md:py-4 flex flex-col gap-2 md:gap-3 bg-[rgba(18,20,17,0.85)] backdrop-blur-xl border border-[rgba(169,255,172,0.15)] shadow-2xl">
+              <div className="rounded-2xl px-4 py-3 md:px-5 md:py-4 flex flex-col gap-2 md:gap-3 bg-[var(--color-surface)] backdrop-blur-xl border border-[var(--color-border)] shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                 <div className="flex items-center gap-3">
-                  <div className="px-2 md:px-3 py-0.5 md:py-1 rounded-2xl bg-gradient-to-br from-[rgba(0,254,102,0.18)] to-[rgba(0,254,102,0.04)] border border-[rgba(0,254,102,0.3)] shrink-0">
+                  <div className="px-2 md:px-3 py-0.5 md:py-1 rounded-2xl bg-gradient-to-br from-[var(--color-neon)]/20 to-transparent border border-[var(--color-border)] shrink-0">
                     <span
                       className={[
                         "text-[20px] md:text-[26px] leading-none font-[Bebas_Neue,sans-serif]",

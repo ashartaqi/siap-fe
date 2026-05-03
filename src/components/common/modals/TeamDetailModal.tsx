@@ -27,9 +27,14 @@ import { useDebounce } from "@/lib/hooks/useDebounce";
 interface TeamDetailModalProps {
   team: ITeamsResponse;
   onClose: () => void;
+  theme?: "green" | "blue";
 }
 
-export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
+export function TeamDetailModal({
+  team,
+  onClose,
+  theme = "green",
+}: TeamDetailModalProps) {
   const [imgErr, setImgErr] = useState(false);
   const [activeTab, setActiveTab] = useState<"fixtures" | "players">(
     "fixtures",
@@ -103,10 +108,28 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
           if (e.target === e.currentTarget) onClose();
         }}
       >
-        <div className="bg-[rgba(14,16,13,0.98)] border border-[rgba(71,72,69,0.3)] rounded-2xl w-[min(580px,100%)] max-h-[90vh] overflow-y-auto shadow-[0_40px_100px_rgba(0,0,0,0.8)] flex flex-col">
+        <div
+          className={`border rounded-2xl w-[min(580px,100%)] max-h-[90vh] overflow-y-auto shadow-[0_40px_100px_rgba(0,0,0,0.8)] flex flex-col ${
+            theme === "blue"
+              ? "bg-[rgba(2,8,30,0.98)] border-[rgba(100,160,255,0.2)]"
+              : "bg-[rgba(14,16,13,0.98)] border-[rgba(71,72,69,0.3)]"
+          }`}
+        >
           {/* Header */}
-          <div className="relative flex items-start gap-4 p-6 border-b border-[rgba(71,72,69,0.15)]">
-            <div className="w-[80px] h-[80px] rounded-xl overflow-hidden bg-[rgba(36,39,35,0.9)] border border-[rgba(71,72,69,0.25)] shrink-0 flex items-center justify-center p-2">
+          <div
+            className={`relative flex items-start gap-4 p-6 border-b ${
+              theme === "blue"
+                ? "border-[rgba(100,160,255,0.15)]"
+                : "border-[rgba(71,72,69,0.15)]"
+            }`}
+          >
+            <div
+              className={`w-[80px] h-[80px] rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-2 border ${
+                theme === "blue"
+                  ? "bg-[rgba(10,25,70,0.9)] border-[rgba(100,160,255,0.25)]"
+                  : "bg-[rgba(36,39,35,0.9)] border-[rgba(71,72,69,0.25)]"
+              }`}
+            >
               {team.logo_url && !imgErr ? (
                 <Image
                   src={team.logo_url}
@@ -134,7 +157,11 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                     {team.nationality_name}
                   </p>
                 </div>
-                <div className="font-[Bebas_Neue,sans-serif] text-[44px] text-[#00ff66] leading-none shrink-0">
+                <div
+                  className={`font-[Bebas_Neue,sans-serif] text-[44px] leading-none shrink-0 ${
+                    theme === "blue" ? "text-[#60aaff]" : "text-[#00ff66]"
+                  }`}
+                >
                   {team.overall}
                 </div>
               </div>
@@ -152,18 +179,30 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
           <div className="p-6 flex flex-col gap-6">
             {/* Info pills */}
             <div className="flex flex-col gap-2">
-              <InfoPill label="Stadium" value={team.home_stadium || "—"} />
+              <InfoPill
+                label="Stadium"
+                value={team.home_stadium || "—"}
+                theme={theme}
+              />
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex p-1 bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-xl">
+            <div
+              className={`flex p-1 border rounded-xl ${
+                theme === "blue"
+                  ? "bg-[rgba(10,25,70,0.8)] border-[rgba(100,160,255,0.3)]"
+                  : "bg-[rgba(36,39,35,0.8)] border-[rgba(71,72,69,0.3)]"
+              }`}
+            >
               <button
                 onClick={() => setActiveTab("fixtures")}
                 className={`
                 flex-1 py-2 rounded-lg text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-200
                 ${
                   activeTab === "fixtures"
-                    ? "bg-[#00ff66] text-[#0a0b09] shadow-[0_0_15px_rgba(0,255,102,0.3)]"
+                    ? theme === "blue"
+                      ? "bg-[#60aaff] text-[#02081e] shadow-[0_0_15px_rgba(96,170,255,0.3)]"
+                      : "bg-[#00ff66] text-[#0a0b09] shadow-[0_0_15px_rgba(0,255,102,0.3)]"
                     : "text-[rgba(255,255,255,0.4)] hover:text-white"
                 }
               `}
@@ -176,7 +215,9 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                 flex-1 py-2 rounded-lg text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-200
                 ${
                   activeTab === "players"
-                    ? "bg-[#00ff66] text-[#0a0b09] shadow-[0_0_15px_rgba(0,255,102,0.3)]"
+                    ? theme === "blue"
+                      ? "bg-[#60aaff] text-[#02081e] shadow-[0_0_15px_rgba(96,170,255,0.3)]"
+                      : "bg-[#00ff66] text-[#0a0b09] shadow-[0_0_15px_rgba(0,255,102,0.3)]"
                     : "text-[rgba(255,255,255,0.4)] hover:text-white"
                 }
               `}
@@ -191,9 +232,9 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                 Team Ratings
               </p>
               <div className="flex flex-col gap-2.5">
-                <StatBar label="ATT" value={team.attack} />
-                <StatBar label="MID" value={team.midfield} />
-                <StatBar label="DEF" value={team.defence} />
+                <StatBar label="ATT" value={team.attack} theme={theme} />
+                <StatBar label="MID" value={team.midfield} theme={theme} />
+                <StatBar label="DEF" value={team.defence} theme={theme} />
               </div>
             </div>
 
@@ -225,7 +266,9 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                           className={[
                             "w-8 h-8 rounded font-[Bebas_Neue,sans-serif] text-[16px] flex items-center justify-center",
                             r === "W"
-                              ? "bg-[rgba(0,255,102,0.15)] text-[#00ff66] border border-[rgba(0,255,102,0.3)]"
+                              ? theme === "blue"
+                                ? "bg-[rgba(96,170,255,0.15)] text-[#60aaff] border border-[rgba(96,170,255,0.3)]"
+                                : "bg-[rgba(0,255,102,0.15)] text-[#00ff66] border border-[rgba(0,255,102,0.3)]"
                               : r === "L"
                                 ? "bg-[rgba(255,80,80,0.12)] text-[rgba(255,80,80,0.9)] border border-[rgba(255,80,80,0.25)]"
                                 : "bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.4)] border border-[rgba(255,255,255,0.1)]",
@@ -275,14 +318,20 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                         return (
                           <div
                             key={f.id}
-                            className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[rgba(36,39,35,0.5)] border border-[rgba(71,72,69,0.15)]"
+                            className={`flex items-center justify-between px-3 py-2.5 rounded-lg border ${
+                              theme === "blue"
+                                ? "bg-[rgba(10,25,70,0.5)] border-[rgba(100,160,255,0.15)]"
+                                : "bg-[rgba(36,39,35,0.5)] border-[rgba(71,72,69,0.15)]"
+                            }`}
                           >
                             <div className="flex items-center gap-2 min-w-0">
                               <span
                                 className={[
                                   "text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded shrink-0",
                                   isHome
-                                    ? "text-[#00ff66] bg-[rgba(0,255,102,0.1)] border border-[rgba(0,255,102,0.2)]"
+                                    ? theme === "blue"
+                                      ? "text-[#60aaff] bg-[rgba(0,100,255,0.1)] border border-[rgba(0,100,255,0.2)]"
+                                      : "text-[#00ff66] bg-[rgba(0,255,102,0.1)] border border-[rgba(0,255,102,0.2)]"
                                     : "text-[rgba(255,255,255,0.4)] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)]",
                                 ].join(" ")}
                               >
@@ -322,7 +371,11 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                   <div className="flex flex-col gap-1">
                     <span className={LABEL}>Position</span>
                     <select
-                      className="w-full bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-[6px] px-2.5 py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none appearance-none cursor-pointer focus:border-[rgba(0,255,102,0.4)] transition-colors"
+                      className={`w-full border rounded-[6px] px-2.5 py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none appearance-none cursor-pointer transition-colors ${
+                        theme === "blue"
+                          ? "bg-[rgba(10,25,70,0.8)] border-[rgba(100,160,255,0.3)] focus:border-[rgba(100,160,255,0.4)]"
+                          : "bg-[rgba(36,39,35,0.8)] border-[rgba(71,72,69,0.3)] focus:border-[rgba(0,255,102,0.4)]"
+                      }`}
                       value={squadPosition}
                       onChange={(e) => setSquadPosition(e.target.value)}
                     >
@@ -339,7 +392,11 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                   <div className="flex flex-col gap-1">
                     <span className={LABEL}>Preferred Foot</span>
                     <select
-                      className="w-full bg-[rgba(36,39,35,0.8)] border border-[rgba(71,72,69,0.3)] rounded-[6px] px-2.5 py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none appearance-none cursor-pointer focus:border-[rgba(0,255,102,0.4)] transition-colors"
+                      className={`w-full border rounded-[6px] px-2.5 py-2 font-[Oxanium,sans-serif] text-[12px] text-[#fcfcf8] outline-none appearance-none cursor-pointer transition-colors ${
+                        theme === "blue"
+                          ? "bg-[rgba(10,25,70,0.8)] border-[rgba(100,160,255,0.3)] focus:border-[rgba(100,160,255,0.4)]"
+                          : "bg-[rgba(36,39,35,0.8)] border-[rgba(71,72,69,0.3)] focus:border-[rgba(0,255,102,0.4)]"
+                      }`}
                       value={squadFoot}
                       onChange={(e) => setSquadFoot(e.target.value)}
                     >
@@ -440,6 +497,7 @@ export function TeamDetailModal({ team, onClose }: TeamDetailModalProps) {
                 <PlayerBrowserList
                   payload={squadPayload}
                   onSelectPlayer={setSelectedPlayer}
+                  theme={theme}
                 />
               </div>
             )}

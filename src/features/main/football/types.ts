@@ -5,6 +5,7 @@ export interface MatchComment {
   username: string;
   content: string;
   created_at: string;
+  reward_amount?: number;
 }
 
 export interface IFixturesPayload {
@@ -80,6 +81,22 @@ export interface Match {
   league?: string;
   winner?: string | null;
   matchday?: number;
+  predicted_home_score?: number | null;
+  predicted_away_score?: number | null;
+  predicted_outcome?: "win" | "loss" | "draw" | null;
+}
+
+export interface KnockoutTie {
+  id: string;
+  home_team: string;
+  away_team: string;
+  leg1: Match;
+  leg2?: Match;
+  aggregate_home: number | null;
+  aggregate_away: number | null;
+  winner: string | null;
+  status: string;
+  date: string;
 }
 
 export interface Player {
@@ -129,4 +146,13 @@ export interface StandingRow {
   logo_url?: string;
   form?: string[];
   forms?: string[];
+}
+
+export interface IMatchPredictionResponse {
+  team1_score_pred: number;
+  team2_score_pred: number;
+  team1_score_rounded: number;
+  team2_score_rounded: number;
+  score_diff: number;
+  outcome: string;
 }

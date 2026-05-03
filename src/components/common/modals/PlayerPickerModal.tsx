@@ -60,6 +60,8 @@ export function PlayerPickerModal({
   const [unlockStatus, setUnlockStatus] = useState<
     "all" | "locked" | "unlocked"
   >("all");
+  const [unlockConfirmPlayer, setUnlockConfirmPlayer] =
+    useState<IPlayersResponse | null>(null);
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -129,7 +131,7 @@ export function PlayerPickerModal({
       onClick={onClose}
     >
       <div
-        className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)]"
+        className="bg-[rgba(18,20,17,0.92)] border border-[rgba(0,255,102,0.15)] rounded-2xl w-[min(680px,95vw)] max-h-[85vh] flex flex-col overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)] relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -318,19 +320,7 @@ export function PlayerPickerModal({
                   key={idx}
                   onClick={() => {
                     if (isLocked) {
-                      if (
-                        window.confirm(
-                          `Unlock ${p.short_name} for ${price} BB?`,
-                        )
-                      ) {
-                        unlockPlayer(p.id, {
-                          onSuccess: (data) => toast.success(data.message),
-                          onError: (err: TAxiosError) =>
-                            toast.error(
-                              err.response?.data?.detail || "Failed to unlock",
-                            ),
-                        });
-                      }
+                      setUnlockConfirmPlayer(p as IPlayersResponse);
                       return;
                     }
                     if (!isUsed) onSelect(p as IPlayersResponse);
@@ -420,6 +410,63 @@ export function PlayerPickerModal({
             </div>
           )}
         </div>
+
+        {/* Custom Unlock Confirmation Modal */}
+        {unlockConfirmPlayer && (
+          <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 animate-in fade-in duration-200">
+            <div className="bg-[#121411] border border-[#00ff66]/30 rounded-2xl p-8 max-w-sm w-full shadow-[0_0_50px_rgba(0,255,102,0.1)] flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+              <div className="w-16 h-16 rounded-full bg-[rgba(0,255,102,0.1)] flex items-center justify-center mb-6">
+                <Lock className="w-8 h-8 text-[#00ff66]" />
+              </div>
+              <h3 className="text-3xl font-[Bebas_Neue] tracking-wider mb-2">
+                UNLOCK PLAYER
+              </h3>
+              <p className="text-white/60 text-[13px] mb-8 leading-relaxed">
+                Are you sure you want to unlock{" "}
+                <span className="text-[#00ff66] font-bold">
+                  {unlockConfirmPlayer.short_name}
+                </span>{" "}
+                for{" "}
+                <span className="font-bold text-white">
+                  {getUnlockPrice(unlockConfirmPlayer.overall)} BB
+                </span>
+                ?
+              </p>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setUnlockConfirmPlayer(null);
+                  }}
+                  className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] font-bold tracking-widest uppercase transition-colors"
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    unlockPlayer(unlockConfirmPlayer.id, {
+                      onSuccess: (data) => {
+                        toast.success(data.message);
+                        setUnlockConfirmPlayer(null);
+                      },
+                      onError: (err: TAxiosError) => {
+                        toast.error(
+                          err.response?.data?.detail || "Failed to unlock",
+                        );
+                        setUnlockConfirmPlayer(null);
+                      },
+                    });
+                  }}
+                  disabled={isUnlocking}
+                  className="flex-1 py-3.5 bg-[rgba(0,255,102,0.1)] hover:bg-[rgba(0,255,102,0.15)] border border-[#00ff66]/30 text-[#00ff66] rounded-xl text-[11px] font-bold tracking-widest uppercase transition-colors disabled:opacity-50 disabled:grayscale"
+                >
+                  {isUnlocking ? "UNLOCKING..." : "CONFIRM"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

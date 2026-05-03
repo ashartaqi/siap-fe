@@ -1,22 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Swords, Skull } from "lucide-react";
+import { Skull } from "lucide-react";
+import type { TAxiosError } from "@/types/api";
 import {
   useGetBattleUsers,
   useGetUserCustomPlayer,
+  useSimulatePlayerBattle,
 } from "@/features/main/battle";
+import type { IMatchSimulationResult } from "@/features/main/battle/apis/battle";
 import { useGetDreamPlayer } from "@/features/main/dashboard/hooks/useGetDreamPlayer";
-import { comparePlayerStats } from "@/lib/utils/battleUtils";
 import { PlayerBattleSetup } from "@/components/ui/battle/PlayerBattleSetup";
 import { PlayerBattleResult } from "@/components/ui/battle/PlayerBattleResult";
+import { BattleLoadingScreen } from "@/components/ui/battle/BattleLoadingScreen";
 
 export default function PlayerBattlePage() {
   const [opponentId, setOpponentId] = useState<number | null>(null);
   const [isBattling, setIsBattling] = useState(false);
-  const [result, setResult] = useState<ReturnType<
-    typeof comparePlayerStats
-  > | null>(null);
+  const [result, setResult] = useState<IMatchSimulationResult | null>(null);
 
   const { data: users = [] } = useGetBattleUsers();
   const { data: myPlayer } = useGetDreamPlayer();
@@ -26,15 +27,32 @@ export default function PlayerBattlePage() {
     isError: errorOpponent,
   } = useGetUserCustomPlayer(opponentId);
 
-  const battleUsers = users.filter((u) => u.has_player);
+  const simulateBattleMutation = useSimulatePlayerBattle();
+
+  const battleUsers = users.filter((u) => u.has_player && u.has_team);
 
   const startBattle = () => {
-    if (!myPlayer || !opponentPlayer) return;
+    if (!myPlayer || !opponentPlayer || !opponentId) return;
     setIsBattling(true);
-    setTimeout(() => {
-      setResult(comparePlayerStats(myPlayer, opponentPlayer));
-      setIsBattling(false);
-    }, 2500);
+
+    simulateBattleMutation.mutate(opponentId, {
+      onSuccess: (data) => {
+        // Still use a timeout to show the "powering up" animation
+        setTimeout(() => {
+          setResult(data);
+          setIsBattling(false);
+        }, 1500);
+      },
+      onError: (err: Error) => {
+        const axiosErr = err as TAxiosError;
+        console.error("Battle simulation failed:", axiosErr);
+        const errorMessage =
+          axiosErr.response?.data?.detail ||
+          "Failed to initiate battle. Both players must have a Dream Team.";
+        alert(errorMessage);
+        setIsBattling(false);
+      },
+    });
   };
 
   const resetBattle = () => {
@@ -66,18 +84,10 @@ export default function PlayerBattlePage() {
       </div>
 
       {isBattling && (
-        <div className="flex flex-col items-center justify-center min-h-[50vh]">
-          <div className="relative w-40 h-40 flex items-center justify-center mb-12">
-            <div className="absolute inset-0 border-4 border-[rgba(0,255,102,0.1)] border-t-[#00ff66] rounded-full animate-spin" />
-            <Swords size={60} className="text-[#00ff66] animate-pulse" />
-          </div>
-          <h2 className="text-3xl font-[Bebas_Neue] uppercase tracking-[0.4em] text-[#00ff66] animate-bounce">
-            POWERING UP...
-          </h2>
-          <div className="text-[10px] text-[#555] uppercase tracking-[0.6em] mt-4">
-            COMPARING SKILL ATTRIBUTES
-          </div>
-        </div>
+        <BattleLoadingScreen
+          title="POWERING UP..."
+          subtitle="COMPARING SKILL ATTRIBUTES"
+        />
       )}
 
       {!isBattling && !result && (
@@ -98,6 +108,7 @@ export default function PlayerBattlePage() {
           myPlayer={myPlayer}
           opponentPlayer={opponentPlayer}
           winner={result.winner}
+          battleResult={result}
           onReset={resetBattle}
         />
       )}

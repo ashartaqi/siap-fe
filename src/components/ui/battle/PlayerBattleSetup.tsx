@@ -1,6 +1,6 @@
 "use client";
 
-import { User as UserIcon, Zap, Swords } from "lucide-react";
+import { User as UserIcon, Swords, Users } from "lucide-react";
 import type { IDreamPlayerResponse } from "@/features/main/dashboard/types";
 import type { BattleUser } from "@/features/main/battle/apis/battle";
 
@@ -91,92 +91,123 @@ export function PlayerBattleSetup({
   onSelectOpponent,
   onStartBattle,
 }: PlayerBattleSetupProps) {
+  const handleMatchmaking = () => {
+    if (battleUsers.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * battleUsers.length);
+    onSelectOpponent(battleUsers[randomIndex].id);
+  };
+
   const showPreview = opponentId && (opponentPlayer || loadingOpponent);
 
   return (
-    <div className="flex flex-col items-center gap-10 max-w-6xl mx-auto">
-      {/* Opponent selector */}
-      <div className="w-full max-w-md animate-in slide-in-from-top-4 duration-500">
-        <div className="bg-[#121212] border border-[rgba(255,255,255,0.05)] px-8 py-6 rounded-3xl shadow-2xl">
-          <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff4444] uppercase mb-4 block text-center">
-            CHOOSE YOUR RIVAL
-          </span>
-          <div className="relative group">
-            <select
-              onChange={(e) => onSelectOpponent(Number(e.target.value))}
-              value={opponentId ?? ""}
-              className="w-full bg-[#1a1a1a] border border-[#333] rounded-2xl px-6 py-4 text-[14px] outline-none focus:border-[#00ff66] text-[#fcfcf8] appearance-none cursor-pointer hover:border-[#444] transition-all"
+    <div className="flex flex-col items-center gap-12 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full items-center">
+        {/* My player card */}
+        <div className="animate-in slide-in-from-left-8 duration-500">
+          <PlayerCard player={myPlayer} side="me" />
+        </div>
+
+        {/* Matchmaking panel */}
+        <div className="bg-[#121212] border border-[rgba(255,255,255,0.05)] p-8 rounded-3xl flex flex-col gap-8 shadow-2xl animate-in slide-in-from-right-8 duration-500">
+          <div>
+            <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff4444] uppercase mb-4 block">
+              ARENA MATCHMAKING
+            </span>
+
+            {/* Random opponent button */}
+            <button
+              onClick={handleMatchmaking}
+              disabled={battleUsers.length === 0}
+              className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-4 py-8 text-[13px] text-[#fcfcf8] hover:border-[#00ff66] hover:bg-[#1f1f1f] transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              <option value="" disabled className="bg-[#121212]">
-                Select a User
-              </option>
-              {battleUsers.map((u) => (
-                <option key={u.id} value={u.id} className="bg-[#121212] py-2">
-                  {u.username}
-                </option>
-              ))}
-            </select>
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-[#555] group-hover:text-[#888]">
-              <Zap size={20} />
-            </div>
+              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,255,102,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_3s_infinite]" />
+
+              {loadingOpponent ? (
+                <div className="w-6 h-6 border-2 border-[#00ff66] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Users
+                  size={24}
+                  className="text-[#555] group-hover:text-[#00ff66] transition-all group-hover:scale-110"
+                />
+              )}
+
+              <span className="font-bold tracking-widest uppercase">
+                {opponentId
+                  ? battleUsers.find((u) => u.id === opponentId)?.username
+                  : "Find Random Opponent"}
+              </span>
+
+              {opponentId && !loadingOpponent && (
+                <span className="text-[9px] text-[#00ff66] animate-pulse">
+                  RIVAL ACQUIRED
+                </span>
+              )}
+            </button>
+
             {errorOpponent && (
-              <p className="mt-2 text-[10px] text-[#ff4444] font-bold uppercase tracking-widest text-center">
+              <p className="mt-3 text-[10px] text-[#ff4444] font-bold uppercase tracking-widest text-center">
                 Failed to fetch opponent data
               </p>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Player cards */}
-      <div
-        className={`grid gap-8 w-full items-center ${
-          showPreview
-            ? "grid-cols-1 md:grid-cols-[1fr_auto_1fr]"
-            : "grid-cols-1 md:grid-cols-2 max-w-3xl"
-        }`}
-      >
-        <PlayerCard player={myPlayer} side="me" />
-
-        {showPreview && (
-          <div className="flex flex-col items-center justify-center px-4">
-            <div className="text-7xl font-black italic opacity-10 tracking-tighter select-none">
-              VS
+          {/* Opponent preview (inline, compact) */}
+          {showPreview && (
+            <div className="animate-in fade-in duration-300">
+              {loadingOpponent ? (
+                <div className="border border-[rgba(255,68,68,0.08)] rounded-2xl p-6 flex items-center justify-center min-h-[80px]">
+                  <div className="w-8 h-8 border-2 border-[#ff4444] border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : opponentPlayer ? (
+                <div className="border border-[rgba(255,68,68,0.15)] rounded-2xl p-5 bg-[#0f0f0f]">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[9px] font-bold tracking-[0.3em] text-[#ff4444] uppercase">
+                      RIVAL STATS
+                    </span>
+                    <span className="text-2xl font-black text-[#ff4444]">
+                      {opponentPlayer.overall}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+                    {DISPLAY_STATS.map((stat) => (
+                      <div key={stat} className="flex flex-col">
+                        <span className="text-[8px] font-bold uppercase text-[#555]">
+                          {stat}
+                        </span>
+                        <span className="text-[12px] font-bold">
+                          {
+                            opponentPlayer[
+                              stat.toLowerCase() as keyof IDreamPlayerResponse
+                            ] as number
+                          }
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
-          </div>
-        )}
+          )}
 
-        {showPreview &&
-          (loadingOpponent ? (
-            <div className="bg-[#0f0f0f] border border-[rgba(255,68,68,0.08)] rounded-[40px] p-10 flex items-center justify-center min-h-[320px] animate-in fade-in duration-300">
-              <div className="w-10 h-10 border-2 border-[#ff4444] border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : opponentPlayer ? (
-            <PlayerCard player={opponentPlayer} side="opponent" />
-          ) : null)}
-
-        {!showPreview && (
-          <div className="flex flex-col gap-6 animate-in slide-in-from-right-8 duration-500">
-            <p className="text-[11px] text-[#aaaba7] text-center italic opacity-60">
+          <div className="flex flex-col gap-4">
+            <p className="text-[11px] text-[#aaaba7] text-center italic">
               &quot;Every attribute counts. May the superior player
               prevail.&quot;
             </p>
+            <button
+              onClick={onStartBattle}
+              disabled={!opponentId || loadingOpponent || !opponentPlayer}
+              className="w-full bg-[#00ff66] text-[#0b0b0b] py-5 rounded-xl font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-20 disabled:grayscale disabled:hover:scale-100 flex items-center justify-center gap-4 shadow-[0_10px_40px_rgba(0,255,102,0.15)] group"
+            >
+              <Swords
+                size={22}
+                className="group-hover:rotate-12 transition-transform"
+              />
+              INITIATE DUEL
+            </button>
           </div>
-        )}
+        </div>
       </div>
-
-      {/* Battle button */}
-      <button
-        onClick={onStartBattle}
-        disabled={!opponentId || loadingOpponent || !opponentPlayer}
-        className="px-16 py-5 bg-[#00ff66] text-[#0b0b0b] rounded-2xl font-black uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-20 disabled:grayscale disabled:hover:scale-100 flex items-center gap-4 shadow-[0_10px_40px_rgba(0,255,102,0.15)] group animate-in slide-in-from-bottom-4 duration-500"
-      >
-        <Swords
-          size={22}
-          className="group-hover:rotate-12 transition-transform"
-        />
-        INITIATE DUEL
-      </button>
     </div>
   );
 }

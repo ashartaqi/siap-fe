@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 
 export interface ToastState {
   message: string;
-  type: "success" | "error" | "info";
+  type: "success" | "error" | "info" | "blue";
 }
 
 export function useToast() {

@@ -110,7 +110,7 @@ function PlayersPageContent() {
     if (isFav) {
       removeFav.mutate(player.id, {
         onSuccess: () =>
-          showToast(`${player.short_name} removed from favourites`, "error"),
+          showToast(`${player.short_name} removed from favourites`, "info"),
         onError: () => showToast("Failed to update favourites", "error"),
       });
     } else {

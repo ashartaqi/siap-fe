@@ -2,19 +2,30 @@ interface StatBarProps {
   label: string;
   value: number;
   max?: number;
+  theme?: "green" | "blue";
 }
 
-export function StatBar({ label, value, max = 99 }: StatBarProps) {
+export function StatBar({
+  label,
+  value,
+  max = 99,
+  theme = "green",
+}: StatBarProps) {
   const pct = Math.min((value / max) * 100, 100);
+
+  const isBlue = theme === "blue";
+  const accentColor = isBlue ? "bg-[#60aaff]" : "bg-[#00ff66]";
+  const accentText = isBlue ? "text-[#60aaff]" : "text-[#00ff66]";
+
   const barColor =
     value >= 80
-      ? "bg-[#00ff66]"
+      ? accentColor
       : value >= 65
         ? "bg-[#ffd700]"
         : "bg-[rgba(255,80,80,0.85)]";
   const textColor =
     value >= 80
-      ? "text-[#00ff66]"
+      ? accentText
       : value >= 65
         ? "text-[#ffd700]"
         : "text-[rgba(255,80,80,0.85)]";

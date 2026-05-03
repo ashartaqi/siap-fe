@@ -49,9 +49,20 @@ export async function getUserCustomPlayer(
   return response.data;
 }
 
-export async function simulateBattle(
+export async function simulateTeamBattle(
   opponentId: number,
 ): Promise<IMatchSimulationResult> {
-  const response = await axiosClient.post(`/battle/simulate/${opponentId}`);
+  const response = await axiosClient.post(
+    `/battle/team/simulate/${opponentId}`,
+  );
+  return response.data;
+}
+
+export async function simulatePlayerBattle(
+  opponentId: number,
+): Promise<IMatchSimulationResult> {
+  const response = await axiosClient.post(
+    `/battle/player/simulate/${opponentId}`,
+  );
   return response.data;
 }
