@@ -138,10 +138,10 @@ export default function LoginPage() {
 
           <div className="text-right mt-[-10px] mb-7 animate-[fadeUp_0.6s_0.28s_ease_both]">
             <Link
-              href="/forgot-password"
+              href="/update-password"
               className="text-[12px] text-[var(--auth-muted)] no-underline transition-colors hover:text-[var(--auth-green)]"
             >
-              Forgot password?
+              Update password?
             </Link>
           </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, ChevronDown, ChevronRight, Coins } from "lucide-react";
@@ -9,12 +9,13 @@ import { logout } from "@/features/auth/apis/logout";
 import { NAV_ITEMS } from "@/lib/navItems";
 import { useGetUser } from "@/features/auth/hooks/useGetUser";
 import { useRewards } from "@/components/providers/RewardProvider";
-import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getTheme } from "@/lib/themes";
 
 export function LayoutShell({ children }: { children: React.ReactNode }) {
   const { data: user } = useGetUser();
   const { addReward } = useRewards();
+  const queryClient = useQueryClient();
   const pathname = usePathname();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -27,10 +28,11 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const pending = localStorage.getItem("pending_login_reward");
     if (pending) {
-      addReward(parseInt(pending, 10), "Daily Login Bonus");
       localStorage.removeItem("pending_login_reward");
+      queryClient.invalidateQueries({ queryKey: ["user-me"] });
+      addReward(parseInt(pending, 10), "Daily Login Bonus");
     }
-  }, [addReward]);
+  }, [addReward, queryClient]);
 
   const handleLogout = async () => {
     await logout().catch(() => {});

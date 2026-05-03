@@ -152,6 +152,81 @@ export const COUNTRIES: string[] = Object.values(
   countries.getNames("en", { select: "official" }),
 ).sort();
 
+// ─── Players browser ──────────────────────────────────────────────────────────
+
+export const LEAGUE_TEAMS: Record<string, string[]> = {
+  PL: [
+    "Arsenal",
+    "Aston Villa",
+    "Chelsea",
+    "Everton",
+    "Liverpool",
+    "Man City",
+    "Man United",
+    "Newcastle United",
+    "Tottenham Hotspur",
+    "West Ham",
+    "Brighton",
+    "Fulham",
+    "Wolverhampton Wanderers",
+    "Crystal Palace",
+    "Bournemouth",
+    "Brentford",
+    "Nottingham Forest",
+  ],
+  PD: [
+    "Real Madrid",
+    "Barça",
+    "Atleti",
+    "Real Sociedad",
+    "Real Betis",
+    "Villarreal",
+    "Athletic Club",
+    "Sevilla FC",
+    "Valencia CF",
+    "Girona FC",
+  ],
+  SA: [
+    "Inter Milan",
+    "AC Milan",
+    "Juventus",
+    "SSC Napoli",
+    "AS Roma",
+    "SS Lazio",
+    "Atalanta",
+    "ACF Fiorentina",
+    "Bologna FC 1909",
+    "Torino FC",
+  ],
+  BL1: [
+    "Bayern",
+    "Borussia Dortmund",
+    "RB Leipzig",
+    "Bayer 04 Leverkusen",
+    "VfB Stuttgart",
+    "Eintracht Frankfurt",
+    "VfL Wolfsburg",
+    "Borussia Mönchengladbach",
+  ],
+  FL1: [
+    "Paris Saint-Germain",
+    "Olympique de Marseille",
+    "AS Monaco",
+    "Olympique Lyonnais",
+    "LOSC Lille",
+    "OGC Nice",
+    "Stade Rennais FC 1901",
+  ],
+  PPL: ["SL Benfica", "FC Porto", "Sporting CP", "SC Braga", "Vitória SC"],
+};
+
+export const POSITION_GROUPS = [
+  { label: "Attack", positions: ["ST", "CF", "LW", "RW", "LF", "RF"] },
+  { label: "Midfield", positions: ["CM", "CAM", "CDM", "LM", "RM"] },
+  { label: "Defense", positions: ["CB", "LB", "RB", "LWB", "RWB"] },
+  { label: "Goalkeeper", positions: ["GK"] },
+] as const;
+
 // ─── Players ──────────────────────────────────────────────────────────────────
 
 export const PREFERRED_FEET = ["Left", "Right"] as const;

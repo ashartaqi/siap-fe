@@ -163,6 +163,7 @@ export function PlayerBrowserList({
                     className="w-full h-full object-cover object-top"
                     referrerPolicy="no-referrer"
                     unoptimized
+                    loading="eager"
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).style.display =
                         "none";

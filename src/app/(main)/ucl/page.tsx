@@ -4,6 +4,7 @@ import { Trophy, Activity } from "lucide-react";
 import { useGetFixtures } from "@/features/main/football";
 import { transformKnockoutTies } from "@/lib/utils/footballUtils";
 import { MatchNode } from "@/components/ui/ucl/MatchNode";
+import { EmptyNode } from "@/components/ui/ucl/EmptyNode";
 import { UCL_FOOTER_STATS } from "@/lib/constants";
 import { UCLIcon } from "@/components/icons/UCLIcon";
 
@@ -206,29 +207,6 @@ export default function UCLPage() {
         <div className="flex items-center gap-2.5 text-[#5a80b0] text-[10px] font-bold uppercase tracking-[0.15em]">
           <div className="w-1.5 h-1.5 rounded-full bg-[#60aaff] animate-pulse shadow-[0_0_8px_rgba(96,170,255,0.8)]" />
           Live Tournament Data
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function EmptyNode({ round }: { round: string }) {
-  return (
-    <div className="rounded-xl overflow-hidden shadow-2xl border border-[rgba(100,160,255,0.15)] backdrop-blur-2xl bg-[linear-gradient(135deg,rgba(10,25,60,0.8)_0%,rgba(5,15,40,0.9)_100%)] w-full opacity-60">
-      <div className="px-3 py-1.5 border-b border-[rgba(100,160,255,0.1)] bg-[rgba(0,80,200,0.2)]">
-        <span className="text-[#7eb8ff] text-[8px] font-bold uppercase tracking-[0.2em]">
-          {round}
-        </span>
-      </div>
-      <div className="p-4 flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-[rgba(100,160,255,0.1)]" />
-          <div className="h-2 w-20 bg-[rgba(100,160,255,0.05)] rounded" />
-        </div>
-        <div className="h-px bg-[rgba(100,160,255,0.05)]" />
-        <div className="flex items-center gap-3">
-          <div className="w-2 h-2 rounded-full bg-[rgba(100,160,255,0.1)]" />
-          <div className="h-2 w-24 bg-[rgba(100,160,255,0.05)] rounded" />
         </div>
       </div>
     </div>

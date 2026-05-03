@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Skull } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { TAxiosError } from "@/types/api";
 import {
   useGetBattleUsers,
@@ -15,6 +16,7 @@ import { PlayerBattleResult } from "@/components/ui/battle/PlayerBattleResult";
 import { BattleLoadingScreen } from "@/components/ui/battle/BattleLoadingScreen";
 
 export default function PlayerBattlePage() {
+  const queryClient = useQueryClient();
   const [opponentId, setOpponentId] = useState<number | null>(null);
   const [isBattling, setIsBattling] = useState(false);
   const [result, setResult] = useState<IMatchSimulationResult | null>(null);
@@ -37,10 +39,10 @@ export default function PlayerBattlePage() {
 
     simulateBattleMutation.mutate(opponentId, {
       onSuccess: (data) => {
-        // Still use a timeout to show the "powering up" animation
         setTimeout(() => {
           setResult(data);
           setIsBattling(false);
+          queryClient.invalidateQueries({ queryKey: ["user-me"] });
         }, 1500);
       },
       onError: (err: Error) => {

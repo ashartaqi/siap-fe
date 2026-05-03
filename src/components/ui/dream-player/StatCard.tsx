@@ -79,6 +79,7 @@ export function StatCard({
                   height={28}
                   className="w-7 h-7 rounded-full object-cover border border-[var(--color-border)] shrink-0"
                   unoptimized
+                  loading="eager"
                 />
               )}
               {playerName && (

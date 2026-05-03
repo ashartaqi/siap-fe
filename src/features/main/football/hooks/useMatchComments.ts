@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMatchComments, sendMatchComment } from "../apis/matchComments";
-import { useRewards } from "@/components/providers/RewardProvider";
 
 export const useGetMatchComments = (matchId: number | string) => {
   return useQuery({
@@ -14,16 +13,12 @@ export const useGetMatchComments = (matchId: number | string) => {
 
 export const useSendMatchComment = (matchId: number | string) => {
   const queryClient = useQueryClient();
-  const { addReward } = useRewards();
 
   return useMutation({
     mutationFn: (content: string) => sendMatchComment(matchId, content),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["match-comments", matchId] });
       queryClient.invalidateQueries({ queryKey: ["user-me"] });
-      if (data.reward_amount) {
-        addReward(data.reward_amount, "Match Analysis Contribution Reward");
-      }
     },
   });
 };

@@ -55,6 +55,7 @@ export default function StandingsPage() {
                   height={40}
                   className="w-full h-full object-contain p-1"
                   unoptimized
+                  loading="eager"
                 />
               ) : (
                 <div className="text-[0.6rem] font-bold font-mono tracking-[0.05em] text-white">
@@ -87,6 +88,7 @@ export default function StandingsPage() {
                   className="object-contain"
                   priority
                   unoptimized
+                  loading="eager"
                 />
               </div>
             )}

@@ -114,6 +114,7 @@ export function FavoriteTeamSpotlight() {
                   className="w-full h-full object-contain rounded-lg bg-surface-container-highest p-1 border border-[#00fe66]/20 shadow-md transition-transform group-hover:scale-105"
                   referrerPolicy="no-referrer"
                   unoptimized
+                  loading="eager"
                 />
               </div>
             ) : (
