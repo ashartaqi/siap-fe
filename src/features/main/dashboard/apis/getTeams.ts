@@ -6,7 +6,7 @@ export const getTeams = async (
 ): Promise<ITeamsResponse[]> => {
   const params = {
     limit: payload.limit,
-    name: payload.name,
+    name: payload.names?.length ? payload.names.join(",") : payload.name,
     league_name: payload.leagueName,
     nationality_name: payload.nationalityName,
     min_overall: payload.minOverall,

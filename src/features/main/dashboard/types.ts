@@ -131,6 +131,7 @@ export interface ITeamsPayload {
   limit?: number;
   skip?: number;
   name?: string;
+  names?: string[];
   leagueName?: string;
   nationalityName?: string;
   minOverall?: number;
