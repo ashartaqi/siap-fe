@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useGetCountries } from "@/features/main/football";
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+
+countries.registerLocale(enLocale);
+
+const COUNTRIES: string[] = Object.values(
+  countries.getNames("en", { select: "official" }),
+).sort();
 
 interface Props {
   value: string;
@@ -14,12 +21,10 @@ export function CountryPicker({ value, onChange }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { data: countries = [] } = useGetCountries();
-
   const filtered = useMemo(
     () =>
-      countries.filter((c) => c.toLowerCase().includes(search.toLowerCase())),
-    [search, countries],
+      COUNTRIES.filter((c) => c.toLowerCase().includes(search.toLowerCase())),
+    [search],
   );
 
   useEffect(() => {

@@ -1,73 +1,28 @@
 "use client";
 
-import React from "react"; // needed for React.useState in FavoritePlayers
-import Image from "next/image";
+import React from "react";
 import { Carousel } from "@/components/common/Carousel";
-import { useRouter } from "next/navigation";
+import { PlayerDetailModal } from "@/components/common/modals/PlayerDetailModal";
+import { FavoritePlayerItem } from "@/components/ui/dashboard/FavoritePlayerItem";
 import {
   useGetFavoritePlayers,
+  useAddFavoritePlayer,
   useRemoveFavoritePlayer,
   type IPlayersResponse,
 } from "@/features/main/dashboard";
 
-function PlayerItem({ player }: { player: IPlayersResponse }) {
-  const router = useRouter();
-  const removeFav = useRemoveFavoritePlayer();
-
-  return (
-    <div className="bg-surface-container-low rounded-lg border border-outline-variant/10 relative overflow-hidden mb-4 hover:border-[#00ff66]/30 transition-all group">
-      {/* Button is a sibling to the clickable content — no stopPropagation needed */}
-      <button
-        onClick={() => removeFav.mutate(player.id)}
-        title="Remove from favourites"
-        className="
-          absolute top-3 right-3 z-10
-          w-7 h-7 flex items-center justify-center rounded-full
-          border transition-all duration-200 text-[15px] leading-none
-          text-[#ffd700] border-[rgba(255,215,0,0.35)] bg-[rgba(255,215,0,0.08)] hover:bg-[rgba(255,80,80,0.1)] hover:border-[rgba(255,80,80,0.35)] hover:text-[rgba(255,80,80,0.9)]
-        "
-      >
-        ★
-      </button>
-
-      <div
-        onClick={() => router.push(`/player?playerId=${player.id}`)}
-        className="p-6 cursor-pointer"
-      >
-        <div className="flex items-center justify-between gap-4 mb-6 pr-6">
-          <div>
-            <h4 className="font-headline font-black text-lg uppercase mb-1 leading-tight break-words">
-              {player.short_name}
-            </h4>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-on-surface-variant uppercase truncate max-w-[160px]">
-                {player.positions?.join(" | ")} |{" "}
-                {player.club_name || "Free Agent"}
-              </p>
-              <span className="bg-primary-container text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded">
-                {player.overall?.toString().padStart(2, "0")} OVR
-              </span>
-            </div>
-          </div>
-          {player.player_face_url && (
-            <Image
-              src={player.player_face_url}
-              alt={player.short_name}
-              width={48}
-              height={48}
-              className="w-12 h-12 object-cover rounded-full border-2 border-primary-container/20 shadow-lg flex-none"
-            />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function FavoritePlayers() {
   const [current, setCurrent] = React.useState(0);
+  const [selectedPlayer, setSelectedPlayer] =
+    React.useState<IPlayersResponse | null>(null);
   const { data, isLoading: loading } = useGetFavoritePlayers();
+  const addFav = useAddFavoritePlayer();
+  const removeFav = useRemoveFavoritePlayer();
   const favoritePlayers = data ?? [];
+  const favIds = React.useMemo(
+    () => new Set(favoritePlayers.map((p) => p.id)),
+    [favoritePlayers],
+  );
 
   if (loading) {
     return (
@@ -88,25 +43,46 @@ export function FavoritePlayers() {
     Math.min(current, favoritePlayers.length - 1),
   );
 
+  const handleToggleFavorite = (player: IPlayersResponse) => {
+    if (favIds.has(player.id)) {
+      removeFav.mutate(player.id);
+    } else {
+      addFav.mutate(player.id);
+    }
+  };
+
   return (
-    <section>
-      <Carousel
-        title={
-          <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-            Favorite Players
-          </h3>
-        }
-        currentIndex={safeCurrent}
-        totalItems={favoritePlayers.length}
-        onIndexChange={setCurrent}
-        headerClassName="mb-4"
-        dotsContainerClassName="-mt-2 mb-4"
-      >
-        <PlayerItem
-          key={favoritePlayers[safeCurrent].id}
-          player={favoritePlayers[safeCurrent]}
+    <>
+      <section>
+        <Carousel
+          title={
+            <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+              Favorite Players
+            </h3>
+          }
+          currentIndex={safeCurrent}
+          totalItems={favoritePlayers.length}
+          onIndexChange={setCurrent}
+          headerClassName="mb-4"
+          dotsContainerClassName="-mt-2 mb-4"
+        >
+          <FavoritePlayerItem
+            key={favoritePlayers[safeCurrent].id}
+            player={favoritePlayers[safeCurrent]}
+            onOpen={setSelectedPlayer}
+          />
+        </Carousel>
+      </section>
+
+      {selectedPlayer && (
+        <PlayerDetailModal
+          player={selectedPlayer}
+          isFavorite={favIds.has(selectedPlayer.id)}
+          favLoading={addFav.isPending || removeFav.isPending}
+          onClose={() => setSelectedPlayer(null)}
+          onToggleFavorite={() => handleToggleFavorite(selectedPlayer)}
         />
-      </Carousel>
-    </section>
+      )}
+    </>
   );
 }

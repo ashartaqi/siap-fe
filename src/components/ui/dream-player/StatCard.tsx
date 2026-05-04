@@ -50,15 +50,15 @@ export function StatCard({
         className={[
           "p-4 rounded-xl w-48 flex flex-col gap-1 backdrop-blur-md border transition-[border-color,background,box-shadow] duration-200",
           active
-            ? "bg-[rgba(0,255,102,0.08)] border-[rgba(0,255,102,0.45)] shadow-[0_0_16px_rgba(0,255,102,0.15)]"
-            : "bg-[rgba(18,20,17,0.7)] border-[rgba(169,255,172,0.1)] group-hover:border-[rgba(0,255,102,0.25)]",
+            ? "bg-[var(--color-black)] border-[var(--color-neon)] shadow-[0_0_16px_var(--color-neon)]"
+            : "bg-[var(--color-surface)] border-[var(--color-border)] group-hover:border-[var(--color-neon)]",
         ].join(" ")}
       >
         <div className="flex justify-between items-center">
           <span className="text-[10px] font-bold tracking-widest text-white/40 uppercase font-[Oxanium,sans-serif]">
             {label}
           </span>
-          <span className="text-[#00fe66] w-4 h-4">{icon}</span>
+          <span className="text-[var(--color-neon)] w-4 h-4">{icon}</span>
         </div>
         <div className="flex items-center justify-between gap-2">
           <div
@@ -77,8 +77,9 @@ export function StatCard({
                   alt={playerName ?? ""}
                   width={28}
                   height={28}
-                  className="w-7 h-7 rounded-full object-cover border border-[rgba(0,255,102,0.2)] shrink-0"
+                  className="w-7 h-7 rounded-full object-cover border border-[var(--color-border)] shrink-0"
                   unoptimized
+                  loading="eager"
                 />
               )}
               {playerName && (
@@ -89,14 +90,14 @@ export function StatCard({
             </div>
           )}
         </div>
-        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+        <div className="h-1 bg-[var(--color-border)] rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-[#00fe66] transition-all duration-700"
+            className="h-full rounded-full bg-[var(--color-neon)] transition-all duration-700"
             style={{ width: filled ? `${Math.min(value, 100)}%` : "0%" }}
           />
         </div>
         {!readOnly && (
-          <div className="text-[8px] font-bold tracking-[0.15em] uppercase mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity text-[rgba(0,255,102,0.5)]">
+          <div className="text-[8px] font-bold tracking-[0.15em] uppercase mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-neon)]">
             {filled ? "Change player →" : "Assign player →"}
           </div>
         )}

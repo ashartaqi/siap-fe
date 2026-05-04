@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/inputs/Input";
+import { Button } from "@/components/common/buttons/Button";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { setToken } from "@/lib/auth/token";
 import { toast } from "sonner";
@@ -42,7 +42,13 @@ export default function LoginPage() {
         { email, password },
         {
           onSuccess: (data) => {
-            setToken(data.token);
+            setToken(data.access_token);
+            if (data.reward_amount) {
+              localStorage.setItem(
+                "pending_login_reward",
+                data.reward_amount.toString(),
+              );
+            }
             toast.success("Successfully signed in!");
             router.push("/dashboard");
           },
@@ -113,7 +119,10 @@ export default function LoginPage() {
             placeholder="Enter your password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+            }}
             error={pwErr}
             icon={
               <svg
@@ -129,10 +138,10 @@ export default function LoginPage() {
 
           <div className="text-right mt-[-10px] mb-7 animate-[fadeUp_0.6s_0.28s_ease_both]">
             <Link
-              href="#"
+              href="/update-password"
               className="text-[12px] text-[var(--auth-muted)] no-underline transition-colors hover:text-[var(--auth-green)]"
             >
-              Forgot password?
+              Update password?
             </Link>
           </div>
 

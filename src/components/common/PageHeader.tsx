@@ -14,8 +14,8 @@ export function PageHeader({ title, isFetching, children }: PageHeaderProps) {
           {title}
         </h1>
         {isFetching && (
-          <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-[#00ff66] bg-[rgba(0,255,102,0.08)] border border-[rgba(0,255,102,0.2)] px-2.5 py-1 rounded-[4px] animate-pulse">
-            Updating…
+          <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-[var(--color-neon)] bg-[var(--color-neon)]/8 border border-[var(--color-neon)]/20 px-2.5 py-1 rounded-[4px] animate-pulse">
+            Syncing Live Data…
           </span>
         )}
       </div>

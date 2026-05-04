@@ -12,7 +12,7 @@ export interface IRegisterResponse {
   username: string;
   first_name: string;
   last_name: string;
-  token: string;
+  token?: string;
 }
 
 export interface ILoginPayload {
@@ -21,6 +21,18 @@ export interface ILoginPayload {
 }
 
 export interface ILoginResponse {
-  token: string;
+  access_token: string;
   token_type: string;
+  reward_amount?: number;
+}
+
+export interface IResetPasswordPayload {
+  email: string;
+  current_password: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface IResetPasswordResponse {
+  message: string;
 }

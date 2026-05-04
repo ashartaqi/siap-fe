@@ -141,6 +141,92 @@ export const FIXTURE_LEAGUES = [
   { key: "CL", label: "Champions League", badge: "CL" },
 ];
 
+// ─── Nationalities ────────────────────────────────────────────────────────────
+
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+
+countries.registerLocale(enLocale);
+
+export const COUNTRIES: string[] = Object.values(
+  countries.getNames("en", { select: "official" }),
+).sort();
+
+// ─── Players browser ──────────────────────────────────────────────────────────
+
+export const LEAGUE_TEAMS: Record<string, string[]> = {
+  PL: [
+    "Arsenal",
+    "Aston Villa",
+    "Chelsea",
+    "Everton",
+    "Liverpool",
+    "Man City",
+    "Man United",
+    "Newcastle United",
+    "Tottenham Hotspur",
+    "West Ham",
+    "Brighton",
+    "Fulham",
+    "Wolverhampton Wanderers",
+    "Crystal Palace",
+    "Bournemouth",
+    "Brentford",
+    "Nottingham Forest",
+  ],
+  PD: [
+    "Real Madrid",
+    "Barça",
+    "Atleti",
+    "Real Sociedad",
+    "Real Betis",
+    "Villarreal",
+    "Athletic Club",
+    "Sevilla FC",
+    "Valencia CF",
+    "Girona FC",
+  ],
+  SA: [
+    "Inter Milan",
+    "AC Milan",
+    "Juventus",
+    "SSC Napoli",
+    "AS Roma",
+    "SS Lazio",
+    "Atalanta",
+    "ACF Fiorentina",
+    "Bologna FC 1909",
+    "Torino FC",
+  ],
+  BL1: [
+    "Bayern",
+    "Borussia Dortmund",
+    "RB Leipzig",
+    "Bayer 04 Leverkusen",
+    "VfB Stuttgart",
+    "Eintracht Frankfurt",
+    "VfL Wolfsburg",
+    "Borussia Mönchengladbach",
+  ],
+  FL1: [
+    "Paris Saint-Germain",
+    "Olympique de Marseille",
+    "AS Monaco",
+    "Olympique Lyonnais",
+    "LOSC Lille",
+    "OGC Nice",
+    "Stade Rennais FC 1901",
+  ],
+  PPL: ["SL Benfica", "FC Porto", "Sporting CP", "SC Braga", "Vitória SC"],
+};
+
+export const POSITION_GROUPS = [
+  { label: "Attack", positions: ["ST", "CF", "LW", "RW", "LF", "RF"] },
+  { label: "Midfield", positions: ["CM", "CAM", "CDM", "LM", "RM"] },
+  { label: "Defense", positions: ["CB", "LB", "RB", "LWB", "RWB"] },
+  { label: "Goalkeeper", positions: ["GK"] },
+] as const;
+
 // ─── Players ──────────────────────────────────────────────────────────────────
 
 export const PREFERRED_FEET = ["Left", "Right"] as const;
@@ -180,40 +266,6 @@ export const ALL_POSITIONS = [
 
 /** All outfield + GK — use when GK must be included (e.g. Players page filter) */
 export const ALL_POSITIONS_WITH_GK = [...ALL_POSITIONS, "GK"];
-
-// ─── Settings — Profile ───────────────────────────────────────────────────────
-
-export const FAVORITE_TEAMS = [
-  "Arsenal",
-  "Chelsea",
-  "Liverpool",
-  "Manchester City",
-  "Manchester United",
-  "Tottenham",
-  "Newcastle",
-  "Aston Villa",
-  "Real Madrid",
-  "Barcelona",
-  "Atletico Madrid",
-  "Bayern Munich",
-  "Borussia Dortmund",
-  "PSG",
-  "Juventus",
-  "AC Milan",
-  "Inter Milan",
-  "Napoli",
-  "Porto",
-  "Benfica",
-];
-
-export const SETTINGS_LEAGUES = [
-  "Premier League",
-  "La Liga",
-  "Serie A",
-  "Bundesliga",
-  "Ligue 1",
-  "Primeira Liga",
-];
 
 // ─── Shared Input Styling ─────────────────────────────────────────────────────
 
@@ -295,36 +347,6 @@ export const RIGHT_STATS: StatDefinition[] = [
     label: "Defending",
     Icon: Shield,
     connectorWidth: "w-16",
-  },
-];
-
-// ─── Settings Sections ────────────────────────────────────────────────────────
-
-export const SETTINGS_SECTIONS = [
-  { id: "profile", label: "Profile", icon: User },
-  { id: "privacy", label: "Privacy & Security", icon: Shield },
-];
-
-// ─── Settings Options ─────────────────────────────────────────────────────────
-
-export const THEME_OPTIONS = [
-  {
-    label: "Dark (Default)",
-    icon: Moon,
-    active: true,
-    colors: ["#000", "#0A0A0A", "#00FF7F"],
-  },
-  {
-    label: "OLED Black",
-    icon: Monitor,
-    active: false,
-    colors: ["#000", "#000", "#00A550"],
-  },
-  {
-    label: "Light",
-    icon: Monitor,
-    active: false,
-    colors: ["#F5F5F5", "#fff", "#006633"],
   },
 ];
 

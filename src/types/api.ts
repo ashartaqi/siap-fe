@@ -4,6 +4,7 @@ export interface IApiError {
   message: string;
   statusCode?: number;
   error?: string;
+  detail?: string;
 }
 
 export type TAxiosError<T = IApiError> = AxiosError<T>;

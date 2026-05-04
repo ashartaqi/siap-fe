@@ -6,6 +6,7 @@ export const getPlayers = async (
 ): Promise<IPlayersResponse[]> => {
   const params = {
     limit: payload.limit,
+    offset: payload.offset,
     name: payload.name,
     team_id: payload.teamId,
     min_overall: payload.minOverall,
@@ -16,6 +17,14 @@ export const getPlayers = async (
     max_age: payload.maxAge,
     preferred_foot: payload.preferredFoot,
     skip: payload.skip,
+    order_by_stat: payload.orderByStat,
+    pace: payload.pace,
+    shooting: payload.shooting,
+    passing: payload.passing,
+    dribbling: payload.dribbling,
+    defending: payload.defending,
+    physic: payload.physic,
+    unlock_status: payload.unlockStatus,
   };
 
   const res = await axiosClient.get<IPlayersResponse[]>("/players", { params });

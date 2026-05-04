@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthLeftPanel } from "@/components/ui/auth/AuthLeftPanel";
-import { Input } from "@/components/common/Input";
-import { Button } from "@/components/common/Button";
+import { Input } from "@/components/common/inputs/Input";
+import { Button } from "@/components/common/buttons/Button";
 import { useRegister } from "@/features/auth/hooks/useRegister";
-import { PASSWORD_STRENGTH_LEVELS, REGISTER_PERKS } from "@/lib/constants";
-import { setToken } from "@/lib/auth/token";
+import { REGISTER_PERKS } from "@/lib/constants";
+import { getPasswordStrength } from "@/lib/utils/authUtils";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
@@ -29,21 +29,6 @@ export default function RegisterPage() {
   const [pwErr, setPwErr] = useState("");
   const [confirmErr, setConfirmErr] = useState("");
   const [genericErr, setGenericErr] = useState("");
-
-  const getPasswordStrength = (v: string) => {
-    if (!v) return null;
-    let score = 0;
-    if (v.length >= 8) score++;
-    if (v.length >= 12) score++;
-    if (/[A-Z]/.test(v)) score++;
-    if (/[0-9]/.test(v)) score++;
-    if (/[^A-Za-z0-9]/.test(v)) score++;
-
-    return (
-      PASSWORD_STRENGTH_LEVELS[Math.min(score - 1, 4)] ||
-      PASSWORD_STRENGTH_LEVELS[0]
-    );
-  };
 
   const strength = getPasswordStrength(password);
 
@@ -96,15 +81,9 @@ export default function RegisterPage() {
           confirm_password: confirmPw,
         },
         {
-          onSuccess: (data) => {
-            if (data.token) {
-              setToken(data.token);
-              toast.success("Account created! Welcome to SIAP.");
-              router.push("/dashboard");
-            } else {
-              toast.success("Account created!");
-              router.push("/login");
-            }
+          onSuccess: () => {
+            toast.success("Account created! Please sign in.");
+            router.push("/login");
           },
           onError: (err) => {
             console.error("Registration failed:", err);
@@ -241,7 +220,10 @@ export default function RegisterPage() {
             placeholder="Password"
             autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value.replace(/\s/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+            }}
             error={pwErr}
             icon={
               <svg
@@ -274,7 +256,10 @@ export default function RegisterPage() {
             placeholder="Re-enter password"
             autoComplete="new-password"
             value={confirmPw}
-            onChange={(e) => setConfirmPw(e.target.value)}
+            onChange={(e) => setConfirmPw(e.target.value.replace(/\s/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === " ") e.preventDefault();
+            }}
             error={confirmErr}
             icon={
               <svg
@@ -289,7 +274,7 @@ export default function RegisterPage() {
           />
 
           {genericErr && (
-            <div className="mb-4 p-3 bg-red-50 text-red-500 border border-red-200 rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
+            <div className="mb-4 p-3 bg-[rgba(255,77,77,0.08)] text-[var(--auth-error)] border border-[rgba(255,77,77,0.25)] rounded-lg text-xs font-medium animate-[fadeUp_0.4s_ease]">
               {genericErr}
             </div>
           )}

@@ -1,5 +1,11 @@
+export interface IShopUnlockResponse {
+  message: string;
+  new_balance: number;
+}
+
 export interface IPlayersPayload {
   limit?: number;
+  offset?: number;
   skip?: number;
   teamId?: number;
   name?: string;
@@ -10,6 +16,14 @@ export interface IPlayersPayload {
   minAge?: number;
   maxAge?: number;
   preferredFoot?: string;
+  orderByStat?: string;
+  pace?: number;
+  shooting?: number;
+  passing?: number;
+  dribbling?: number;
+  defending?: number;
+  physic?: number;
+  unlockStatus?: "all" | "locked" | "unlocked";
 }
 
 export interface IPlayerStats {
@@ -42,7 +56,6 @@ export interface IPlayersResponse {
   weight_kg: number;
   club_team_id?: number | null;
   club_name?: string | null;
-  nationality_id: number;
   nationality_name: string;
   preferred_foot: string;
   weak_foot: number;
@@ -51,11 +64,11 @@ export interface IPlayersResponse {
   player_stats: IPlayerStats | null;
   goalkeeper_stats: IGoalkeeperStats | null;
   player_face_url: string;
+  is_unlocked?: boolean;
 }
 
 export interface IDreamPlayerPayload {
   name: string;
-  position: string;
   nationality: string;
   shirt_number: number;
   preferred_foot: string;
@@ -79,6 +92,7 @@ export interface IDreamPlayerResponse {
   dribbling: number;
   defending: number;
   physic: number;
+  overall?: number;
 }
 
 // What you SEND to backend — no id
@@ -137,6 +151,48 @@ export interface ITeamsResponse {
   midfield: number;
   defence: number;
   home_stadium: string;
-  captain: string;
   logo_url: string;
 }
+
+export type StatKey =
+  | "pace"
+  | "shooting"
+  | "passing"
+  | "dribbling"
+  | "defending"
+  | "physic";
+
+export interface PlayerIdentity {
+  name: string;
+  position: string;
+  nationality: string;
+  shirt_number: number;
+  preferred_foot: "Left" | "Right";
+}
+
+export interface PlayerStats {
+  pace: number;
+  shooting: number;
+  passing: number;
+  dribbling: number;
+  defending: number;
+  physic: number;
+}
+
+export type SlotPlayers = Record<StatKey, IPlayersResponse | undefined>;
+
+export interface PageState {
+  identity: PlayerIdentity;
+  stats: PlayerStats;
+  mode: "view" | "edit";
+}
+
+export interface Formation {
+  id: string;
+  label: string;
+  description: string;
+  tacticalFit: string;
+  rows: string[][];
+}
+
+export type SelectedPlayers = Record<string, IPlayersResponse | undefined>;

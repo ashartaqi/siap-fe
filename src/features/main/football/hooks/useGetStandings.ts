@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { StandingRow } from "@/types/football";
+import { StandingRow } from "@/features/main/football/types";
 import { getStandings } from "../apis/getStandings";
 
 const useGetStandings = (league: string, enabled = true) => {

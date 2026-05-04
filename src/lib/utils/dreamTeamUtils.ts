@@ -4,11 +4,6 @@ import {
   DEFENSE_POSITIONS,
 } from "@/lib/constants";
 
-/**
- * Categorize a position string into attack / midfield / defense / gk.
- * Accepts an optional validPlayerPositions map from the backend API
- * (useGetPlayerAttributes); falls back to the locally mirrored constants.
- */
 export function categorizePosition(
   pos: string,
   validPlayerPositions?: Record<string, string[]>,

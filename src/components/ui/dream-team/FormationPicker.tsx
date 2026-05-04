@@ -10,8 +10,8 @@ interface Props {
 
 export function FormationPicker({ activeId, onSelect, formations }: Props) {
   return (
-    <div className="bg-[#121411] p-[14px] rounded-xl border border-[rgba(71,72,69,0.12)]">
-      <h3 className="text-[10px] font-bold tracking-[0.24em] uppercase text-[#00ff66] mb-[10px]">
+    <div className="bg-[var(--color-surface)] p-[14px] rounded-xl border border-[var(--color-border)]">
+      <h3 className="text-[10px] font-bold tracking-[0.24em] uppercase text-[var(--color-neon)] mb-[10px]">
         Select Formation
       </h3>
       <div className="grid grid-cols-2 gap-2">
@@ -25,14 +25,14 @@ export function FormationPicker({ activeId, onSelect, formations }: Props) {
               className={[
                 "flex flex-col items-center gap-[3px] px-3 py-[10px] rounded-[4px] border font-[Oxanium,sans-serif] cursor-pointer transition-[background,border-color,transform] duration-200",
                 isActive
-                  ? "bg-[#242723] border-[rgba(0,255,102,0.45)] shadow-[0_0_12px_rgba(0,255,102,0.1)]"
-                  : "bg-[#1e201d] border-transparent hover:bg-[#242723] hover:-translate-y-px",
+                  ? "bg-white/5 border-[var(--color-neon)]/45 shadow-[0_0_12px_rgba(var(--color-neon-rgb),0.1)]"
+                  : "bg-white/5 border-transparent hover:bg-white/10 hover:-translate-y-px",
               ].join(" ")}
             >
               <span
                 className={[
                   "font-[Bebas_Neue,sans-serif] text-[19px] tracking-[0.04em] transition-colors duration-200",
-                  isActive ? "text-[#00ff66]" : "text-white/40",
+                  isActive ? "text-[var(--color-neon)]" : "text-white/40",
                 ].join(" ")}
               >
                 {f.label}

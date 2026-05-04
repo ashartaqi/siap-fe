@@ -1,7 +1,10 @@
 "use client";
 
-import { PlayerSlotButton } from "@/components/common/PlayerSlotButton";
-import type { Formation, SelectedPlayers } from "@/types/dreamTeam";
+import { PlayerSlotButton } from "@/components/common/buttons/PlayerSlotButton";
+import type {
+  Formation,
+  SelectedPlayers,
+} from "@/features/main/dashboard/types";
 
 interface PitchRowProps {
   positions: string[];
@@ -86,14 +89,14 @@ export function Pitch({ formation, onSlotClick, selectedPlayers }: Props) {
 
   return (
     <section className="flex-1 min-w-0">
-      <div className="relative w-full aspect-[3/4] bg-[radial-gradient(circle_at_center,#181a17_0%,#0d0f0c_100%)] rounded-2xl overflow-hidden border border-[rgba(0,255,102,0.06)] shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
-        <div className="absolute inset-4 border border-[rgba(0,255,102,0.15)] pointer-events-none" />
-        <div className="absolute left-4 right-4 top-4 h-1/4 border-b border-[rgba(0,255,102,0.15)] pointer-events-none" />
-        <div className="absolute left-4 right-4 bottom-4 h-1/4 border-t border-[rgba(0,255,102,0.15)] pointer-events-none" />
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-1/3 h-[16.666%] border-l border-r border-b border-[rgba(0,255,102,0.15)] pointer-events-none" />
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-1/3 h-[16.666%] border-l border-r border-t border-[rgba(0,255,102,0.15)] pointer-events-none" />
-        <div className="absolute top-1/2 left-4 right-4 h-px -translate-y-1/2 bg-[rgba(0,255,102,0.15)] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 w-[100px] h-[100px] rounded-full border border-[rgba(0,255,102,0.15)] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      <div className="relative w-full aspect-[3/4] bg-[radial-gradient(circle_at_center,var(--color-surface)_0%,var(--color-black)_100%)] rounded-2xl overflow-hidden border border-[var(--color-neon)]/5 shadow-[0_24px_64px_rgba(0,0,0,0.6)]">
+        <div className="absolute inset-4 border border-[var(--color-neon)]/15 pointer-events-none" />
+        <div className="absolute left-4 right-4 top-4 h-1/4 border-b border-[var(--color-neon)]/15 pointer-events-none" />
+        <div className="absolute left-4 right-4 bottom-4 h-1/4 border-t border-[var(--color-neon)]/15 pointer-events-none" />
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-1/3 h-[16.666%] border-l border-r border-b border-[var(--color-neon)]/15 pointer-events-none" />
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-1/3 h-[16.666%] border-l border-r border-t border-[var(--color-neon)]/15 pointer-events-none" />
+        <div className="absolute top-1/2 left-4 right-4 h-px -translate-y-1/2 bg-[var(--color-neon)]/15 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 w-[100px] h-[100px] rounded-full border border-[var(--color-neon)]/15 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
         <div
           className="absolute inset-0 grid pt-9 px-5 pb-20 gap-1.5"
@@ -121,7 +124,7 @@ export function Pitch({ formation, onSlotClick, selectedPlayers }: Props) {
         </div>
 
         <div className="absolute top-4 right-4 text-right pointer-events-none">
-          <div className="font-[Bebas_Neue,sans-serif] text-[40px] text-[rgba(0,255,102,0.07)] leading-none">
+          <div className="font-[Bebas_Neue,sans-serif] text-[40px] text-[var(--color-neon)]/5 leading-none">
             {formation.label}
           </div>
         </div>
