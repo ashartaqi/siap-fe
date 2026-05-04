@@ -83,7 +83,7 @@ export function FavoriteTeamSpotlight() {
 
   if (!favoriteTeam) {
     return (
-      <section className="bg-surface-container-low rounded-lg border border-outline-variant/30 p-6 text-center text-sm text-on-surface-variant">
+      <section className="bg-surface-container-low rounded-lg border border-outline-variant/30 p-6 text-center text-base text-on-surface-variant">
         No favorite team selected.
       </section>
     );
@@ -99,7 +99,7 @@ export function FavoriteTeamSpotlight() {
 
         <div className="p-6 bg-primary-container/5 border-b border-outline-variant/10">
           <div className="flex items-center justify-between mb-4">
-            <span className="font-label text-[10px] uppercase tracking-widest text-primary-container">
+            <span className="font-label text-[13px] uppercase tracking-widest text-primary-container">
               My Favorite Team
             </span>
           </div>
@@ -121,10 +121,10 @@ export function FavoriteTeamSpotlight() {
               <ShieldCheck className="w-14 h-14 text-primary-container/40 flex-none" />
             )}
             <div>
-              <h3 className="font-headline font-black text-2xl uppercase tracking-tighter group-hover:text-[#00ff66] transition-colors">
+              <h3 className="font-headline font-black text-3xl uppercase tracking-tighter group-hover:text-[#00ff66] transition-colors">
                 {favoriteTeam.name}
               </h3>
-              <p className="text-on-surface-variant text-sm font-label uppercase">
+              <p className="text-on-surface-variant text-base font-label uppercase">
                 • {favoriteTeam.league_name || "League"}
               </p>
             </div>
@@ -133,7 +133,7 @@ export function FavoriteTeamSpotlight() {
             {recentForm.map((r, i) => (
               <span
                 key={i}
-                className={`w-8 h-8 rounded font-headline font-bold flex items-center justify-center text-xs ${
+                className={`w-8 h-8 rounded font-headline font-bold flex items-center justify-center text-sm ${
                   r === "W"
                     ? "bg-primary-container text-on-primary shadow-[0_0_10px_rgba(0,255,102,0.3)]"
                     : r === "L"
@@ -147,12 +147,12 @@ export function FavoriteTeamSpotlight() {
           </div>
         </div>
         <div className="p-6 space-y-4">
-          <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+          <p className="font-label text-[13px] uppercase tracking-widest text-on-surface-variant">
             Upcoming Fixtures
           </p>
           <div className="space-y-2">
             {upcomingFixes.length === 0 && (
-              <p className="text-[10px] text-on-surface-variant italic">
+              <p className="text-[13px] text-on-surface-variant italic">
                 No upcoming matches.
               </p>
             )}
@@ -172,15 +172,15 @@ export function FavoriteTeamSpotlight() {
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isHome ? "bg-primary-container/20 text-[#00ff66]" : "bg-white/5 text-on-surface-variant"}`}
+                      className={`text-[12px] font-bold px-1.5 py-0.5 rounded ${isHome ? "bg-primary-container/20 text-[#00ff66]" : "bg-white/5 text-on-surface-variant"}`}
                     >
                       {isHome ? "H" : "A"}
                     </span>
-                    <span className="text-[12px] font-medium truncate">
+                    <span className="text-[15px] font-medium truncate">
                       vs {opp}
                     </span>
                   </div>
-                  <span className="text-[11px] text-on-surface-variant font-bold tabular-nums ml-2 shrink-0">
+                  <span className="text-[14px] text-on-surface-variant font-bold tabular-nums ml-2 shrink-0">
                     {d}
                   </span>
                 </div>

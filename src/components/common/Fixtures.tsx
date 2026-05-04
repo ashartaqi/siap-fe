@@ -17,7 +17,7 @@ export function FixturesStrip() {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="font-headline font-semibold text-sm uppercase tracking-widest text-on-surface-variant">
+        <h3 className="font-headline font-semibold text-base uppercase tracking-widest text-on-surface-variant">
           Scheduled
         </h3>
         {scheduledLoading ? (
@@ -30,7 +30,7 @@ export function FixturesStrip() {
             ))}
           </div>
         ) : scheduledMatches.length === 0 ? (
-          <p className="text-on-surface-variant text-sm">
+          <p className="text-on-surface-variant text-base">
             No scheduled fixtures right now.
           </p>
         ) : (

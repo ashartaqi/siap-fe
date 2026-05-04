@@ -23,7 +23,7 @@ export function LatestResults() {
 
   if (results.length === 0) {
     return (
-      <p className="text-on-surface-variant text-sm">
+      <p className="text-on-surface-variant text-base">
         No results from the past week.
       </p>
     );
@@ -73,10 +73,10 @@ export function LatestResults() {
           >
             <div className="flex flex-col gap-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-label text-[10px] text-on-surface-variant uppercase">
+                <span className="font-label text-[13px] text-on-surface-variant uppercase">
                   {formatShortDate(m.date ?? "")}
                 </span>
-                <span className="text-[9px] font-bold text-on-surface-variant/40 uppercase">
+                <span className="text-[12px] font-bold text-on-surface-variant/40 uppercase">
                   {leagueName(m.league ?? "")}
                 </span>
               </div>
@@ -84,7 +84,7 @@ export function LatestResults() {
                 <span className={`font-headline font-bold ${resultColor}`}>
                   {resultLabel}
                 </span>
-                <span className="font-headline font-bold text-sm truncate">
+                <span className="font-headline font-bold text-base truncate">
                   <span
                     className={
                       draw ? "" : homeWon ? "text-[#00fe66]" : "text-[#ff7351]"
