@@ -32,7 +32,7 @@ export function FavoritePlayers() {
 
   if (favoritePlayers.length === 0) {
     return (
-      <section className="bg-surface-container-low rounded-lg border border-outline-variant/30 p-6 text-center text-sm text-on-surface-variant">
+      <section className="bg-surface-container-low rounded-lg border border-outline-variant/30 p-6 text-center text-base text-on-surface-variant">
         No favorite players selected.
       </section>
     );
@@ -56,7 +56,7 @@ export function FavoritePlayers() {
       <section>
         <Carousel
           title={
-            <h3 className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+            <h3 className="font-label text-[13px] uppercase tracking-widest text-on-surface-variant">
               Favorite Players
             </h3>
           }
