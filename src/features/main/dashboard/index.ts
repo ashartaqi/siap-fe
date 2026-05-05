@@ -38,4 +38,5 @@ export * from "./hooks/useUpdateDreamPlayer";
 export * from "./apis/deleteDreamPlayer";
 export * from "./hooks/useDeleteDreamPlayer";
 export * from "./hooks/useGetTeamByName";
+export * from "./hooks/useGetTeamsByNames";
 export * from "./hooks/useToggleFavoritePlayer";
