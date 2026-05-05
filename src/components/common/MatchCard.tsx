@@ -8,6 +8,7 @@ import { ViewVotesModal } from "./modals/ViewVotesModal";
 import { MatchCommentsModal } from "./modals/MatchCommentsModal";
 import { Match } from "@/features/main/football/types";
 import { useGetTeamByName, ITeamsResponse } from "@/features/main/dashboard";
+
 import { TeamDetailModal } from "./modals/TeamDetailModal";
 
 interface MatchCardProps {
@@ -19,6 +20,7 @@ interface MatchCardProps {
   aggregateHome?: number | null;
   aggregateAway?: number | null;
   winner?: string | null;
+  teamsCache?: Record<string, ITeamsResponse> | null;
 }
 
 export function MatchCard({
@@ -30,6 +32,7 @@ export function MatchCard({
   aggregateHome,
   aggregateAway,
   winner,
+  teamsCache,
 }: MatchCardProps) {
   const [showVoteModal, setShowVoteModal] = useState(false);
   const [showViewVotes, setShowViewVotes] = useState(false);
@@ -94,6 +97,7 @@ export function MatchCard({
             onTeamClick={setSelectedTeam}
             isWinner={winner === m.home_team}
             aggregate={aggregateHome}
+            teamsCache={teamsCache}
           />
           <TeamRow
             name={m.away_team}
@@ -111,6 +115,7 @@ export function MatchCard({
             isBlue={isBlue}
             isWinner={winner === m.away_team}
             aggregate={aggregateAway}
+            teamsCache={teamsCache}
           />
         </div>
 
@@ -222,6 +227,7 @@ function TeamRow({
   isBlue,
   isWinner,
   aggregate,
+  teamsCache,
 }: {
   name: string;
   score: string | number;
@@ -232,8 +238,12 @@ function TeamRow({
   isBlue?: boolean;
   isWinner?: boolean;
   aggregate?: number | null;
+  teamsCache?: Record<string, ITeamsResponse> | null;
 }) {
-  const { data: team } = useGetTeamByName(name);
+  const { data: fetchedTeam } = useGetTeamByName(name, {
+    enabled: teamsCache === undefined,
+  });
+  const team = teamsCache?.[name] ?? fetchedTeam;
 
   return (
     <div

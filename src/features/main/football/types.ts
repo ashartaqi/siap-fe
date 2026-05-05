@@ -14,6 +14,7 @@ export interface IFixturesPayload {
   status_filter?: string;
   home_team?: string;
   away_team?: string;
+  team?: string;
 }
 
 export interface IFormation {
