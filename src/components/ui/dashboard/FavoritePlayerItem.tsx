@@ -57,15 +57,15 @@ export function FavoritePlayerItem({
         >
           <div className="flex items-center justify-between gap-4 mb-4 pr-6">
             <div>
-              <h4 className="font-headline font-black text-lg uppercase mb-1 leading-tight break-words group-hover:text-[#00ff66] transition-colors">
+              <h4 className="font-headline font-black text-xl uppercase mb-1 leading-tight break-words group-hover:text-[#00ff66] transition-colors">
                 {player.short_name}
               </h4>
               <div className="flex items-center gap-2">
-                <p className="text-xs text-on-surface-variant uppercase truncate max-w-[160px]">
+                <p className="text-sm text-on-surface-variant uppercase truncate max-w-[160px]">
                   {player.positions?.join(" | ")} |{" "}
                   {player.club_name || "Free Agent"}
                 </p>
-                <span className="bg-primary-container text-on-primary text-[10px] font-bold px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(0,255,102,0.15)]">
+                <span className="bg-primary-container text-on-primary text-[13px] font-bold px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(0,255,102,0.15)]">
                   {player.overall?.toString().padStart(2, "0")} OVR
                 </span>
               </div>
@@ -86,7 +86,7 @@ export function FavoritePlayerItem({
           {/* Upcoming Fixtures for Player's Team */}
           {player.club_name && (
             <div className="mt-4 pt-4 border-t border-outline-variant/5">
-              <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-primary-container mb-3">
+              <p className="text-[12px] font-bold tracking-[0.2em] uppercase text-primary-container mb-3">
                 Team Schedule
               </p>
               <div className="space-y-2">
@@ -96,7 +96,7 @@ export function FavoritePlayerItem({
                     <div className="h-8 bg-surface-container-highest rounded" />
                   </div>
                 ) : upcomingFixes.length === 0 ? (
-                  <p className="text-[10px] text-on-surface-variant italic">
+                  <p className="text-[13px] text-on-surface-variant italic">
                     No upcoming matches scheduled.
                   </p>
                 ) : (
@@ -119,15 +119,15 @@ export function FavoritePlayerItem({
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <span
-                            className={`text-[8px] font-bold px-1 rounded ${isHome ? "bg-primary-container/20 text-[#00ff66]" : "bg-white/5 text-on-surface-variant"}`}
+                            className={`text-[11px] font-bold px-1 rounded ${isHome ? "bg-primary-container/20 text-[#00ff66]" : "bg-white/5 text-on-surface-variant"}`}
                           >
                             {isHome ? "H" : "A"}
                           </span>
-                          <span className="text-[11px] font-medium truncate">
+                          <span className="text-[14px] font-medium truncate">
                             vs {opp}
                           </span>
                         </div>
-                        <span className="text-[10px] text-on-surface-variant font-bold tabular-nums ml-2">
+                        <span className="text-[13px] text-on-surface-variant font-bold tabular-nums ml-2">
                           {date}
                         </span>
                       </div>

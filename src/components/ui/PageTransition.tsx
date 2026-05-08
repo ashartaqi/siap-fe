@@ -196,7 +196,7 @@ export function PageTransition() {
       <p
         style={{
           fontFamily: "'Bebas Neue', serif",
-          fontSize: 13,
+          fontSize: 19,
           letterSpacing: "0.35em",
           textTransform: "uppercase",
           color: config.accent,

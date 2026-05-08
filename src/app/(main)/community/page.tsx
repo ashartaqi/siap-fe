@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { MessageSquare } from "lucide-react";
 import {
   useGetChatMessages,
@@ -19,10 +19,13 @@ export default function CommunityPage() {
   const { mutate: sendMessage, isPending: isSending } = useSendChatMessage();
   const { data: currentUser } = useGetUser();
   const scrollRef = useScrollToBottom(messages);
+  const lastSentAt = useRef<number>(0);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || isSending) return;
+    const now = Date.now();
+    if (!message.trim() || isSending || now - lastSentAt.current < 2000) return;
+    lastSentAt.current = now;
     sendMessage(message, {
       onSuccess: () => {
         setMessage("");
