@@ -14,21 +14,21 @@ export function AuthLeftPanel({ label, title, children }: AuthLeftPanelProps) {
 
       {/* Brand */}
       <div className="flex items-center gap-3.5 mb-14 animate-[fadeUp_0.6s_ease_both]">
-        <div className="w-11 h-11 bg-[var(--auth-green)] flex items-center justify-center shrink-0 [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]">
+        <div className="w-12 h-12 bg-[var(--auth-green)] flex items-center justify-center shrink-0 [clip-path:polygon(50%_0%,100%_25%,100%_75%,50%_100%,0%_75%,0%_25%)]">
           <svg
             viewBox="0 0 24 24"
-            className="w-[22px] h-[22px] fill-[var(--auth-black)]"
+            className="w-[26px] h-[26px] fill-[var(--auth-black)]"
           >
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
         </div>
-        <div className="font-outfit font-black text-2xl tracking-[4px] text-[var(--auth-text)] uppercase">
+        <div className="font-outfit font-black text-[28px] tracking-[4px] text-[var(--auth-text)] uppercase">
           SI<span className="text-[var(--auth-green)]">A</span>P
         </div>
       </div>
 
       {/* Hero Label */}
-      <div className="font-outfit font-semibold text-[11px] tracking-[4px] uppercase text-[var(--auth-green)] mb-4 animate-[fadeUp_0.6s_0.1s_ease_both]">
+      <div className="font-outfit font-semibold text-[15px] tracking-[4px] uppercase text-[var(--auth-green)] mb-4 animate-[fadeUp_0.6s_0.1s_ease_both]">
         {label}
       </div>
 
