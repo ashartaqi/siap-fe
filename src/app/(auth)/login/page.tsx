@@ -79,7 +79,7 @@ export default function LoginPage() {
           </>
         }
       >
-        <p className="text-[15px] leading-[1.7] text-[var(--auth-muted)] max-w-[380px] mb-12">
+        <p className="text-[19px] leading-[1.7] text-[var(--auth-muted)] max-w-[380px] mb-12">
           Live scores, AI-powered predictions, fantasy teams, and deep analytics
           — all in one place for the serious sports fan.
         </p>
