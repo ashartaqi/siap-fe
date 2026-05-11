@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getPredictedFixtures } from "../apis/getPredictedFixtures";
 
-export const useGetPredictedFixtures = (limit = 10) =>
+export const useGetPredictedFixtures = (limit = 25) =>
   useQuery({
     queryKey: ["predicted-fixtures", limit],
     queryFn: () => getPredictedFixtures(limit),
