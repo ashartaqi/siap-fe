@@ -6,7 +6,7 @@ export const useGetChatMessages = () => {
   return useQuery({
     queryKey: ["chat-messages"],
     queryFn: getChatMessages,
-    refetchInterval: 3000,
+    refetchInterval: 1500,
     refetchIntervalInBackground: false,
   });
 };
