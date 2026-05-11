@@ -63,8 +63,8 @@
     --color-surface-2: #111111;
     --color-surface-3: #1A1A1A;
     --color-border: #1F2D25;
-    --color-text: #E8F5EE;
-    --color-text-muted: #6B8F77;
+    --color-text: #FFFFFF;
+    --color-text-muted: #8EB39D;
   }
 }
 
@@ -105,11 +105,11 @@
   --color-surface-container-highest: #242723;
   --color-on-primary-container: #005b1f;
   --color-on-primary-fixed-variant: #006624;
-  --color-on-background: #fcfcf8;
-  --color-on-surface-variant: #aaaba7;
+  --color-on-background: #ffffff;
+  --color-on-surface-variant: #e0e0e0;
   --color-inverse-primary: #006e27;
   --color-surface-container-lowest: #000000;
-  --color-on-surface: #fcfcf8;
+  --color-on-surface: #ffffff;
   --color-on-primary: #006523;
   --color-on-error-container: #ffd2c8;
   --color-primary-fixed-dim: #00ee5f;
@@ -176,14 +176,15 @@
     border-color: var(--border);
   }
 
+  html {
+    font-size: 18px;
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-on-background);
     @apply font-body;
-  }
-
-  html {
-    scroll-behavior: smooth;
   }
 
   /* Scrollbar */

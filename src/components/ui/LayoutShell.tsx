@@ -86,7 +86,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 bg-[var(--color-black)] px-3 py-1.5 rounded-full border border-[var(--color-neon)]/30">
             <Coins className="w-4 h-4 text-[var(--color-neon)]" />
-            <span className="text-[13px] font-bold text-[var(--color-text)]">
+            <span className="text-[16px] font-bold text-[var(--color-text)]">
               {user?.bb_balance ?? 0}{" "}
               <span className="text-[var(--color-neon)]">BB</span>
             </span>
@@ -116,12 +116,12 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
             <Coins className="w-5 h-5 text-[var(--color-neon)]" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
+            <span className="text-[13px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
               Balance
             </span>
-            <span className="text-lg font-display font-bold text-[var(--color-text)] -mt-1">
+            <span className="text-xl font-display font-bold text-[var(--color-text)] -mt-1">
               {user?.bb_balance ?? 0}{" "}
-              <span className="text-[var(--color-neon)] text-sm">BB</span>
+              <span className="text-[var(--color-neon)] text-base">BB</span>
             </span>
           </div>
         </div>
@@ -168,7 +168,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                   <>
                     <button
                       onClick={() => setExpandedItem(isExpanded ? null : label)}
-                      className={`group w-full flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} py-3 text-[13px] font-condensed font-semibold rounded-lg transition-all ${
+                      className={`group w-full flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} py-3 text-[18px] font-condensed font-semibold rounded-lg transition-all ${
                         active
                           ? "text-[var(--color-neon)] bg-[rgba(59,130,246,0.08)] border-l-2 border-[var(--color-neon)]"
                           : "text-[var(--color-text-muted)] hover:text-[var(--color-neon)] hover:bg-[rgba(59,130,246,0.08)]"
@@ -198,7 +198,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                             <Link
                               href={sub.href}
                               onClick={() => setIsMobileMenuOpen(false)}
-                              className={`block py-2 text-[11px] font-bold uppercase tracking-widest transition-colors ${
+                              className={`block py-2 text-[15px] font-bold uppercase tracking-widest transition-colors ${
                                 pathname === sub.href
                                   ? "text-[var(--color-neon)]"
                                   : "text-[var(--color-text-muted)] hover:text-[var(--color-neon)]"
@@ -216,7 +216,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
                     href={href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     title={isCollapsed ? label : undefined}
-                    className={`group flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} py-3 text-[13px] font-condensed font-semibold rounded-lg transition-all ${
+                    className={`group flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} py-3 text-[18px] font-condensed font-semibold rounded-lg transition-all ${
                       active
                         ? "text-[var(--color-neon)] bg-[rgba(59,130,246,0.08)] border-l-2 border-[var(--color-neon)]"
                         : "text-[var(--color-text-muted)] hover:text-[var(--color-neon)] hover:bg-[rgba(59,130,246,0.08)]"
@@ -241,7 +241,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
         <button
           onClick={handleLogout}
           title={isCollapsed ? "Logout" : undefined}
-          className={`group flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} w-full py-3 text-[13px] font-condensed font-semibold text-[#ff4444] hover:text-[#ff6666] hover:bg-[rgba(255,68,68,0.08)] rounded-lg border border-[rgba(255,68,68,0.2)] hover:border-[rgba(255,68,68,0.4)] transition-all`}
+          className={`group flex items-center ${isCollapsed ? "lg:justify-center" : "gap-3 px-4"} w-full py-3 text-[18px] font-condensed font-semibold text-[#ff4444] hover:text-[#ff6666] hover:bg-[rgba(255,68,68,0.08)] rounded-lg border border-[rgba(255,68,68,0.2)] hover:border-[rgba(255,68,68,0.4)] transition-all`}
         >
           <LogOut size={18} className="transition-colors shrink-0" />
           {(!isCollapsed || isMobileMenuOpen) && (

@@ -5,6 +5,7 @@ import {
   useGetPredictedFixtures,
   useGetUserVotes,
 } from "@/features/main/football";
+import { useGetTeamsByNames } from "@/features/main/dashboard";
 import { MatchCard } from "./MatchCard";
 
 export function FixturesStrip() {
@@ -14,10 +15,13 @@ export function FixturesStrip() {
 
   const votedFixtureIds = new Set(userVotes.map((v) => v.fixture_id));
 
+  const teamNames = scheduledMatches.flatMap((m) => [m.home_team, m.away_team]);
+  const { data: teamsCache = null } = useGetTeamsByNames(teamNames);
+
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="font-headline font-semibold text-sm uppercase tracking-widest text-on-surface-variant">
+        <h3 className="font-headline font-semibold text-base uppercase tracking-widest text-on-surface-variant">
           Scheduled
         </h3>
         {scheduledLoading ? (
@@ -30,7 +34,7 @@ export function FixturesStrip() {
             ))}
           </div>
         ) : scheduledMatches.length === 0 ? (
-          <p className="text-on-surface-variant text-sm">
+          <p className="text-on-surface-variant text-base">
             No scheduled fixtures right now.
           </p>
         ) : (
@@ -41,6 +45,7 @@ export function FixturesStrip() {
                 m={m}
                 variant="scheduled"
                 votedFixtureIds={votedFixtureIds}
+                teamsCache={teamsCache}
               />
             ))}
           </div>
