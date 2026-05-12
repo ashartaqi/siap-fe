@@ -40,7 +40,9 @@ axiosClient.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status !== 401 || original._retry) {
+    // Don't attempt token refresh for login requests or non-401 errors
+    const isLoginRequest = original.url?.includes("/user/login");
+    if (error.response?.status !== 401 || original._retry || isLoginRequest) {
       return Promise.reject(error);
     }
 

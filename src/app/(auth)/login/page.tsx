@@ -55,7 +55,7 @@ export default function LoginPage() {
           onError: (err) => {
             console.error("Login failed:", err);
             setGenericErr(
-              err.response?.data?.message ||
+              err.response?.data?.detail ||
                 "Login failed. Please check your credentials.",
             );
           },
