@@ -6,6 +6,7 @@ import {
   Table2,
   Shield,
   MessageSquare,
+  Sparkles,
   Swords,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -35,6 +36,12 @@ export const NAV_ITEMS: NavItem[] = [
       { href: "/battle/team", label: "DREAM TEAM" },
       { href: "/battle/player", label: "DREAM PLAYER" },
     ],
+  },
+  {
+    href: "/ask",
+    label: "ASK SIAP",
+    Icon: Sparkles,
+    iconHoverClass: "group-hover:stroke-[var(--color-neon)]",
   },
   {
     href: "/community",

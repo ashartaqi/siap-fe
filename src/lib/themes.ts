@@ -116,6 +116,18 @@ const THEME_LIME: PageTheme = {
     "radial-gradient(circle at 90% 10%, rgba(163,230,53,0.25) 0%, rgba(250,204,21,0.12) 40%, #060e00 80%)",
 };
 
+// Ask SIAP — deep pitch-night & scoreboard amber (RAG chat / query interface)
+const THEME_PITCH: PageTheme = {
+  "--color-black": "#0b1f1b",
+  "--color-surface": "#12281f",
+  "--color-border": "rgba(237,237,230,0.12)",
+  "--color-text": "#ededE6",
+  "--color-text-muted": "#9c9c93",
+  "--color-neon": "#e8b84b",
+  background:
+    "radial-gradient(ellipse at 50% 0%, rgba(232,184,75,0.08) 0%, #0b1f1b 60%)",
+};
+
 // Map path prefixes → themes (most specific first)
 const THEME_MAP: { prefix: string; theme: PageTheme }[] = [
   { prefix: "/ucl", theme: THEME_SAPPHIRE },
@@ -126,6 +138,7 @@ const THEME_MAP: { prefix: string; theme: PageTheme }[] = [
   { prefix: "/league-standings", theme: THEME_SILVER },
   { prefix: "/player", theme: THEME_ROSE },
   { prefix: "/team", theme: THEME_LIME },
+  { prefix: "/ask", theme: THEME_PITCH },
 ];
 
 export function getTheme(pathname: string): PageTheme {
